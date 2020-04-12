@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="/favicon.png" rel="icon">
+    <title>{{ title ?? 'Studio' }}</title>
+    {{ var min = (debug ? '' : '.min') }}
+    {{ var dist = (debug ? '' : '[hash].min') }}
+    {{ ['!/assets/css/default.css','!/assets/css/layout.css','/assets/css/']
+    |> bundleCss({ disk:!debug, out:`/css/lib.bundle${dist}.css` }) }}
+</head>
+<body>
+{{ 'buttons,/assets/css/default.css,/assets/css/layout.css' |> cssIncludes }}
+{{ 'svg-auth,app' |> cssIncludes |> svgFill('#212121') }}
+{{ 'svg-icons' |> cssIncludes |> svgFill('#4183B8') }}
+
+<style>
+.auth-warning { {{'auth'.svgBackgroundImageCss('#ffc107')}} }
+.help-muted { {{'help'.svgBackgroundImageCss('#999')}} }
+.history-muted { {{'history'.svgBackgroundImageCss('#999')}} }
+.bool-off-muted { {{'check_box_off'.svgBackgroundImageCss('#999')}} }
+.bool-on-muted { {{'check_box_on'.svgBackgroundImageCss('#999')}} }
+.db-dark { {{'db'.svgBackgroundImageCss('#6c757d')}} }
+.done-success { {{'done'.svgBackgroundImageCss('#28a745')}} }
+</style>
+
+<i hidden>{{ '/js/hot-fileloader.js' |> ifDebugIncludeScript }}</i>
+<script>NAV_ITEMS = {{ 'GetNavItems' |> execService |> json }}</script>
+<script>AUTH = {{ 'Authenticate' |> execService({ ifErrorReturn: "null" }) |> json }}</script>
+
+<noscript>
+    You need to enable JavaScript to run this app.
+</noscript>
+
+{{page}}
+
+{{ [
+`/lib/vue/dist/vue${min}.js`,
+`/lib/vue-router/dist/vue-router${min}.js`,
+'/lib/vue-class-component/vue-class-component.js',
+'/lib/vue-property-decorator/vue-property-decorator.umd.js',
+'/lib/@servicestack/client/servicestack-client.umd.js',
+'/lib/@servicestack/vue/servicestack-vue.umd.js',
+] |> bundleJs({ disk:!debug, out:`/js/lib.bundle${dist}.js` }) }}
+
+<script>
+    var ALIASES = {
+        'vue': { default: Vue },
+        'vue-router': { default: VueRouter },
+        'vue-class-component': VueClassComponent,
+        '@servicestack/vue': ServiceStackVue
+    };
+    var global = window;
+    window.exports = {};
+    window.require = function(name) {
+        return ALIASES[name] || exports[name] || window[name] || exports;
+    };
+</script>
+
+{{ [
+'content:/src/components/',
+'content:/src/shared/',
+'content:/src/',
+] |> bundleJs({ minify:!debug, cache:!debug, disk:!debug, out:`/js/bundle${dist}.js`, iife:true }) }}
+
+{{ scripts |> raw }}
+
+</body>
+</html>

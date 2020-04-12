@@ -1,0 +1,88 @@
+.grid-layout {
+    display: grid;
+    width: 100vw;
+    height: 100vh;
+    grid-template: [header-left] "head head" 80px [header-right]
+    [main-left]   "nav  main" 1fr  [main-right]
+                 / 300px 1fr;
+}
+header {
+    /*background-color: lime;*/
+    grid-area: head;
+}
+nav {
+    /*background-color: lightblue;*/
+    grid-area: nav;
+    padding-left: 10px;
+}
+main {
+    /*background-color: yellow;*/
+    grid-area: main;
+    overflow-x: auto;
+    margin-left: .5em;
+}
+footer {
+    /*background-color: red;*/
+    grid-column: foot;
+}
+#autoquery, #header, #left, #main {
+    /*border: 1px solid red;*/
+}
+#header {
+    position: fixed;
+    width: 100%;
+    height: 80px;
+    z-index: 1;
+}
+.autoquery-breadcrumbs .breadcrumb {
+    padding-left: 0;    
+}
+.query-form {
+    position: fixed;
+}
+.results-container {
+    margin: 50px 0 0 3px;
+}
+
+#filter {
+    position: fixed;
+    width: 300px;
+}
+.text-close {
+    cursor: pointer;
+    position: fixed;
+    margin: 10px 0 0 270px;
+    z-index: 2;
+}
+#sidebar {
+    position: fixed;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    margin: 40px 0 0 0;
+    padding: 0 0 130px 0;
+    height: 100%;
+    width: 300px;
+    /*z-index: 10;*/
+    /*top: 135px;*/
+    /*left: 5px;*/
+    /*bottom: 0;*/
+    /*-webkit-overflow-scrolling: touch;*/
+    /*-ms-overflow-style: none;*/
+    /*width: 300px;*/
+}
+#sidebar .inner {
+    /*min-width: 330px;*/
+    /*padding: 10px 0 0 10px;*/
+}
+#sidebar::-webkit-scrollbar {
+    width: 10px;
+    height: 15px;
+}
+#sidebar::-webkit-scrollbar-thumb {
+    background-color: #f8f8f8;
+}
+#sidebar .datamodel {
+}
+#sidebar .selected {
+    font-weight: bold;
+}

@@ -1,0 +1,213 @@
+body {
+}
+.navbar {
+    border-radius: 0;
+    background: #4183B8 !important;
+}
+a {
+    color: #4183B8;
+}
+a:hover {
+    text-decoration: none;
+}
+.sq-xs {width:12px;height:12px}.sq-sm {width:14px;height:14px}.sq-md {width:18px;height:18px}.sq-lg {width:24px;height:24px}.sq-2x {width:32px;height:32px}
+.sq-3x {width:48px;height:48px}.sq-4x {width:64px;height:64px}.sq-5x {width:80px;height:80px}.sq-6x {width:96px;height:96px}.sq-7x {width:112px;height:112px}
+.sq-8x {width:128px;height:128px}.sq-9x {width:144px;height:144px}.sq-10x {width:160px;height:160px}.sq-11x {width:180px;height:180px}
+.sq-12x {width:204px;height:204px}.sq-13x {width:232px;height:232px}.sq-14x {width:264px;height:264px}
+.form-check.form-control {
+    padding-left: 1.75rem;
+    height: auto;
+}
+span.nav-link {
+    cursor: pointer;
+}
+.fade-in {
+    animation: fadein 2s;
+    -moz-animation: fadein 2s; /* Firefox */
+    -webkit-animation: fadein 2s; /* Safari and Chrome */
+    -o-animation: fadein 2s; /* Opera */
+}
+.fadein-5s {
+    animation: fadein 5s;
+    -moz-animation: fadein 5s; /* Firefox */
+    -webkit-animation: fadein 5s; /* Safari and Chrome */
+    -o-animation: fadein 5s; /* Opera */
+}
+@keyframes fadein {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-moz-keyframes fadein { /* Firefox */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-webkit-keyframes fadein { /* Safari and Chrome */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-o-keyframes fadein { /* Opera */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+#sig {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    width: 100%;
+    text-align: center;
+    color: #7f8c8d;
+    font-size: .85rem;
+    z-index: 1;
+}
+.result {
+    margin: 10px;
+    color: #349268;
+}
+.site small {
+    color: #999;
+}
+.site {
+}
+.site .actions {
+    padding-left: 1em;
+}
+
+.stacktrace {
+    background: #f1f1f1;
+    padding: 1em;
+    margin: 1em 0 .5em 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    white-space: pre-wrap;
+}
+#authModal {
+    width: 700px;
+    height: 650px;
+    top: 170px;
+    left: 50%;
+    margin-left: -350px;
+}
+#authModal .modal-dialog {
+    max-width: 700px;
+    max-height: 600px;
+}
+#authModal .modal-body {
+    padding: 0;
+}
+#authModal iframe {
+    width: 700px;
+    height: 600px;
+    border: none;
+}
+.custom-select {
+    min-width: 130px;
+}
+.nav-query .nav-link {
+    padding: .4rem 1rem;
+    cursor: pointer;
+}
+.nav-query .nav-link:hover {
+    color: rgba(255,255,255,.8) !important;
+}
+.autoquery-breadcrumbs .breadcrumb {
+    background: none;
+}
+.autoquery-breadcrumbs .breadcrumb-item+.breadcrumb-item::before {
+    color: #ddd;
+}
+
+.results-none {
+    color: #6c757d;
+}
+table.results {
+    /*box-shadow: 0 1px 4px 0 rgba(0,0,0,0.14);*/
+    border: 1px solid #eee;
+    background: #fefefe;
+}
+table.results thead tr {
+    background: #eee;
+}
+table.results th {
+    text-align: left;
+    color: #757575;
+    font-size: 13px;
+    line-height: 18px;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+table.results td {
+    color: #212121;
+    font-size: 12px;
+    padding: 5px;
+    max-width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* IE/Edge */
+    user-select: none;           /* non-prefixed version, currently
+                                  not supported by any browser */
+}
+.auth {
+    color: #aaa;
+    pointer-events: none;
+    background-size: 22px 22px;
+    background-position: center right;
+    background-repeat: no-repeat;
+    display:block;
+}
+.lnk-help {
+    width: 20px;
+    height: 20px;
+    float: right;
+    margin: -1em .25em 0 0;
+    background-size: 18px 18px;
+    background-position: center right;
+    background-repeat: no-repeat;
+    display:block;
+}
+.has-auth .auth a {
+    pointer-events: auto;
+    color: #4183B8;
+}
+.svg-btn {
+    cursor: pointer;
+    user-select: none;
+}
+.results td {
+    background: #f9f9f9;
+}
+td.partial {
+    border: 1px dashed #ccc;
+    background: #fff;
+    cursor: default;
+}
+
+table.results td.editing {
+    background: #fff3cd;
+    padding: 0;
+}
+.modal-mini .close {
+    margin-top: -10px;
+    margin-left: -5px;
+}
