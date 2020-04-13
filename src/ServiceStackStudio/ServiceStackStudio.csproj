@@ -16,14 +16,14 @@
 
   <ItemGroup>
 <!--    <PackageReference Include="ServiceStack" Version="5.*" />-->
-    <ProjectReference Include="..\..\ServiceStack.OrmLite\src\ServiceStack.OrmLite\ServiceStack.OrmLite.Source.csproj" />
-    <ProjectReference Include="..\..\ServiceStack.Redis\src\ServiceStack.Redis\ServiceStack.Redis.Source.csproj" />
-    <ProjectReference Include="..\..\ServiceStack.Text\src\ServiceStack.Text\ServiceStack.Text.csproj" />
-    <ProjectReference Include="..\..\ServiceStack\src\ServiceStack.Client\ServiceStack.Client.Source.csproj" />
-    <ProjectReference Include="..\..\ServiceStack\src\ServiceStack.Common\ServiceStack.Common.Source.csproj" />
-    <ProjectReference Include="..\..\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
-    <ProjectReference Include="..\..\ServiceStack\src\ServiceStack.Server\ServiceStack.Server.Source.csproj" />
-    <ProjectReference Include="..\..\ServiceStack\src\ServiceStack\ServiceStack.Source.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack.Text\src\ServiceStack.Text\ServiceStack.Text.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack.OrmLite\src\ServiceStack.OrmLite\ServiceStack.OrmLite.Source.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack.Redis\src\ServiceStack.Redis\ServiceStack.Redis.Source.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack.Client\ServiceStack.Client.Source.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack.Common\ServiceStack.Common.Source.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack.Server\ServiceStack.Server.Source.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack\ServiceStack.Source.csproj" />
   </ItemGroup>
 
   <ItemGroup>
