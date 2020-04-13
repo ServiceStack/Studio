@@ -1,6 +1,6 @@
 using ServiceStack;
 
-namespace ServiceStackStudio.ServiceModel
+namespace Studio.ServiceModel
 {
     [Route("/hello")]
     [Route("/hello/{Name}")]

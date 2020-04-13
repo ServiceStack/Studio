@@ -6,7 +6,7 @@ using ServiceStack.Web;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
 
-namespace ServiceStackStudio
+namespace Studio
 {
     // Custom UserAuth Data Model with extended Metadata properties
     public class AppUser : UserAuth

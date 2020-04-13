@@ -4,9 +4,9 @@ using System.Linq;
 using ServiceStack;
 using ServiceStack.Script;
 using ServiceStack.DataAnnotations;
-using ServiceStackStudio.ServiceModel;
+using Studio.ServiceModel;
 
-namespace ServiceStackStudio.ServiceInterface
+namespace Studio.ServiceInterface
 {
     [Exclude(Feature.Metadata)]
     [FallbackRoute("/{PathInfo*}", Matches="AcceptsHtml")]

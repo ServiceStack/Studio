@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using ServiceStack;
 
-namespace ServiceStackStudio
+namespace Studio
 {
     public class ConfigureUi : IConfigureAppHost
     {

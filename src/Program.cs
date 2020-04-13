@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ServiceStack;
 
-namespace ServiceStackStudio
+namespace Studio
 {
     public class Program
     {

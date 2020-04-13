@@ -1,22 +1,13 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Funq;
 using ServiceStack;
-using ServiceStack.Configuration;
-using ServiceStackStudio.ServiceInterface;
-using ServiceStack.Script;
-using ServiceStack.Web;
-using System;
-using ServiceStack.Text;
-using ServiceStack.Logging;
-using ServiceStack.Validation;
+using Studio.ServiceInterface;
+using Studio.ServiceInterface;
 
-namespace ServiceStackStudio
+namespace Studio
 {
     public class Startup : ModularStartup
     {

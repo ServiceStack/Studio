@@ -5,13 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using ServiceStackStudio.ServiceModel;
+using Studio.ServiceModel;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Text;
 using ServiceStack.Web;
 
-namespace ServiceStackStudio.ServiceInterface
+namespace Studio.ServiceInterface
 {
     public class SiteInfo
     {

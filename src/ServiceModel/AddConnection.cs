@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
-using ServiceStackStudio.ServiceInterface;
+using Studio.ServiceInterface;
 using ServiceStack;
 using ServiceStack.Web;
 
-namespace ServiceStackStudio.ServiceModel
+namespace Studio.ServiceModel
 {
     public class AddConnection : IReturn<AddConnectionResponse>
     {
