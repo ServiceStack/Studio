@@ -25,6 +25,8 @@ export class PartialModal extends Vue {
     @Prop({ default: null }) type: MetadataType;
     @Prop({ default: null }) row: any;
     @Prop({ default: null }) field: string;
+    @Prop({ default: null }) x: number;
+    @Prop({ default: null }) y: number;
 
     value = '';
     

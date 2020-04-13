@@ -1,18 +1,16 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import {store, bus, client, exec, splitOnFirst} from '../../shared';
-import {MetaAuthProvider, MetadataType, SiteAuthenticate} from "../../shared/dtos";
-import {getField} from "@servicestack/client";
+import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate, SiteInvoke} from "../../shared/dtos";
+import {getField, normalizeKey} from "@servicestack/client";
 
 @Component({ template:
-`<div id="createModal" class="modal-mini" tabindex="-1" role="dialog" :style="modalStyle">
+`<div id="createModal" class="modal-inline" tabindex="-1" role="dialog" @keyup.esc="$emit('done')">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <div v-if="url">
-            <h5 class="modal-title">
-                Create {{type.name}}
-            </h5>
-        </div>
+        <h5 class="modal-title">
+            New {{type.name}}
+        </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('done')">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -20,14 +18,13 @@ import {getField} from "@servicestack/client";
       <div class="modal-body">
         <form @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
             <div class="form-group">
-                <error-summary :except="type.properties(x => x.name)" :responseStatus="responseStatus" />
+                <error-summary :except="type.properties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>        
             <div v-for="f in type.properties" :key="f.name" class="form-group">
-                <v-input type="text" :id="f.name" v-model="model[f.name]" placeholder="Password" :responseStatus="responseStatus" 
-                        label="Password"  help="6 characters or more" />                
+                <v-input type="text" :id="f.name" v-model="model[f.name]" :placeholder="f.name" :responseStatus="responseStatus" />                
             </div>
-            <div class="form-group">
-                <button class="btn btn-link" @click="$emit('done')">Close</button>
+            <div class="form-group text-right">
+                <span class="btn btn-link" @click="$emit('done')">Close</span>
                 <button type="submit" class="btn btn-lg btn-primary">Create {{type.name}}</button>
             </div>
         </form>
@@ -38,12 +35,13 @@ import {getField} from "@servicestack/client";
 })
 export class CreateModal extends Vue {
     @Prop({ default: null }) slug: string;
+    @Prop({ default: null }) op: MetadataOperationType;
     @Prop({ default: null }) type: MetadataType;
     @Prop({ default: null }) row: any;
     @Prop({ default: null }) field: string;
 
     value = '';
-    model = {};
+    model:{[id:string]:string} = {};
     
     loading = false;
     responseStatus = null;
@@ -54,11 +52,28 @@ export class CreateModal extends Vue {
 
     async mounted() {
         console.log('CreateModal.mounted()');
+        this.$nextTick(() => {
+           (document.querySelector('#createModal input:first-child') as HTMLInputElement)?.select(); 
+        });
     }
     
     async submit() {
         await exec(this, async () => {
-            console.log('CreateModal.submit()');
+            console.log('CreateModal.submit()', this);
+            
+            var args = [];
+            for (var k in this.model) {
+                args.push(k);
+                args.push(this.model[k]);
+            }
+
+            await client.post(new SiteInvoke({
+                slug:this.slug,
+                request:this.op.request.name,
+                args
+            }));
+            
+            this.$emit('done', this.model);
         });
     }
 }

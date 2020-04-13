@@ -6,7 +6,7 @@ import {humanize, normalizeKey, toDate, toDateFmt, getField} from "@servicestack
 import {Route} from "vue-router";
 
 @Component({ template:
-        `<a v-if="isUrl" :href="value" target="_blank">{{url}}</a>
+    `<a v-if="isUrl" :href="value" target="_blank">{{url}}</a>
      <i v-else-if="lower == 'false'" class="svg svg-md bool-off-muted"></i>
      <i v-else-if="lower == 'true'" class="svg svg-md bool-on-muted"></i>
      <span v-else>{{format}}</span>
@@ -21,15 +21,13 @@ class FormatString extends Vue {
 }
 Vue.component('format', FormatString);
 
-// <partial-modal v-if="isEditing(i,j)" :x="editingField[2]" :y="editingField[3]" :slug="slug" :type="type" :row="r" :field="f" @done="editingField=null" />
-
 @Component({ template:
 `<div v-if="results.length">
     <table class="results">
         <thead><tr class="noselect">
             <th v-if="crud.length">
                 <i v-if="!session" class="svg svg-btn svg-auth svg-md" title="Sign In to Edit" @click="bus.$emit('signin')" />
-                <i v-else-if="hasCrud(['Create'])" class="svg svg-btn svg-create svg-md" :title="createLabel" @click="showCreate=true"/>
+                <i v-else-if="createOp" class="svg svg-btn svg-create svg-md" :title="createLabel" @click="showCreate=true"/>
             </th>
             <th v-for="f in fieldNames" :key="f" :class="{partial:isPartialField(f)}">
                 {{ humanize(f) }}
@@ -49,7 +47,7 @@ Vue.component('format', FormatString);
                 <td v-for="(f,j) in fieldNames" :key="j" :title="renderValue(getField(r,f))" :class="{partial:isPartialField(f),editing:isEditing(i,j)}" 
                     @dblclick="isPartialField(f) && editField(i,j,$event)">                
                     <span v-if="i==0 && j==0 && (showCreate || showUpdate)">
-                        <create-modal :slug="slug" :type="type" :row="r" :field="f" />
+                        <create-modal v-if="createOp" :slug="slug" :op="createOp" :type="type" :row="r" :field="f" @done="handleDone('Create',$event)" />
                     </span>
                     <div v-else-if="isEditing(i,j)">                        
                         <input v-model="editingValue" class="form-control form-control-sm" 
@@ -96,9 +94,29 @@ export class Results extends Vue {
     get fields() { return this.type.properties; }
     get fieldNames() { return this.type.properties.map(x => x.name); }
     
-    isPartialField(f:string) {
-        return this.partialFields.indexOf(f) >= 0;
+    show(tab:string) {
+        this.showCreate = false; 
+        this.showUpdate = false;
+        
+        if (tab === 'Create') {
+            this.showCreate = true;
+        } else if (tab == 'Update') {
+            this.showUpdate = true;
+        }
     }
+    
+    handleDone(op:string,e:any) {
+        console.log('handleDone',op,e);
+        this.showCreate = false;
+        this.showCreate = false;
+        if (e) {
+            this.$emit('refresh');
+        }
+    }
+    
+    get createOp() { return this.crud.find(x => canAccess(this.slug, x) && x.request.implements.some(i => i.name == "ICreateDb`1")); }
+    
+    isPartialField(f:string) { return this.partialFields.indexOf(f) >= 0; }
     
     get partialFields():string[] {
         let propNames = this.crud.filter(x => canAccess(this.slug, x) && x.request.implements.some(i => i.name == "IPatchDb`1"))
@@ -110,7 +128,7 @@ export class Results extends Vue {
     
     hasCrud(actions:string[]) {
         var crudInterfaces = actions.map(x => `I${x}Db\`1`);
-        return this.crud.some(x => x.request.implements?.some(r => crudInterfaces.indexOf(r.name) >= 0));
+        return this.crud.some(x => canAccess(this.slug,x) && x.request.implements?.some(r => crudInterfaces.indexOf(r.name) >= 0));
     }
 
     humanize(s:string) { return humanize(s); }

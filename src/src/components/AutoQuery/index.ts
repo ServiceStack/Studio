@@ -111,7 +111,7 @@ export function log<T>(o:T) {
             </div>
             <error-view :responseStatus="responseStatus" class="mt-5" />
             <div v-if="model && response && !responseStatus" class="results-container">
-                <results :slug="slug" :results="results" :type="model" :crud="crudOperations" />
+                <results :slug="slug" :results="results" :type="model" :crud="crudOperations" @refresh="reset()" />
             </div>
         </main>
         

@@ -211,3 +211,12 @@ table.results td.editing {
     margin-top: -10px;
     margin-left: -5px;
 }
+.modal-inline {
+    display: block;
+    position: absolute;
+}
+.modal-inline .modal-dialog {
+    min-width: 500px;
+    margin: -12px 0 0 -31px;
+    white-space: normal;
+}

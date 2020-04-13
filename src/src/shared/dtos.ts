@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-04-13 00:52:29
+Date: 2020-04-14 05:51:21
 Version: 5.8
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -183,11 +183,22 @@ export class AutoQueryInfo
     public constructor(init?: Partial<AutoQueryInfo>) { (Object as any).assign(this, init); }
 }
 
+export class ValidationInfo
+{
+    public hasValidationSource?: boolean;
+    public hasValidationSourceAdmin?: boolean;
+    public serviceRoutes: { [index: string]: string[]; };
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<ValidationInfo>) { (Object as any).assign(this, init); }
+}
+
 export class PluginInfo
 {
     public loaded: string[];
     public auth: AuthInfo;
     public autoQuery: AutoQueryInfo;
+    public validation: ValidationInfo;
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<PluginInfo>) { (Object as any).assign(this, init); }
@@ -436,9 +447,9 @@ export class AuthenticateResponse implements IHasSessionId, IHasBearerToken
 
 export class GetAppMetadataResponse
 {
+    public responseStatus: ResponseStatus;
     public slug: string;
     public result: AppMetadata;
-    public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<GetAppMetadataResponse>) { (Object as any).assign(this, init); }
 }
