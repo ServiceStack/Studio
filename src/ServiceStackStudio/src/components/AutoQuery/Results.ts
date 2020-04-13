@@ -29,7 +29,7 @@ Vue.component('format', FormatString);
         <thead><tr class="noselect">
             <th v-if="crud.length">
                 <i v-if="!session" class="svg svg-btn svg-auth svg-md" title="Sign In to Edit" @click="bus.$emit('signin')" />
-                <i v-else-if="hasCrud(['Create'])" class="svg svg-btn svg-create svg-md" :title="createLabel" />
+                <i v-else-if="hasCrud(['Create'])" class="svg svg-btn svg-create svg-md" :title="createLabel" @click="showCreate=true"/>
             </th>
             <th v-for="f in fieldNames" :key="f" :class="{partial:isPartialField(f)}">
                 {{ humanize(f) }}
@@ -48,7 +48,10 @@ Vue.component('format', FormatString);
                 </td>
                 <td v-for="(f,j) in fieldNames" :key="j" :title="renderValue(getField(r,f))" :class="{partial:isPartialField(f),editing:isEditing(i,j)}" 
                     @dblclick="isPartialField(f) && editField(i,j,$event)">                
-                    <div v-if="isEditing(i,j)">
+                    <span v-if="i==0 && j==0 && (showCreate || showUpdate)">
+                        <create-modal :slug="slug" :type="type" :row="r" :field="f" />
+                    </span>
+                    <div v-else-if="isEditing(i,j)">                        
                         <input v-model="editingValue" class="form-control form-control-sm" 
                                @keyup.enter="saveEdit()" @keyup.esc="cancelEdit()" />                
                         <i v-if="dirty" class="svg done-success svg-md svg-btn" title="save" @click="saveEdit()" style="float:right;margin:-27px 5px 0 0;"/>
@@ -73,7 +76,9 @@ export class Results extends Vue {
 
     loading = false;
     responseStatus:any = null;
-    
+
+    showCreate = false;
+    showUpdate = false;
     editingValue = '';
     editingField:number[]|null = null;
 
