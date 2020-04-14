@@ -190,9 +190,12 @@ table.results td {
     pointer-events: auto;
     color: #4183B8;
 }
-.svg-btn {
+.svg-btn, .btn-link {
     cursor: pointer;
     user-select: none;
+}
+.btn-link {
+    text-decoration: none;
 }
 .results td {
     background: #f9f9f9;
@@ -219,4 +222,36 @@ table.results td.editing {
     min-width: 500px;
     margin: -12px 0 0 -31px;
     white-space: normal;
+}
+.results tr.selected td {
+    background: lightyellow;
+}
+.results tr.selected td.selected {
+    background: cornflowerblue;
+    color: #fff;
+}
+.modal-dialog {
+    color: #212121;
+}
+::placeholder {
+    color: #aaa !important;
+}
+.disabled.md {
+    font-size: 1rem;
+}
+.disabled.lg {
+    font-size: 1.25rem;
+}
+.confirm-delete {
+    float: left;
+    margin: 5px 0 0 20px;
+}
+.confirm-delete .form-check-input {
+    margin: 10px 0 0 -10px;
+}
+.confirm-delete .form-check-label {
+    font-size: 1rem;
+    margin: 0 .5em;
+    user-select: none;
+    cursor: pointer;
 }

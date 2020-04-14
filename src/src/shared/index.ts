@@ -1,5 +1,12 @@
 import Vue from 'vue';
-import {JsonServiceClient, GetNavItemsResponse, UserAttributes, IAuthSession, normalizeKey} from '@servicestack/client';
+import {
+    JsonServiceClient,
+    GetNavItemsResponse,
+    UserAttributes,
+    IAuthSession,
+    normalizeKey,
+    toDate
+} from '@servicestack/client';
 
 declare let global: any; // populated from package.json/jest
 
@@ -29,7 +36,7 @@ import {
     MetadataType,
     MetadataOperationType,
     GetSites,
-    GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs,
+    GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs, MetadataPropertyType,
 } from './dtos';
 
 export enum Roles {
@@ -110,6 +117,38 @@ export const toInvokeArgs = (args:{[id:string]:string}[]) => {
         to.push(o[k]);
     }));
     return to;
+};
+
+export const argsOf = (...args:any[]) => {
+    const to = [];
+    if (args.length % 2 != 0)
+        throw { message: `Invalid number of arguments in argsOf: ${JSON.stringify(args)}` };
+    for (let i=0; i<args.length; i+=2) {
+        to.push(args[i]);
+        to.push(args[i+1]);
+    }
+    return to;
+};
+
+const zero = () => 0;
+const types:{[id:string]:() => any} = {
+    DateTime: () => new Date().toISOString(),
+    Int32: zero,
+    Int64: zero,
+};
+
+export const defaultValue = (prop:MetadataPropertyType) => {
+    const f = types[prop.type];
+    return f ? f() : '';
+};
+
+export const editValue = (prop:MetadataPropertyType,value:any) => {
+    if (typeof value == 'string') {
+        if (value.startsWith('/Date(')) {
+            return toDate(value).toISOString();
+        }
+    }
+    return value;
 };
 
 export async function exec(c:any, fn:() => Promise<any>) {

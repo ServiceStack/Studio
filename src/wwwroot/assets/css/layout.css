@@ -7,22 +7,22 @@
                  / 300px 1fr;
 }
 header {
-    /*background-color: lime;*/
+    background: #fff;
     grid-area: head;
 }
 nav {
-    /*background-color: lightblue;*/
+    background: #fff;
     grid-area: nav;
     padding-left: 10px;
 }
 main {
-    /*background-color: yellow;*/
+    background: #fff;
     grid-area: main;
     overflow-x: auto;
     margin-left: .5em;
 }
 footer {
-    /*background-color: red;*/
+    background: #fff;
     grid-column: foot;
 }
 #autoquery, #header, #left, #main {
@@ -39,6 +39,8 @@ footer {
 }
 .query-form {
     position: fixed;
+    background: #fff;
+    width: 100%;
 }
 .results-container {
     margin: 50px 0 0 3px;
@@ -48,11 +50,19 @@ footer {
     position: fixed;
     width: 300px;
 }
+.close,.text-close {
+    user-select: none;
+}
 .text-close {
     cursor: pointer;
-    position: fixed;
-    margin: 10px 0 0 270px;
-    z-index: 2;
+    font-size: 1.5em;
+    color: #999;
+}
+.text-close:hover {
+    color: #666;
+}
+.text-close::after {
+    content:'\00D7';
 }
 #sidebar {
     position: fixed;

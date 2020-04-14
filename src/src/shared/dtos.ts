@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-04-14 05:51:21
+Date: 2020-04-14 20:33:52
 Version: 5.8
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -447,9 +447,9 @@ export class AuthenticateResponse implements IHasSessionId, IHasBearerToken
 
 export class GetAppMetadataResponse
 {
-    public responseStatus: ResponseStatus;
     public slug: string;
     public result: AppMetadata;
+    public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<GetAppMetadataResponse>) { (Object as any).assign(this, init); }
 }

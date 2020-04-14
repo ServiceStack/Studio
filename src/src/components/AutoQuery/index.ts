@@ -62,7 +62,7 @@ export function log<T>(o:T) {
         
         <nav v-if="app" id="left">
             <div id="filter">
-                <i v-if="txtFilter" class="svg-close svg-md text-close" title="clear" @click="txtFilter=''" />
+                <i v-if="txtFilter" class="text-close" style="position: fixed;margin:0 0 0 270px; z-index:2;" title="clear" @click="txtFilter=''"></i>
                 <v-input v-model="txtFilter" placeholder="filter" class="mb-2" inputClass="form-control" />
             </div>
             <div id="sidebar" class="">
@@ -99,9 +99,9 @@ export function log<T>(o:T) {
                             <button type="submit" :disabled="!selectedCondition" class="btn btn-outline-primary ml-1" title="Search">
                                 Search
                             </button>
-                            <i v-if="selectedCondition" class="svg-close svg-md svg-close ml-1 svg-btn" title="reset query" @click="resetQuery()" />
                         </td>
                         <td>
+                            <i v-if="selectedCondition" class="text-close ml-2" style="line-height:.5em" title="reset query" @click="resetQuery()"/>
                         </td>
                     </tr>
                     </table>
