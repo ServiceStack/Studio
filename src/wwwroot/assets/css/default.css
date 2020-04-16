@@ -1,5 +1,16 @@
 body {
 }
+::-webkit-scrollbar {
+    width: 10px;
+    height: 15px;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #f8f8f8;
+}
+.results-container::-webkit-scrollbar-thumb, footer::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+}
+
 .navbar {
     border-radius: 0;
     background: #4183B8 !important;
@@ -232,6 +243,7 @@ table.results td.editing {
 }
 .modal-dialog {
     color: #212121;
+    text-align: left;
 }
 ::placeholder {
     color: #aaa !important;
@@ -254,4 +266,89 @@ table.results td.editing {
     margin: 0 .5em;
     user-select: none;
     cursor: pointer;
+}
+
+
+#sidebar .inner {
+}
+#sidebar .datamodel {
+}
+#sidebar .selected {
+    font-weight: bold;
+}
+
+.close,.text-close {
+    user-select: none;
+}
+.text-close {
+    cursor: pointer;
+    font-size: 1.5em;
+    color: #999;
+}
+.text-close:hover {
+    color: #666;
+}
+.text-close::after {
+    content:'\00D7';
+}
+
+#footer .text-close {
+    position: fixed;
+    right: 10px;
+    margin: -10px 0 0 0;
+}
+#output-group {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+}
+#output-group .btn {
+    border-radius: 0;
+}
+
+.log-entry, .log-entry h4, .log-entry dl {
+    font-size: 13px;
+    line-height: 22px;
+}
+.log-entry {
+    padding: 5px 20px 5px 5px;
+}
+.log-entry h4, .log-entry dl, .log-entry dt, .log-entry dd {
+    margin: 0;
+    padding: 0;
+}
+.log-entry i {
+    font-style: normal;
+}
+.log-entry h4 i {
+    display: inline-block;
+    background: #f1f1f1;
+    width: 60px;
+    padding: 0 5px;
+    border-top: 1px solid #f1f1f1;
+    border-left: 1px solid #f1f1f1;
+}
+.log-entry h4 b {
+    display: inline-block;
+    padding: 0 10px;
+    border-top: 1px solid #f1f1f1;
+    border-right: 1px solid #f1f1f1;
+}
+.log-entry .body {
+    border: 1px solid #f1f1f1;
+    padding: 0 0 4px 0;
+}
+.log-entry dl {
+    border: 1px solid #f1f1f1;
+    display: inline-block;
+    margin: 4px 0 0 4px;
+}
+.log-entry dt {
+    border-bottom: 1px solid #f1f1f1;
+    font-weight: normal;
+    background: #f1f1f1;
+}
+.log-entry dt, .log-entry dd {
+    padding: 1px 4px;
 }

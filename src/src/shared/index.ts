@@ -36,7 +36,7 @@ import {
     MetadataType,
     MetadataOperationType,
     GetSites,
-    GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs, MetadataPropertyType,
+    GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs, MetadataPropertyType, SiteInvoke,
 } from './dtos';
 
 export enum Roles {
@@ -47,6 +47,10 @@ export interface IModelRef
 {
     name: string;
     namespace?: string;
+}
+
+export interface LogItem {
+    invoke:SiteInvoke;
 }
 
 // Shared state between all Components
@@ -63,6 +67,7 @@ interface State {
     appLoading: { [id:string]: boolean };
     appErrors: { [id:string]: ResponseStatus };
     appDirty: {[id:string]:boolean};
+    appLogEntries: {[id:string]:LogItem[]};
     getSite(slug:string): SiteSetting;
     getAppPrefs(slug:string): AppPrefs;
     getApp(slug:string): AppMetadata;
@@ -70,6 +75,7 @@ interface State {
     getType(slug:string,typeRef:IModelRef): MetadataType|null;
     hasPlugin(slug:string, plugin:string): boolean;
     isDirty(slug:string): boolean;
+    logInvoke(method:string,invoke:SiteInvoke): SiteInvoke;
 }
 export const store: State = {
     nav: global.NAV_ITEMS as GetNavItemsResponse,
@@ -82,6 +88,7 @@ export const store: State = {
     appLoading:{},
     appErrors:{},
     appDirty:{},
+    appLogEntries:{},
 
     getSite(slug:string) { return this.sites.filter(x => x.slug == slug)[0]; },
     getApp(slug:string) { return store.apps[slug]; },
@@ -99,6 +106,12 @@ export const store: State = {
     },
     isDirty(slug:string) {
         return store.appDirty[slug];
+    },
+    logInvoke(method:string,invoke:SiteInvoke) {
+        const existingEntries = this.appLogEntries[invoke.slug] || [];
+        const newEntries = [{ method, invoke }, ...existingEntries];
+        Vue.set(this.appLogEntries, invoke.slug, newEntries);
+        return invoke;
     }
 };
 
@@ -111,6 +124,10 @@ export const isCrud = (op:MetadataOperationType) => op.request.implements?.some(
 export const matchesType = (x:IModelRef,y:IModelRef) =>
     (x && y) && x.name == y.name && ((!x.namespace || !y.namespace) || x.namespace == y.namespace);
 
+export const collapsed = (slug:string, view:string) => {
+    return (store.getAppPrefs(slug).views || []).indexOf(view) == -1;
+};
+
 export const toInvokeArgs = (args:{[id:string]:string}[]) => {
     var to:string[] = [];
     if (!args) return to;
@@ -118,6 +135,14 @@ export const toInvokeArgs = (args:{[id:string]:string}[]) => {
         to.push(k);
         to.push(o[k]);
     }));
+    return to;
+};
+
+export const argsAsKvps = (args:string[]) => {
+    const to = [];
+    for (let i=0; i<args.length; i+=2) {
+        to.push({ key:args[i], value:args[i+1] });
+    }
     return to;
 };
 
@@ -131,6 +156,12 @@ export const argsOf = (...args:any[]) => {
     }
     return to;
 };
+
+export const getSiteInvoke = (invoke:SiteInvoke) => client.get(store.logInvoke('GET', invoke));
+export const postSiteInvoke = (invoke:SiteInvoke) => client.post(store.logInvoke('POST', invoke));
+export const putSiteInvoke = (invoke:SiteInvoke) => client.put(store.logInvoke('PUT', invoke));
+export const patchSiteInvoke = (invoke:SiteInvoke) => client.patch(store.logInvoke('PATCH', invoke));
+export const deleteSiteInvoke = (invoke:SiteInvoke) => client.delete(store.logInvoke('DELETE', invoke));
 
 const zero = () => 0, doubleZero = () => 0.0;
 const types:{[id:string]:() => any} = {

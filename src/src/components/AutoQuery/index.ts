@@ -11,15 +11,14 @@ import {
     isQuery,
     isCrud,
     matchesType,
-    toInvokeArgs
+    toInvokeArgs, collapsed, getSiteInvoke
 } from '../../shared';
 import {
     MetadataOperationType, MetadataPropertyType,
     MetadataType,
     MetadataTypes, SiteInvoke
 } from "../../shared/dtos";
-import { NoPlugin } from "../NoPlugin";
-import {Route} from "vue-router";
+import { Route } from "vue-router";
 
 export function log<T>(o:T) {
     console.log(o);
@@ -27,43 +26,41 @@ export function log<T>(o:T) {
 }
 
 @Component({ template:
-    `<section v-if="enabled" id="autoquery" class="grid-layout">
+    `<section v-if="enabled" id="autoquery" :class="['grid-layout',windowStyles]">
 
-        <header>
-            <div id="header">
-                <auth v-if="site && app" :slug="slug" class="float-right mr-1 mt-1" /> 
-                <h1 v-if="site">
-                    <nav class="autoquery-breadcrumbs">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item">
-                                <router-link to="/"><i class="svg-home svg-3x mb-1" title="home" /></router-link>
-                            </li>
-                            <li :class="['breadcrumb-item',{active:!model}]">
-                                <img v-if="site.iconUrl" :src="site.iconUrl" class="sq-3x mb-1">
-                                <i v-else class="svg db-dark svg-3x mb-1" 
-                                   /><router-link v-if="model" to="?">{{site.name}}</router-link>                
-                                <span v-else>{{site.name}}</span>
-                            </li>
-                            <li v-if="model" class="breadcrumb-item active">{{$route.query.op}}</li>
-                            <li v-if="loading"><i class="svg-loading svg-lg ml-2 mb-1" title="loading..." /></li>
-                        </ol>
-                    </nav>
-                </h1>
-                <h1 v-else-if="loading">
-                  <i class="fab fa-loading"></i>
-                  Loading...
-                </h1>
-                <div v-else-if="responseStatus">
-                    <error-summary :responseStatus="responseStatus" />
-                    <router-link to="/">&lt; back to sites</router-link>
-                </div>
+        <header id="header">
+            <h1 v-if="site">
+                <nav class="autoquery-breadcrumbs">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <router-link to="/"><i class="svg-home svg-3x mb-1" title="home" /></router-link>
+                        </li>
+                        <li :class="['breadcrumb-item',{active:!model}]">
+                            <img v-if="site.iconUrl" :src="site.iconUrl" class="sq-3x mb-1">
+                            <i v-else class="svg db-dark svg-3x mb-1" 
+                               /><router-link v-if="model" to="?">{{site.name}}</router-link>                
+                            <span v-else>{{site.name}}</span>
+                        </li>
+                        <li v-if="model" class="breadcrumb-item active">{{$route.query.op}}</li>
+                        <li v-if="loading"><i class="svg-loading svg-lg ml-2 mb-1" title="loading..." /></li>
+                    </ol>
+                </nav>
+            </h1>
+            <h1 v-else-if="loading">
+              <i class="fab fa-loading"></i>
+              Loading...
+            </h1>
+            <div v-else-if="responseStatus">
+                <error-summary :responseStatus="responseStatus" />
+                <router-link to="/">&lt; back to sites</router-link>
             </div>
+            <auth id="auth" v-if="site && app" :slug="slug" /> 
         </header>
         
         <nav v-if="app" id="left">
-            <div id="filter">
-                <i v-if="txtFilter" class="text-close" style="position: fixed;margin:0 0 0 270px; z-index:2;" title="clear" @click="txtFilter=''"></i>
-                <v-input v-model="txtFilter" placeholder="filter" class="mb-2" inputClass="form-control" />
+            <div id="nav-filter">
+                <i v-if="txtFilter" class="text-close" style="position:absolute;margin:0 0 0 265px;" title="clear" @click="txtFilter=''"></i>
+                <v-input v-model="txtFilter" id="txtFilter" placeholder="filter" inputClass="form-control" />
             </div>
             <div id="sidebar" class="">
                 <div class="pl-2">
@@ -75,7 +72,7 @@ export function log<T>(o:T) {
             </div>
         </nav>
         
-        <main v-if="app" class="pl-2">
+        <main v-if="app">
             <div v-if="model" class="query-form">
                 <div class="tab-content" id="v-pills-tabContent">
                   <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
@@ -115,6 +112,8 @@ export function log<T>(o:T) {
             </div>
         </main>
         
+        <Footer v-if="app" :slug="slug"/>
+        
     </section>
     <no-plugin v-else :slug="slug" plugin="autoquery" />`,
 })
@@ -136,8 +135,6 @@ export class AutoQuery extends Vue {
     
     get store() { return store; }
     
-    get errorHtml() { return NoPlugin.errorHtml(this.slug, 'autoquery'); }
-
     get slug() { return this.$route.params.slug as string; }
 
     get op() { return this.$route.query.op as string; }
@@ -146,6 +143,8 @@ export class AutoQuery extends Vue {
     async onUrlChange(newVal: Route) {
         await this.reset();
     }
+    
+    get windowStyles() { return collapsed(this.slug,'footer') ? 'collapse-footer' : ''; }
     
     async resetQuery() {
         const pk = this.model?.properties.find(x => x.isPrimaryKey) as MetadataPropertyType;
@@ -285,7 +284,7 @@ export class AutoQuery extends Vue {
         await exec(this, async () => {
             const request = new SiteInvoke({ slug:this.slug, request:this.op, args: invokeArgs});
             console.log('siteInvoke',request);
-            this.responseJson = await client.get(request);
+            this.responseJson = await getSiteInvoke(request);
             this.response = JSON.parse(this.responseJson);
             this.results = this.response && (this.response.results || this.response.Results);
             bus.$emit('appPrefs', { slug:this.slug, request:this.op, queryConditions:this.allConditions });

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-04-16 06:20:48
+Date: 2020-04-17 04:06:15
 Version: 5.8
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -43,6 +43,7 @@ export interface IPost
 export class AppPrefs
 {
     public queryConditions: { [index: string]: Condition[]; };
+    public views: string[];
 
     public constructor(init?: Partial<AppPrefs>) { (Object as any).assign(this, init); }
 }
@@ -153,6 +154,7 @@ export class AuthInfo
     public hasAuthRepository?: boolean;
     public includesRoles?: boolean;
     public includesOAuthTokens?: boolean;
+    public htmlRedirect: string;
     public authProviders: MetaAuthProvider[];
     public meta: { [index: string]: string; };
 

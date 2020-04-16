@@ -1,5 +1,15 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec, splitOnFirst, defaultValue, editValue} from '../../shared';
+import {
+    store,
+    bus,
+    client,
+    exec,
+    splitOnFirst,
+    defaultValue,
+    editValue,
+    deleteSiteInvoke,
+    postSiteInvoke
+} from '../../shared';
 import {
     MetaAuthProvider,
     MetadataOperationType,
@@ -98,7 +108,7 @@ export class EditModal extends Vue {
 
             let args:any[] = [pk!.name, pkValue];
             
-            await client.delete(new SiteInvoke({
+            await deleteSiteInvoke(new SiteInvoke({
                 slug:this.slug,
                 request:this.deleteOp.request.name,
                 args
@@ -118,7 +128,7 @@ export class EditModal extends Vue {
                 args.push(this.model[k]);
             }
 
-            await client.post(new SiteInvoke({
+            await postSiteInvoke(new SiteInvoke({
                 slug:this.slug,
                 request:this.updateOp.request.name,
                 args

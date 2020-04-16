@@ -2,99 +2,83 @@
     display: grid;
     width: 100vw;
     height: 100vh;
-    grid-template: [header-left] "head head" 80px [header-right]
-    [main-left]   "nav  main" 1fr  [main-right]
-                 / 300px 1fr;
+    grid-column-gap: 5px;
+    grid-template-columns: 300px 4fr  1fr;
+    grid-template-rows:    80px  auto 20%;
+    grid-template-areas:
+        "head head head"
+        "nav  main main"
+        "nav  foot foot"
+}
+.grid-layout.collapse-footer {
+    grid-template-areas:
+        "head head head"
+        "nav  main main"
+        "nav  main main"
 }
 header {
     background: #fff;
     grid-area: head;
+    display: grid;
+    grid-template-columns: auto 250px;
+    grid-template-areas: "breadcrumb auth"
 }
+#header {}
+#auth {
+    padding: 5px 5px 0 0;
+    text-align: right;
+}
+.autoquery-breadcrumbs {
+    padding-left: 0;
+    height: 80px;
+}
+
 nav {
     background: #fff;
     grid-area: nav;
-    padding-left: 10px;
+    padding: 0 2px 0 10px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 40px auto;
+    grid-template-areas:
+        "filter"
+        "sidebar"
 }
+#nav-filter {
+    grid-area: filter;
+    margin: 2px 0 0 0;
+}
+#sidebar {
+    grid-area: sidebar;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
 main {
     background: #fff;
     grid-area: main;
-    overflow-x: auto;
-    margin-left: .5em;
-}
-footer {
-    background: #fff;
-    grid-column: foot;
-}
-#autoquery, #header, #left, #main {
-    /*border: 1px solid red;*/
-}
-#header {
-    position: fixed;
-    width: 100%;
-    height: 80px;
-    z-index: 1;
-}
-.autoquery-breadcrumbs .breadcrumb {
-    padding-left: 0;    
+    padding: 2px;
+    grid-row-gap: 5px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 40px auto;
+    grid-template-areas:
+        "query"
+        "results"
 }
 .query-form {
-    position: fixed;
-    background: #fff;
-    width: 100%;
-    padding-top: 3px;
+    grid-area: query;
 }
 .results-container {
-    margin: 50px 0 0 3px;
+    grid-area: results;
+    overflow-y: scroll;
 }
 
-#filter {
-    position: fixed;
-    width: 300px;
-    padding-top: 3px;
-}
-.close,.text-close {
-    user-select: none;
-}
-.text-close {
-    cursor: pointer;
-    font-size: 1.5em;
-    color: #999;
-}
-.text-close:hover {
-    color: #666;
-}
-.text-close::after {
-    content:'\00D7';
-}
-#sidebar {
-    position: fixed;
+footer {
+    grid-column: foot;
     overflow-x: hidden;
     overflow-y: scroll;
-    margin: 43px 0 0 0;
-    padding: 0 0 130px 0;
-    height: 100%;
-    width: 300px;
-    /*z-index: 10;*/
-    /*top: 135px;*/
-    /*left: 5px;*/
-    /*bottom: 0;*/
-    /*-webkit-overflow-scrolling: touch;*/
-    /*-ms-overflow-style: none;*/
-    /*width: 300px;*/
 }
-#sidebar .inner {
-    /*min-width: 330px;*/
-    /*padding: 10px 0 0 10px;*/
-}
-#sidebar::-webkit-scrollbar {
-    width: 10px;
-    height: 15px;
-}
-#sidebar::-webkit-scrollbar-thumb {
-    background-color: #f8f8f8;
-}
-#sidebar .datamodel {
-}
-#sidebar .selected {
-    font-weight: bold;
+#footer {
+    border: 1px solid #eee;
 }

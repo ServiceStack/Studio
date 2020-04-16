@@ -1,5 +1,5 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec, splitOnFirst, defaultValue} from '../../shared';
+import {store, bus, client, exec, splitOnFirst, defaultValue, postSiteInvoke} from '../../shared';
 import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate, SiteInvoke} from "../../shared/dtos";
 
 @Component({ template:
@@ -72,7 +72,7 @@ export class CreateModal extends Vue {
                 args.push(this.model[k]);
             }
 
-            await client.post(new SiteInvoke({
+            await postSiteInvoke(new SiteInvoke({
                 slug:this.slug,
                 request:this.op.request.name,
                 args

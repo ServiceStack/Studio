@@ -4,7 +4,7 @@ import {SiteAuthenticate} from "../../shared/dtos";
 
 @Component({ template: 
     `<div v-if="enabled">
-        <button v-if="!session && !loading" @click="showAuthDialog=true" class="btn btn-block btn-outline-primary">
+        <button v-if="!session && !loading" @click="showAuthDialog=true" class="btn btn-outline-primary">
             Sign In
         </button>
         <span v-if="session">
@@ -40,11 +40,11 @@ import {SiteAuthenticate} from "../../shared/dtos";
                     <li class="nav-item" v-if="hasProvider('credentials')" @click="tab='credentials'">
                         <span :class="['nav-link', {active:activeTab('credentials')}]">Credentials</span>
                     </li>
-                    <li class="nav-item" v-if="hasBearer" @click="tab='bearer'">
-                        <span :class="['nav-link', {active:activeTab('bearer')}]">Token</span>
-                    </li>
                     <li class="nav-item" v-if="hasOAuth" @click="tab='oauth'">
                         <span :class="['nav-link', {active:activeTab('oauth')}]">OAuth</span>
+                    </li>
+                    <li class="nav-item" v-if="hasBearer" @click="tab='bearer'">
+                        <span :class="['nav-link', {active:activeTab('bearer')}]">Token</span>
                     </li>
                     <li class="nav-item" v-if="hasSession" @click="tab='session'">
                         <span :class="['nav-link', {active:activeTab('session')}]">Session</span>
@@ -57,11 +57,11 @@ import {SiteAuthenticate} from "../../shared/dtos";
                     <div v-if="hasProvider('credentials')" :class="['tab-pane', {active:activeTab('credentials')}]" id="pills-credentials" role="tabpanel">
                         <credentials :slug="slug" @done="showAuthDialog=false" />
                     </div>
-                    <div v-if="hasBearer" :class="['tab-pane', {active:activeTab('bearer')}]" id="pills-bearer" role="tabpanel">
-                        <bearer-token :slug="slug" @done="showAuthDialog=false" />
-                    </div>
                     <div v-if="hasOAuth" :class="['tab-pane', {active:activeTab('oauth')}]" id="pills-oauth" role="tabpanel">
                         <oauth-secret :slug="slug" :providers="oauthProviders" @done="showAuthDialog=false" />
+                    </div>
+                    <div v-if="hasBearer" :class="['tab-pane', {active:activeTab('bearer')}]" id="pills-bearer" role="tabpanel">
+                        <bearer-token :slug="slug" @done="showAuthDialog=false" />
                     </div>
                     <div v-if="hasSession" :class="['tab-pane', {active:activeTab('session')}]" id="pills-session" role="tabpanel">
                         <session-id :slug="slug" @done="showAuthDialog=false" />

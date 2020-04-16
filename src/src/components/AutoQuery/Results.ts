@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import {store, bus, exec, client, canAccess} from '../../shared';
+import {store, bus, exec, client, canAccess, patchSiteInvoke} from '../../shared';
 import {MetadataOperationType, MetadataType, SiteInvoke} from "../../shared/dtos";
 import {humanize, normalizeKey, toDate, toDateFmt, getField, toCamelCase} from "@servicestack/client";
 import {Route} from "vue-router";
@@ -32,7 +32,7 @@ Vue.component('format', FormatString);
             <th v-for="f in fieldNames" :key="f" :class="{partial:isPartialField(f)}">
                 {{ humanize(f) }}
             </th>
-            <th v-if="plugin.crudEvents">
+            <th v-if="enableEvents && plugin.crudEvents">
                 <i class="svg svg-history history-muted svg-md" title="Event History" />
             </th>
         </tr></thead>
@@ -63,7 +63,7 @@ Vue.component('format', FormatString);
                     </div>
                     <format v-else :value="getField(r,f)" />
                 </td>
-                <td v-if="plugin.crudEvents">
+                <td v-if="enableEvents && plugin.crudEvents">
                     <i class="svg svg-history history-muted svg-btn svg-md" title="Event History" />
                 </td>
             </tr>
@@ -102,6 +102,8 @@ export class Results extends Vue {
         this.resetEdit();
         this.show('');
     }
+    
+    get enableEvents() { return false; }
     
     get bus() { return bus; }
     get store() { return store; }
@@ -335,7 +337,7 @@ export class Results extends Vue {
                 args.push(updateField);
             }
             
-            await client.patch(new SiteInvoke({ 
+            await patchSiteInvoke(new SiteInvoke({ 
                 slug:this.slug, 
                 request:patchOp.request.name,
                 args

@@ -132,6 +132,7 @@ namespace Studio.ServiceModel
     public class AppPrefs
     {
         public Dictionary<string, List<Condition>> QueryConditions { get; set; }
+        public List<string> Views { get; set; }
     }
 
     public class GetSiteAppPrefs : IReturn<AppPrefs>
