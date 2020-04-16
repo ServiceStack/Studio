@@ -45,7 +45,7 @@ export class AuthModal extends Vue {
     
     get url() {
         const baseUrl = this.app.app.baseUrl;
-        const suffix = this.provider ? '/' + this.provider + '?continue=/auth&' : '?';
+        const suffix = this.provider ? '/' + this.provider + `?continue=${encodeURIComponent('/auth')}&` : '?';
         return `${baseUrl}/auth${suffix}noredirect`;
     }
 

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-04-14 20:33:52
+Date: 2020-04-16 06:20:48
 Version: 5.8
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -142,6 +142,7 @@ export class MetaAuthProvider
     public name: string;
     public type: string;
     public navItem: NavItem;
+    public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<MetaAuthProvider>) { (Object as any).assign(this, init); }
 }
@@ -183,11 +184,23 @@ export class AutoQueryInfo
     public constructor(init?: Partial<AutoQueryInfo>) { (Object as any).assign(this, init); }
 }
 
+export class ScriptMethodType
+{
+    public name: string;
+    public paramNames: string[];
+    public paramTypes: string[];
+    public returnType: string;
+
+    public constructor(init?: Partial<ScriptMethodType>) { (Object as any).assign(this, init); }
+}
+
 export class ValidationInfo
 {
     public hasValidationSource?: boolean;
     public hasValidationSourceAdmin?: boolean;
     public serviceRoutes: { [index: string]: string[]; };
+    public typeValidators: ScriptMethodType[];
+    public propertyValidators: ScriptMethodType[];
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<ValidationInfo>) { (Object as any).assign(this, init); }

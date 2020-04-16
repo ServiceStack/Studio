@@ -39,7 +39,7 @@ import {getField, normalizeKey} from "@servicestack/client";
                     <button class="btn btn-danger " @click.prevent="confirmDelete && deleteRow()" :disabled="!confirmDelete">Delete</button>
                 </span>
                 <span class="btn btn-link" @click="$emit('done')">Close</span>
-                <button type="submit" class="btn btn-primary btn-lg">Update {{type.name}}</button>
+                <button type="submit" class="btn btn-primary btn-lg">{{labelButton}}</button>
             </div>
         </form>
       </div>
@@ -67,6 +67,8 @@ export class EditModal extends Vue {
     get enabled() { return this.app && this.app.plugins.autoQuery; }
     
     get size() { return (this.updateOp || this.deleteOp)?.request.properties.length > 10 ? 'md' : 'lg'; }
+    
+    get labelButton() { return this.type.name.length <= 13 ? `Update ${this.type.name}` : `Update` }
 
     fieldValue(f:MetadataPropertyType) {
         return editValue(f,this.model[f.name]);

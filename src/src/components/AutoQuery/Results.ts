@@ -71,7 +71,16 @@ Vue.component('format', FormatString);
     </table>
     <error-view :responseStatus="responseStatus" />
 </div>
-<div v-else class="results-none">There were no results</div>`,
+<div v-else class="results-none">
+    <div class="ml-1 mb-3">
+        <span class="mr-1 d-inline-block">There were no results</span>        
+        <button v-if="session && createOp" class="btn btn-outline-primary btn-sm" :title="createLabel" @click="show('Create')"
+            >&plus;
+            New {{type.name}}
+        </button>
+    </div>
+    <create-modal v-if="session && createOp && showCreate" :slug="slug" :op="createOp" :type="type" @done="handleDone('Create',$event)" />
+</div>`,
 })
 export class Results extends Vue {
     @Prop({ default: '' }) public slug: string;
@@ -161,7 +170,7 @@ export class Results extends Vue {
                     : o + "";
     }
 
-    get createLabel() { return `Create ${this.type.name}` }
+    get createLabel() { return `New ${this.type.name}` }
     get updateLabel() { return `Edit ${this.type.name}` }
 
     getField(o: any, name: string) { return getField(o,name); }
@@ -265,7 +274,7 @@ export class Results extends Vue {
             if (!this.cancelBlur) {
                 this.cancelEdit();
             }
-        }, 100);
+        }, 300);
     }
     
     cancelEdit() {

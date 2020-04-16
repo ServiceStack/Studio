@@ -19,7 +19,7 @@ import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate,
             <div class="form-group">
                 <error-summary :except="type.properties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>        
-            <div v-for="f in type.properties" :key="f.name" class="form-group">
+            <div v-for="f in op.request.properties" :key="f.name" class="form-group">
                 <v-input type="text" :id="f.name" v-model="model[f.name]" :placeholder="f.name" :responseStatus="responseStatus" 
                          :inputClass="['form-control-' + size]" />                
             </div>

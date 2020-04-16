@@ -52,6 +52,8 @@ namespace Studio.ServiceInterface
                 to.BearerToken = request.AccessToken;
             else if (request.provider == "session")
                 to.SessionId = request.AccessToken;
+            else if (request.provider == "authsecret")
+                to.AuthSecret = request.AccessToken;
             return to;
         }
     }
@@ -68,6 +70,7 @@ namespace Studio.ServiceInterface
         static HashSet<string> nonProviders = new HashSet<string> {
             "bearer",
             "session",
+            "authsecret",
         };
 
         public object Any(SiteAuthenticate request)
@@ -98,6 +101,10 @@ namespace Studio.ServiceInterface
                     else if (request.provider == "session")
                     {
                         client.SetSessionId(request.AccessToken);
+                    }
+                    else if (request.provider == "authsecret")
+                    {
+                        client.Headers[HttpHeaders.XParamOverridePrefix + Keywords.AuthSecret] = request.AccessToken;
                     }
                 }
 

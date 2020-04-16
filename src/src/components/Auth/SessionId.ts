@@ -9,7 +9,7 @@ import {SiteAuthenticate} from "../../shared/dtos";
                 <error-summary except="token" :responseStatus="responseStatus" />
             </div>
             <div class="form-group">
-                <span v-if="!hideViewSession" class="btn btn-sm btn-outline-primary mb-2" @click="showSessionModal=!showSessionModal">view session</span>
+                <span v-if="!hideViewSession" class="btn btn-sm btn-outline-primary mb-2" @click="showSessionModal=!showSessionModal">session</span>
                 <auth-modal v-if="showSessionModal" :slug="slug" @done="modalDone" />
                 <v-input id="token" v-model="token" placeholder="Session Id" :responseStatus="responseStatus" 
                          help="Copy your Authenticated Session Id" />

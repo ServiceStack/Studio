@@ -1,11 +1,6 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import {store, bus, client, Authenticate, loadSite, exec} from '../../shared';
-import { redirect, Routes } from '../../shared/router';
 import {SiteAuthenticate} from "../../shared/dtos";
-
-const bearerProviders = 'jwt,apikey'.split(',');
-const authWithRequestProviders = 'jwt,apikey,basic,digest,identity'.split(',');
-const oAuthProviders = 'facebook,google,twitter,github,microsoftgraph,linkedin'.split(',');
 
 @Component({ template: 
     `<div v-if="enabled">
@@ -117,13 +112,13 @@ export class Auth extends Vue {
     
     hasProvider(provider:string) { return this.plugin.authProviders.some(x => x.name == provider); }
 
-    get hasBearer() { return this.plugin.authProviders.some(x => bearerProviders.indexOf(x.name) >= 0); }
+    get hasBearer() { return this.plugin.authProviders.some(x => x.type == 'Bearer'); }
 
-    get hasOAuth() { return this.plugin.authProviders.some(x => oAuthProviders.indexOf(x.name) >= 0); }
+    get hasOAuth() { return this.plugin.authProviders.some(x => x.type == 'oauth'); }
 
-    get oauthProviders() { return this.plugin.authProviders.filter(x => oAuthProviders.indexOf(x.name) >= 0); }
+    get oauthProviders() { return this.plugin.authProviders.filter(x => x.type == 'oauth'); }
 
-    get hasSession() { return this.plugin.authProviders.some(x => authWithRequestProviders.indexOf(x.name) == -1); }
+    get hasSession() { return this.plugin.authProviders.some(x => x.type == 'credentials' || x.type == 'oauth'); }
 
     get hasAuthSecret() { return this.plugin.hasAuthSecret; }
     

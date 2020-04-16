@@ -41,6 +41,7 @@ footer {
     position: fixed;
     background: #fff;
     width: 100%;
+    padding-top: 3px;
 }
 .results-container {
     margin: 50px 0 0 3px;
@@ -49,6 +50,7 @@ footer {
 #filter {
     position: fixed;
     width: 300px;
+    padding-top: 3px;
 }
 .close,.text-close {
     user-select: none;
@@ -68,7 +70,7 @@ footer {
     position: fixed;
     overflow-x: hidden;
     overflow-y: scroll;
-    margin: 40px 0 0 0;
+    margin: 43px 0 0 0;
     padding: 0 0 130px 0;
     height: 100%;
     width: 300px;

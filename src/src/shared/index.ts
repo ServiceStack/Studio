@@ -89,8 +89,10 @@ export const store: State = {
     getAppPrefs(slug:string) { return store.getSite(slug)?.prefs; },
     getType(slug:string,typeRef:IModelRef) {
         if (!typeRef) return null;
-        const ret = store.appTypes[slug]; 
-        return ret && ret[typeRef.namespace + '.' + typeRef.name] || ret['.' + typeRef.name]; 
+        const siteTypes = store.appTypes[slug];
+        const ret = siteTypes && siteTypes[typeRef.namespace + '.' + typeRef.name] || siteTypes['.' + typeRef.name];
+        if (!ret) console.log('Could not find type', typeRef.namespace, typeRef.name);
+        return ret;
     },
     hasPlugin(slug:string, plugin:string) { 
         return store.getSite(slug)?.plugins?.indexOf(plugin) >= 0; 
@@ -130,11 +132,13 @@ export const argsOf = (...args:any[]) => {
     return to;
 };
 
-const zero = () => 0;
+const zero = () => 0, doubleZero = () => 0.0;
 const types:{[id:string]:() => any} = {
-    DateTime: () => new Date().toISOString(),
-    Int32: zero,
-    Int64: zero,
+    Byte: zero, Int16: zero, Int32: zero, Int64: zero, SByte: zero, UInt16: zero, UInt32: zero, UInt64: zero,
+    Double: doubleZero,
+    Single: doubleZero,
+    DateTime: () => new Date().toISOString(), DateTimeOffset: () => new Date().toISOString(),
+    TimeSpan: () => '00:00:00',
 };
 
 export const defaultValue = (prop:MetadataPropertyType) => {

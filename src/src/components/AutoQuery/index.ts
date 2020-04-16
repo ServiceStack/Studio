@@ -67,7 +67,7 @@ export function log<T>(o:T) {
             </div>
             <div id="sidebar" class="">
                 <div class="pl-2">
-                    <div v-for="op in accessibleAutoQueryTables" :key="typeKey(op.dataModel)" 
+                    <div v-for="op in accessibleAutoQueryTables" :key="typeKey(op.request)" 
                         :class="['datamodel',{selected:matchesType(op.dataModel,model)}]" :title="op.dataModel?.name">
                         <router-link :to="{ query: { op:op.request.name } }">{{op.dataModel?.name}}</router-link>
                     </div>
@@ -160,6 +160,7 @@ export class AutoQuery extends Vue {
     }
     
     async reset() {
+        console.log('reset', this.op, this.modelRef, this.model);
         this.responseStatus = null;
         this.responseJson = '';
         const pk = this.model?.properties.find(x => x.isPrimaryKey) as MetadataPropertyType;

@@ -3,8 +3,6 @@ import {store, bus, client, exec} from '../../shared';
 import {MetaAuthProvider, SiteAuthenticate} from "../../shared/dtos";
 import {SessionId} from "./SessionId";
 
-const allowsOAuthInIFrame = ['facebook','github'];
-
 @Component({ template: 
     `<div v-if="enabled">
         <form ref="form" @submit.prevent="" :class="{ error:responseStatus, loading }" >
@@ -57,7 +55,7 @@ export class OAuthSecret extends Vue {
     tokenProvider = '';
     token = '';
     
-    get iframeProviders() { return this.providers.filter(x => allowsOAuthInIFrame.indexOf(x.name) >= 0); }
+    get iframeProviders() { return this.providers.filter(x => x.meta && x.meta.allows?.indexOf('embed') >= 0); }
     
     get oauthModalProvider() { return this.showOAuthModal === 'session' ? '' : this.showOAuthModal; }
     
