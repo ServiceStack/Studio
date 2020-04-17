@@ -124,6 +124,10 @@ span.nav-link {
     height: 600px;
     border: none;
 }
+#eventsModal {
+    right: 10px;
+}
+
 .custom-select {
     min-width: 130px;
 }
@@ -339,6 +343,7 @@ table.results td.editing {
     margin: -2px 0 0 0;
 }
 .log-entry dl {
+    vertical-align: top;
     border: 1px solid #f1f1f1;
     display: inline-block;
     margin: 4px 0 0 4px;

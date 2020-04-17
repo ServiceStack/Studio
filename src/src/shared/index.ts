@@ -5,7 +5,7 @@ import {
     UserAttributes,
     IAuthSession,
     normalizeKey,
-    toDate
+    toDate, getField
 } from '@servicestack/client';
 
 declare let global: any; // populated from package.json/jest
@@ -74,6 +74,7 @@ interface State {
     getAppPrefs(slug:string): AppPrefs;
     getApp(slug:string): AppMetadata;
     getSession(slug:string): IAuthSession;
+    hasRole(slug:string,role:string):boolean;
     getType(slug:string,typeRef:IModelRef): MetadataType|null;
     hasPlugin(slug:string, plugin:string): boolean;
     isDirty(slug:string): boolean;
@@ -95,6 +96,10 @@ export const store: State = {
     getSite(slug:string) { return this.sites.filter(x => x.slug == slug)[0]; },
     getApp(slug:string) { return store.apps[slug]; },
     getSession(slug:string) { return store.appSessions[slug]; },
+    hasRole(slug:string, role:string) {
+        const session = this.getSession(slug);
+        return role && session && session.roles && session.roles.indexOf(role) >= 0 || false;
+    },
     getAppPrefs(slug:string) { return store.getSite(slug)?.prefs; },
     getType(slug:string,typeRef:IModelRef) {
         if (!typeRef) return null;
@@ -191,6 +196,11 @@ export const editValue = (prop:MetadataPropertyType,value:any) => {
         }
     }
     return value;
+};
+
+export const getId = (type:MetadataType, row:any) => {
+    const pk = type.properties.find(x => x.isPrimaryKey);
+    return pk && getField(row, pk.name);
 };
 
 export async function exec(c:any, fn:() => Promise<any>) {

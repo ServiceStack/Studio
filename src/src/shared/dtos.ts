@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-04-17 04:06:15
+Date: 2020-04-18 06:59:38
 Version: 5.8
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -179,6 +179,8 @@ export class AutoQueryInfo
     public async?: boolean;
     public orderByPrimaryKey?: boolean;
     public crudEvents?: boolean;
+    public crudEventsServices?: boolean;
+    public accessRole: string;
     public namedConnection: string;
     public viewerConventions: AutoQueryConvention[];
     public meta: { [index: string]: string; };
@@ -203,9 +205,21 @@ export class ValidationInfo
     public serviceRoutes: { [index: string]: string[]; };
     public typeValidators: ScriptMethodType[];
     public propertyValidators: ScriptMethodType[];
+    public accessRole: string;
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<ValidationInfo>) { (Object as any).assign(this, init); }
+}
+
+export class SharpPagesInfo
+{
+    public apiPath: string;
+    public scriptAdminRole: string;
+    public metadataDebugAdminRole: string;
+    public metadataDebug?: boolean;
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<SharpPagesInfo>) { (Object as any).assign(this, init); }
 }
 
 export class PluginInfo
@@ -214,6 +228,7 @@ export class PluginInfo
     public auth: AuthInfo;
     public autoQuery: AutoQueryInfo;
     public validation: ValidationInfo;
+    public sharpPages: SharpPagesInfo;
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<PluginInfo>) { (Object as any).assign(this, init); }
@@ -401,6 +416,90 @@ export class AppMetadata
     public constructor(init?: Partial<AppMetadata>) { (Object as any).assign(this, init); }
 }
 
+// @DataContract
+export class QueryBase
+{
+    // @DataMember(Order=1, EmitDefaultValue=true)
+    public skip?: number;
+
+    // @DataMember(Order=2, EmitDefaultValue=true)
+    public take?: number;
+
+    // @DataMember(Order=3, EmitDefaultValue=true)
+    public orderBy: string;
+
+    // @DataMember(Order=4, EmitDefaultValue=true)
+    public orderByDesc: string;
+
+    // @DataMember(Order=5, EmitDefaultValue=true)
+    public include: string;
+
+    // @DataMember(Order=6, EmitDefaultValue=true)
+    public fields: string;
+
+    // @DataMember(Order=7, EmitDefaultValue=true)
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<QueryBase>) { (Object as any).assign(this, init); }
+}
+
+export class QueryDb<T> extends QueryBase
+{
+
+    public constructor(init?: Partial<QueryDb<T>>) { super(init); (Object as any).assign(this, init); }
+}
+
+// @DataContract
+export class CrudEvent
+{
+    // @DataMember(Order=1, EmitDefaultValue=true)
+    public id: number;
+
+    // @DataMember(Order=2, EmitDefaultValue=true)
+    public eventType: string;
+
+    // @DataMember(Order=3, EmitDefaultValue=true)
+    public model: string;
+
+    // @DataMember(Order=4, EmitDefaultValue=true)
+    public modelId: string;
+
+    // @DataMember(Order=5, EmitDefaultValue=true)
+    public eventDate: string;
+
+    // @DataMember(Order=6, EmitDefaultValue=true)
+    public rowsUpdated?: number;
+
+    // @DataMember(Order=7, EmitDefaultValue=true)
+    public requestType: string;
+
+    // @DataMember(Order=8, EmitDefaultValue=true)
+    public requestBody: string;
+
+    // @DataMember(Order=9, EmitDefaultValue=true)
+    public userAuthId: string;
+
+    // @DataMember(Order=10, EmitDefaultValue=true)
+    public userAuthName: string;
+
+    // @DataMember(Order=11, EmitDefaultValue=true)
+    public remoteIp: string;
+
+    // @DataMember(Order=12, EmitDefaultValue=true)
+    public urn: string;
+
+    // @DataMember(Order=13, EmitDefaultValue=true)
+    public refId?: number;
+
+    // @DataMember(Order=14, EmitDefaultValue=true)
+    public refIdStr: string;
+
+    // @DataMember(Order=15, EmitDefaultValue=true)
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<CrudEvent>) { (Object as any).assign(this, init); }
+}
+
 export class Condition
 {
     public searchField: string;
@@ -484,6 +583,27 @@ export class HelloResponse
     public result: string;
 
     public constructor(init?: Partial<HelloResponse>) { (Object as any).assign(this, init); }
+}
+
+// @DataContract
+export class QueryResponse<T>
+{
+    // @DataMember(Order=1, EmitDefaultValue=true)
+    public offset: number;
+
+    // @DataMember(Order=2, EmitDefaultValue=true)
+    public total: number;
+
+    // @DataMember(Order=3, EmitDefaultValue=true)
+    public results: T[];
+
+    // @DataMember(Order=4, EmitDefaultValue=true)
+    public meta: { [index: string]: string; };
+
+    // @DataMember(Order=5, EmitDefaultValue=true)
+    public responseStatus: ResponseStatus;
+
+    public constructor(init?: Partial<QueryResponse<T>>) { (Object as any).assign(this, init); }
 }
 
 // @DataContract
@@ -671,6 +791,24 @@ export class Hello implements IReturn<HelloResponse>
     public constructor(init?: Partial<Hello>) { (Object as any).assign(this, init); }
     public createResponse() { return new HelloResponse(); }
     public getTypeName() { return 'Hello'; }
+}
+
+// @Route("/crudevents/{Model}")
+// @DataContract
+export class GetCrudEvents extends QueryDb<CrudEvent> implements IReturn<QueryResponse<CrudEvent>>
+{
+    // @DataMember(Order=1, EmitDefaultValue=true)
+    public authSecret: string;
+
+    // @DataMember(Order=2, EmitDefaultValue=true)
+    public model: string;
+
+    // @DataMember(Order=3, EmitDefaultValue=true)
+    public id: string;
+
+    public constructor(init?: Partial<GetCrudEvents>) { super(init); (Object as any).assign(this, init); }
+    public createResponse() { return new QueryResponse<CrudEvent>(); }
+    public getTypeName() { return 'GetCrudEvents'; }
 }
 
 // @Route("/auth")

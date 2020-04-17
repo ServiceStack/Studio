@@ -11,7 +11,7 @@ import {
     isQuery,
     isCrud,
     matchesType,
-    toInvokeArgs, collapsed, getSiteInvoke, debug, log
+    toInvokeArgs, collapsed, getSiteInvoke, debug, log, postSiteInvoke
 } from '../../shared';
 import {
     MetadataOperationType, MetadataPropertyType,
@@ -19,6 +19,7 @@ import {
     MetadataTypes, SiteInvoke
 } from "../../shared/dtos";
 import { Route } from "vue-router";
+import {getField} from "@servicestack/client";
 
 @Component({ template:
     `<section v-if="enabled" id="autoquery" :class="['grid-layout',windowStyles]">
@@ -102,7 +103,7 @@ import { Route } from "vue-router";
                 </div>
             </div>
             <div v-if="model && response && !responseStatus" class="results-container">
-                <results :slug="slug" :results="results" :type="model" :crud="crudOperations" @refresh="reset()" />
+                <results :slug="slug" :results="results" :type="model" :crud="crudOperations" :eventIds="eventIds" @refresh="reset()" />
             </div>
             <div v-else-if="responseStatus"><error-view :responseStatus="responseStatus" class="mt-5" /></div>
         </main>
@@ -124,6 +125,7 @@ export class AutoQuery extends Vue {
     responseJson = '';
     response:any = null;
     results:any[] = [];
+    eventIds:string[]|null = null;
 
     loading = false;
     responseStatus = null;
@@ -180,6 +182,8 @@ export class AutoQuery extends Vue {
     get plugin() { return store.getApp(this.slug)?.plugins.autoQuery; }
 
     get enabled() { return this.app && store.hasPlugin(this.slug, 'autoquery'); }
+    
+    get enableEvents() { return this.plugin?.crudEventsServices && this.store.hasRole(this.slug, this.plugin.accessRole); }
     
     get modelRef() { return (this.api?.operations.find(x => x.request.name === this.$route.query.op) as MetadataOperationType)?.dataModel; }
 
@@ -270,6 +274,7 @@ export class AutoQuery extends Vue {
             return await this.search(toInvokeArgs(searchArgs));
         });
     }
+    
     async search(invokeArgs:string[]) {
         if (!this.op) return;
         await exec(this, async () => {
@@ -279,7 +284,26 @@ export class AutoQuery extends Vue {
             this.response = JSON.parse(this.responseJson);
             this.results = this.response && (this.response.results || this.response.Results);
             bus.$emit('appPrefs', { slug:this.slug, request:this.op, queryConditions:this.allConditions });
+
+            await this.loadEvents();
         });
+    }
+    
+    async loadEvents() {
+        if (!this.enableEvents) return;
+        
+        const pk = this.model?.properties.find(x => x.isPrimaryKey);
+        var pkValues = pk != null ? this.results.map(x => getField(x, pk.name)).filter(x => x != null) : [];
+        if (pkValues.length == 0) return;
+
+        const ids = pkValues.join(',');
+        const response = await postSiteInvoke(new SiteInvoke({
+            slug:this.slug,
+            request:'CheckCrudEvents',
+            args:['model',this.model!.name,'ids',ids]
+        }));
+        const obj = JSON.parse(response);
+        this.eventIds = obj.results;
     }
 
     isValidCondition() {

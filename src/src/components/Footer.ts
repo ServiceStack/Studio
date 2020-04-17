@@ -16,7 +16,7 @@ import {appendQueryString, combinePaths} from "@servicestack/client";
                     <div v-if="x.invoke.args.length" class="body">
                         <dl v-for="x in kvps(x.invoke.args)">
                             <dt>{{x.key}}</dt>
-                            <dd :title="x.value">{{x.value}}</dd>
+                            <dd v-if="x.value!=''" :title="x.value">{{x.value}}</dd>
                         </dl>
                     </div>
                 </div>

@@ -57,6 +57,9 @@ namespace Studio
             Plugins.Add(new SessionFeature());    // store client auth in session 
             
             Plugins.Add(new SharpPagesFeature()); // enable server-side rendering, see: https://sharpscript.net/docs/sharp-pages
+
+            //generate types
+            RegisterService<GetCrudEventsService>("/crudevents/{Model}");
             
             ConnectionServices.LoadAppSettings();
             //Plugins.Add(new ValidationFeature());

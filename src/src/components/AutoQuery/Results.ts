@@ -1,8 +1,8 @@
 import Vue from 'vue';
-import { Component, Prop, Watch } from 'vue-property-decorator';
-import {store, bus, exec, client, canAccess, patchSiteInvoke, log} from '../../shared';
+import {Component, Prop, Watch} from 'vue-property-decorator';
+import {bus, canAccess, exec, getId, log, patchSiteInvoke, store} from '../../shared';
 import {MetadataOperationType, MetadataType, SiteInvoke} from "../../shared/dtos";
-import {humanize, normalizeKey, toDate, toDateFmt, getField, toCamelCase} from "@servicestack/client";
+import {getField, humanize, normalizeKey, toCamelCase, toDateFmt} from "@servicestack/client";
 import {Route} from "vue-router";
 
 @Component({ template:
@@ -32,7 +32,7 @@ Vue.component('format', FormatString);
             <th v-for="f in fieldNames" :key="f" :class="{partial:isPartialField(f)}">
                 {{ humanize(f) }}
             </th>
-            <th v-if="enableEvents && plugin.crudEvents">
+            <th v-if="enableEvents">
                 <i class="svg svg-history history-muted svg-md" title="Event History" />
             </th>
         </tr></thead>
@@ -47,8 +47,7 @@ Vue.component('format', FormatString);
                 </td>
                 <td v-for="(f,j) in fieldNames" :key="j" :title="renderValue(getField(r,f))" 
                     :class="{partial:isPartialField(f),editing:isEditingField(i,j), selected:selectedCell(i,j) }" 
-                    @click="selectField(i,j)" @dblclick="isPartialField(f) && editField(i,j)"
-                >                
+                    @click="selectField(i,j)" @dblclick="isPartialField(f) && editField(i,j)">                
                     <span v-if="i==0 && j==0 && showCreate">
                         <create-modal v-if="createOp" :slug="slug" :op="createOp" :type="type" @done="handleDone('Create',$event)" />
                     </span>
@@ -63,8 +62,11 @@ Vue.component('format', FormatString);
                     </div>
                     <format v-else :value="getField(r,f)" />
                 </td>
-                <td v-if="enableEvents && plugin.crudEvents">
-                    <i class="svg svg-history history-muted svg-btn svg-md" title="Event History" />
+                <td v-if="enableEvents">
+                    <span v-if="selectedRow(i) && showEvents">
+                        <events-modal :slug="slug" :type="type" :id="getId(r)" @done="handleDone('Events')" />                    
+                    </span>
+                    <i v-if="hasEvent(r)" class="svg svg-history history-muted svg-btn svg-md" title="Event History" @click="show('Events',i)" />
                 </td>
             </tr>
         </tbody>
@@ -85,6 +87,7 @@ Vue.component('format', FormatString);
 export class Results extends Vue {
     @Prop({ default: '' }) public slug: string;
     @Prop() public results: any[];
+    @Prop() public eventIds: string[];
     @Prop() public type: MetadataType;
     @Prop({ default:[] }) public crud: MetadataOperationType[];
 
@@ -92,43 +95,48 @@ export class Results extends Vue {
     responseStatus:any = null;
 
     showCreate = false;
+    showEvents = false;
     editingValue = '';
     editingRow:number|null = null;
     editingField:number[]|null = null;
     selectedField:number[]|null = null;
-
+    
     @Watch('$route', { immediate: true, deep: true })
     async onUrlChange(newVal: Route) {
         this.resetEdit();
-        this.show('');
+        this.show();
     }
-    
-    get enableEvents() { return false; }
     
     get bus() { return bus; }
     get store() { return store; }
     get session() { return store.getSession(this.slug); }
-
     get plugin() { return store.getApp(this.slug).plugins.autoQuery; }
+
+    get enableEvents() { return this.plugin.crudEventsServices && store.hasRole(this.slug, this.plugin?.accessRole); }
 
     get fields() { return this.type.properties; }
     get fieldNames() { return this.type.properties.map(x => x.name); }
     
-    show(tab:string,rowIndex?:number) {
+    show(tab?:string,rowIndex?:number) {
         this.selectedField = null;
-        this.showCreate = false; 
+        this.showCreate = false;
+        this.showEvents = false;
         this.editingRow = null;
         
         if (tab === 'Create') {
             this.showCreate = true;
         } else if (tab == 'Edit' && typeof rowIndex == "number") {
             this.editingRow = rowIndex;
-        }
+        } else if (tab == 'Events' && typeof rowIndex == "number") {
+            this.selectedField = [rowIndex, this.fieldNames.length-1];
+            this.showEvents = true;
+        } 
     }
     
-    handleDone(op:string,e:any) {
+    handleDone(op?:string,e?:any) {
         log('handleDone',op,e);
         this.showCreate = false;
+        this.showEvents = false;
         this.editingRow = null;
         if (e) {
             this.$emit('refresh');
@@ -185,6 +193,15 @@ export class Results extends Vue {
         return false;
     }
     
+    getId(row:any) { return getId(this.type, row); }
+    
+    hasEvent(row:any) {
+        const id = getId(this.type, row);
+        const ret = id && this.eventIds && this.eventIds.indexOf(id) >= 0;
+        //log('hasEvent',row,pk?.name,id,ret);
+        return ret;
+    }
+    
     moveSelected(y:number,x:number) {
         if (!this.selectedField) return;
         if (y != 0) {
@@ -205,6 +222,9 @@ export class Results extends Vue {
         }
         if (typeof this.editingRow == 'number') {
             this.editingRow = this.selectedField[0];
+        }
+        if (this.showEvents && !this.hasEvent(this.results[this.selectedField[0]])) {
+            this.showEvents = false;
         }
     }
 
@@ -235,8 +255,9 @@ export class Results extends Vue {
 
     mounted() {
         window.addEventListener('keydown', this.onKeyDown);
+        log('Results.mounted()');
     }
-
+    
     isEditingRow(rowIndex:number) {
         return this.editingRow === rowIndex;
     }
@@ -252,8 +273,9 @@ export class Results extends Vue {
     selectField(rowIndex:number, fieldIndex:number) {
         this.selectedField = [rowIndex,fieldIndex];
     }
-
+    
     editRow(rowIndex:number) {
+        this.handleDone();
         this.editingRow = rowIndex;
         this.selectedField = [rowIndex,0];
     }
@@ -311,6 +333,7 @@ export class Results extends Vue {
         const updateField = this.fieldNames[fieldIndex];
         const patchOp = this.crud.find(x => x.request.implements.some(i => i.name == "IPatchDb`1") &&
             x.request.properties.some(x => x.name == updateField))!;
+        
         const pk = this.type.properties.find(x => x.isPrimaryKey);
         const pkValue = pk && getField(updateRow, pk.name);
         
