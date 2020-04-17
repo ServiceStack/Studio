@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import {store, bus, exec, client, canAccess, patchSiteInvoke} from '../../shared';
+import {store, bus, exec, client, canAccess, patchSiteInvoke, log} from '../../shared';
 import {MetadataOperationType, MetadataType, SiteInvoke} from "../../shared/dtos";
 import {humanize, normalizeKey, toDate, toDateFmt, getField, toCamelCase} from "@servicestack/client";
 import {Route} from "vue-router";
@@ -127,7 +127,7 @@ export class Results extends Vue {
     }
     
     handleDone(op:string,e:any) {
-        console.log('handleDone',op,e);
+        log('handleDone',op,e);
         this.showCreate = false;
         this.editingRow = null;
         if (e) {
@@ -281,7 +281,7 @@ export class Results extends Vue {
     
     cancelEdit() {
         if (!this.editingField) return;
-        console.log('cancelEdit');
+        log('cancelEdit');
         this.resetEdit();
     }
     
@@ -321,7 +321,7 @@ export class Results extends Vue {
 
         const updateKey = this.findKey(rowIndex, updateField);
         const updateValue = this.editingValue;
-        console.log('saveEdit', updateKey, updateField, this.editingValue, this.dirty, patchOp?.request.name);
+        log('saveEdit', updateKey, updateField, this.editingValue, this.dirty, patchOp?.request.name);
         if (!this.dirty) {
             this.cancelEdit();
             return;

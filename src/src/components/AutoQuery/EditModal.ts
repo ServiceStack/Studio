@@ -8,7 +8,7 @@ import {
     defaultValue,
     editValue,
     deleteSiteInvoke,
-    postSiteInvoke
+    postSiteInvoke, log
 } from '../../shared';
 import {
     MetaAuthProvider,
@@ -85,7 +85,7 @@ export class EditModal extends Vue {
     }
 
     async mounted() {
-        console.log('CreateModal.mounted()');
+        log('CreateModal.mounted()');
 
         this.type.properties.forEach((f,i) => {
             this.$set(this.model, f.name, editValue(f, getField(this.row,f.name)));
@@ -101,7 +101,7 @@ export class EditModal extends Vue {
         const pkValue = pk && getField(this.row, pk.name);
 
         await exec(this, async () => {
-            console.log('EditModal.deleteRow()');
+            log('EditModal.deleteRow()');
 
             if (!pkValue) 
                 throw { errorCode:'InvalidState', message:"Could not resolve Primary Key"};
@@ -120,7 +120,7 @@ export class EditModal extends Vue {
     
     async submit() {
         await exec(this, async () => {
-            console.log('EditModal.submit()', this);
+            log('EditModal.submit()', this);
             
             var args = [];
             for (var k in this.model) {

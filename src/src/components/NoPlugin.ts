@@ -1,5 +1,5 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import {bus, store} from '../shared';
+import {bus, log, store} from '../shared';
 
 const messages:{[id:string]:string} = {
     auth: 'Auth',
@@ -51,7 +51,7 @@ export class NoPlugin extends Vue {
     }
   
     protected mounted() {
-        console.log('NoPlugin mounted()')
+        log('NoPlugin mounted()')
     }
 
     public static errorHtml(slug:string,plugin:string) {

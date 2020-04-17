@@ -1,5 +1,5 @@
 import {Vue, Component, Prop} from 'vue-property-decorator';
-import {store, client, bus, exec} from '../../shared';
+import {store, client, bus, exec, log} from '../../shared';
 import {autoQueryRoute} from "../../shared/router";
 import {AddConnection, GetSites, RemoveConnection, SiteSetting} from "../../shared/dtos";
 
@@ -110,7 +110,7 @@ export class Home extends Vue {
             bus.$emit('app', response);
 
             this.txtBaseUrl = '';
-            console.log(`/sites/${response.slug}`);
+            log(`/sites/${response.slug}`);
             this.$router.push(`/sites/${response.slug}`);
         } catch (e) {
             this.responseStatus = e.responseStatus || e;

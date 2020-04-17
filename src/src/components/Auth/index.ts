@@ -1,5 +1,5 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, Authenticate, loadSite, exec} from '../../shared';
+import {store, bus, client, Authenticate, loadSite, exec, log} from '../../shared';
 import {SiteAuthenticate} from "../../shared/dtos";
 
 @Component({ template: 
@@ -141,7 +141,7 @@ export class Auth extends Vue {
     async mounted() {
         window.addEventListener('keydown', this.modalKeyDown);
         bus.$on('signin', () => {
-            console.log('signin', this.session);
+            log('signin', this.session);
             if (!this.session) {
                this.showAuthDialog = true;
             } 

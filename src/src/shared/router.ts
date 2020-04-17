@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router, { Route } from 'vue-router';
 
-import { store, bus } from './index';
+import {store, bus, log} from './index';
 
 import { Forbidden } from '@servicestack/vue';
 import { Home } from '../components/Home';
@@ -57,7 +57,7 @@ export const router = new Router ({
 export default router;
 
 export const redirect = (path: string) => {
-  console.log('redirect', path)
+  log('redirect', path);
   const externalUrl = path.indexOf('://') >= 0;
   if (!externalUrl) {
       router.push({ path });

@@ -2,7 +2,7 @@ body {
 }
 ::-webkit-scrollbar {
     width: 10px;
-    height: 15px;
+    height: 10px;
 }
 ::-webkit-scrollbar-thumb {
     background-color: #f8f8f8;
@@ -326,18 +326,17 @@ table.results td.editing {
     background: #f1f1f1;
     width: 60px;
     padding: 0 5px;
-    border-top: 1px solid #f1f1f1;
-    border-left: 1px solid #f1f1f1;
+    border: 1px solid #f1f1f1;
 }
 .log-entry h4 b {
     display: inline-block;
     padding: 0 10px;
-    border-top: 1px solid #f1f1f1;
-    border-right: 1px solid #f1f1f1;
+    border: 1px solid #f1f1f1;
 }
 .log-entry .body {
     border: 1px solid #f1f1f1;
     padding: 0 0 4px 0;
+    margin: -2px 0 0 0;
 }
 .log-entry dl {
     border: 1px solid #f1f1f1;
@@ -351,4 +350,7 @@ table.results td.editing {
 }
 .log-entry dt, .log-entry dd {
     padding: 1px 4px;
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

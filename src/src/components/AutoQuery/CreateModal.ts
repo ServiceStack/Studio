@@ -1,5 +1,5 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec, splitOnFirst, defaultValue, postSiteInvoke} from '../../shared';
+import {store, bus, client, exec, splitOnFirst, defaultValue, postSiteInvoke, log} from '../../shared';
 import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate, SiteInvoke} from "../../shared/dtos";
 
 @Component({ template:
@@ -51,7 +51,7 @@ export class CreateModal extends Vue {
     get size() { return this.op.request.properties.length > 10 ? 'md' : 'lg'; } 
 
     async mounted() {
-        console.log('CreateModal.mounted()');
+        log('CreateModal.mounted()');
 
         this.type.properties.forEach((f,i) => {
             this.$set(this.model, f.name, defaultValue(f));
@@ -64,7 +64,7 @@ export class CreateModal extends Vue {
     
     async submit() {
         await exec(this, async () => {
-            console.log('CreateModal.submit()', this);
+            log('CreateModal.submit()', this);
             
             var args = [];
             for (var k in this.model) {

@@ -1,5 +1,5 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec, splitOnFirst} from '../../shared';
+import {store, bus, client, exec, splitOnFirst, log} from '../../shared';
 import {MetaAuthProvider, MetadataType, SiteAuthenticate} from "../../shared/dtos";
 import {getField} from "@servicestack/client";
 
@@ -57,12 +57,12 @@ export class PartialModal extends Vue {
     async mounted() {
         window.addEventListener('keydown', this.modalKeyDown);
         this.value = this.origValue;
-        console.log('PartialModal.mounted()');
+        log('PartialModal.mounted()');
     }
     
     submit() {
         if (this.dirty) {
-            console.log('saving...', this.value, this.dirty);
+            log('saving...', this.value, this.dirty);
             this.$emit('done', this.value);
         }
     }

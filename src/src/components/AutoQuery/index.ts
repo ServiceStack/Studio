@@ -11,7 +11,7 @@ import {
     isQuery,
     isCrud,
     matchesType,
-    toInvokeArgs, collapsed, getSiteInvoke
+    toInvokeArgs, collapsed, getSiteInvoke, debug, log
 } from '../../shared';
 import {
     MetadataOperationType, MetadataPropertyType,
@@ -19,11 +19,6 @@ import {
     MetadataTypes, SiteInvoke
 } from "../../shared/dtos";
 import { Route } from "vue-router";
-
-export function log<T>(o:T) {
-    console.log(o);
-    return o;
-}
 
 @Component({ template:
     `<section v-if="enabled" id="autoquery" :class="['grid-layout',windowStyles]">
@@ -106,10 +101,10 @@ export function log<T>(o:T) {
                   </div>
                 </div>
             </div>
-            <error-view :responseStatus="responseStatus" class="mt-5" />
             <div v-if="model && response && !responseStatus" class="results-container">
                 <results :slug="slug" :results="results" :type="model" :crud="crudOperations" @refresh="reset()" />
             </div>
+            <div v-else-if="responseStatus"><error-view :responseStatus="responseStatus" class="mt-5" /></div>
         </main>
         
         <Footer v-if="app" :slug="slug"/>
@@ -159,7 +154,7 @@ export class AutoQuery extends Vue {
     }
     
     async reset() {
-        console.log('reset', this.op, this.modelRef, this.model);
+        log('reset', this.op, this.modelRef, this.model);
         this.responseStatus = null;
         this.responseJson = '';
         const pk = this.model?.properties.find(x => x.isPrimaryKey) as MetadataPropertyType;
@@ -172,11 +167,7 @@ export class AutoQuery extends Vue {
         if (customQuery || queryPrefs) {
             await this.submit();
         } else {
-            var convention = this.plugin?.viewerConventions.find(c => c.value === '%');
-            if (convention) {
-                const field = convention.value.replace("%", this.searchField);
-                await this.search([field,' ']);
-            }
+            await this.search([]);
         }
     }
     
@@ -270,7 +261,7 @@ export class AutoQuery extends Vue {
     }
     
     async submit() {
-        console.log('submit', this.selectedCondition);
+        log('submit', this.selectedCondition);
         if (!this.selectedCondition) return;
         
         await exec(this, async () => {
@@ -283,7 +274,7 @@ export class AutoQuery extends Vue {
         if (!this.op) return;
         await exec(this, async () => {
             const request = new SiteInvoke({ slug:this.slug, request:this.op, args: invokeArgs});
-            console.log('siteInvoke',request);
+            log('siteInvoke',request);
             this.responseJson = await getSiteInvoke(request);
             this.response = JSON.parse(this.responseJson);
             this.results = this.response && (this.response.results || this.response.Results);

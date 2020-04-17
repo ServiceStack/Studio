@@ -12,6 +12,8 @@ declare let global: any; // populated from package.json/jest
 
 export const client = new JsonServiceClient('/');
 
+export const debug = true;
+
 export {
     errorResponse, errorResponseExcept,
     splitOnFirst, toPascalCase,
@@ -98,7 +100,7 @@ export const store: State = {
         if (!typeRef) return null;
         const siteTypes = store.appTypes[slug];
         const ret = siteTypes && siteTypes[typeRef.namespace + '.' + typeRef.name] || siteTypes['.' + typeRef.name];
-        if (!ret) console.log('Could not find type', typeRef.namespace, typeRef.name);
+        if (!ret) console.warn('Could not find type', typeRef.namespace, typeRef.name);
         return ret;
     },
     hasPlugin(slug:string, plugin:string) { 
@@ -114,6 +116,11 @@ export const store: State = {
         return invoke;
     }
 };
+
+export function log(...o:any[]) {
+    if (debug) console.log.apply(console, arguments as any);
+    return o;
+}
 
 export const isQuery = (op:MetadataOperationType) => op.request.inherits?.name?.startsWith('QueryDb`');
 
@@ -307,7 +314,7 @@ bus.$on('app', (app:{ slug:string, result:AppMetadata }) => {
 
 bus.$on('savePrefs', async (siteResult:{ slug:string, callback:() => null }) => {
     const { slug, callback } = siteResult;
-    console.log('savePrefs', slug );
+    log('savePrefs', slug );
     await client.post(new SaveSiteAppPrefs( { slug, appPrefs:store.getAppPrefs(slug) }));
     Vue.delete(store.appDirty, slug);
     if (callback) callback();
@@ -329,7 +336,7 @@ bus.$on('appLoading', (siteResult:{ slug:string, result:boolean }) => {
     bus.$set(store, 'appLoading', newLoading);
 });
 bus.$on('appError', (siteResult:{ slug:string, result:ResponseStatus }) => {
-    console.log('appError', siteResult.slug, siteResult.result);
+    log('appError', siteResult.slug, siteResult.result);
     const newErrors = Object.assign({}, store.appErrors);
     newErrors[siteResult.slug] = siteResult.result;
     bus.$set(store, 'appErrors', newErrors);
@@ -337,7 +344,7 @@ bus.$on('appError', (siteResult:{ slug:string, result:ResponseStatus }) => {
 
 bus.$on('appPrefs', (siteResult:{ slug:string, request:string, queryConditions?:Condition[] }) => {
     const { slug, request, queryConditions } = siteResult;
-    console.log('appPrefs', slug, request, queryConditions);
+    log('appPrefs', slug, request, queryConditions);
     const siteIndex = store.sites.findIndex(x => x.slug == slug);
     const site = store.sites[siteIndex];
     if (!site) return;
@@ -348,7 +355,7 @@ bus.$on('appPrefs', (siteResult:{ slug:string, request:string, queryConditions?:
         Vue.set(store.sites, siteIndex, site);
     }
     Vue.set(store.appDirty, slug, true);
-    console.log('isDirty', store.isDirty(slug));
+    log('isDirty', store.isDirty(slug));
 });
 
 export const checkAuth = async () => {
