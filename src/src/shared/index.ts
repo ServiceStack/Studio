@@ -275,6 +275,10 @@ export const loadSite = async (slug:string, force?:boolean) => {
     }
 };
 
+Vue.filter('upper', function (value:string) {
+    return value?.toUpperCase();
+});
+
 // bus.$on('signout', async () => {
 //     bus.$set(store, 'userSession', null);
 //     bus.$set(store, 'userAttributes', null);
@@ -333,12 +337,14 @@ bus.$on('savePrefs', async (siteResult:{ slug:string, callback:() => null }) => 
 bus.$on('signout', (siteResult:{ slug:string }) => {
     const { slug } = siteResult;
     bus.$emit('appSession', { slug, result:null });
+    bus.$emit('signedout');
 });
 
 bus.$on('appSession', (siteResult:{ slug:string, result:IAuthSession }) => {
     const newSessions = Object.assign({}, store.appSessions);
     newSessions[siteResult.slug] = siteResult.result;
     bus.$set(store, 'appSessions', newSessions);
+    bus.$emit('signedin');
 });
 bus.$on('appLoading', (siteResult:{ slug:string, result:boolean }) => {
     const newLoading = Object.assign({}, store.appLoading);

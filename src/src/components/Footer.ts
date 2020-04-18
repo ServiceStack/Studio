@@ -14,7 +14,7 @@ import {appendQueryString, combinePaths} from "@servicestack/client";
                            class="svg-external-link svg-md mb-1" target="_blank"></a> 
                     </h4>
                     <div v-if="x.invoke.args.length" class="body">
-                        <dl v-for="x in kvps(x.invoke.args)">
+                        <dl v-for="x in kvps(x.invoke.args)" class="v-kvp">
                             <dt>{{x.key}}</dt>
                             <dd v-if="x.value!=''" :title="x.value">{{x.value}}</dd>
                         </dl>

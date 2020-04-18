@@ -262,6 +262,9 @@ export class AutoQuery extends Vue {
     async mounted() {
         await loadSite(this.slug);
         await this.reset();
+        bus.$on('signedin', () => {
+            this.reset();
+        });
     }
     
     async submit() {

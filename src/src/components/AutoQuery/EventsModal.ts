@@ -8,7 +8,7 @@ import {
     SiteAuthenticate,
     SiteInvoke
 } from "../../shared/dtos";
-import {getField} from "@servicestack/client";
+import {dateFmt, getField, timeFmt12, toDate} from "@servicestack/client";
 
 @Component({ template:
 `<div v-if="enabled" id="eventsModal" class="modal-inline" tabindex="-1" role="dialog" @keyup.esc="$emit('done')">
@@ -23,14 +23,26 @@ import {getField} from "@servicestack/client";
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-            <error-summary :responseStatus="responseStatus" />
-        </div>        
-        <div v-for="x in results" :key="x.id" class="form-group">
-            {{x.model}}
-        </div>
-        <div class="form-group text-right">
-            <span class="btn btn-link" @click="$emit('done')">Close</span>
+        <error-summary :responseStatus="responseStatus" />
+        <dl class="h-kvp mb-3">
+            <dt>{{pk.name}}</dt>
+            <dd>{{id}}</dd>
+        </dl>
+        <div v-for="x in results" :key="x.id">
+            <i v-if="!expanded(x.id)" class="svg svg-chevron-right svg-btn svg-md" title="expand" @click="toggle(x.id)"></i>
+            <i v-else class="svg svg-chevron-down svg-btn svg-md" title="collapse" @click="toggle(x.id)"></i>
+            <ul class="event summary" @click="toggle(x.id)">
+                <li class="type">{{x.eventType | upper}}</li>
+                <li class="by"><b><i>[{{x.userAuthId}}]</i> {{x.userAuthName}}</b></li>
+                <li class="on"><b>{{dateFmt(x.eventDate)}}</b></li>
+            </ul>
+            <div v-if="expanded(x.id)" class="event-detail">
+                <ul class="event">
+                    <li class="op">{{x.requestType}}</li>
+                    <li class="ip"><span>ip</span>{{x.remoteIp}}</li>
+                </ul>
+                <jsonviewer :json="x.requestBody"/>
+            </div>
         </div>
       </div>
     </div>
@@ -44,12 +56,26 @@ export class EventsModal extends Vue {
 
     results:CrudEvent[] = [];
     
+    expandIds:number[] = [];
+    
     loading = false;
     responseStatus = null;
 
     get app() { return store.getApp(this.slug); }
     get plugin() { return this.app?.plugins.autoQuery; }
     get enabled() { return this.plugin.crudEventsServices && store.hasRole(this.slug, this.plugin?.accessRole); }
+    get pk() { return this.type.properties.find(x => x.isPrimaryKey); }
+
+    dateFmt(dateStr:string) { return dateFmt(toDate(dateStr)) + " " + timeFmt12(toDate(dateStr)); }
+
+    expanded(id:number) { return this.expandIds.indexOf(id) >= 0; }
+    toggle(id:number) {
+        if (this.expanded(id)) {
+            this.expandIds = this.expandIds.filter(x => x != id);
+        } else {
+            this.expandIds.push(id);
+        }
+    }
     
     async mounted() {
         if (!this.enabled) return;
@@ -62,7 +88,7 @@ export class EventsModal extends Vue {
                 args:['model',this.type.name,'modelId',this.id]
             }));
             const obj = JSON.parse(response);
-            this.results = obj.results;
+            this.results = obj.results.reverse();
         });
     }
 }

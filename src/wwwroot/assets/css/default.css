@@ -318,7 +318,7 @@ table.results td.editing {
 .log-entry {
     padding: 5px 20px 5px 5px;
 }
-.log-entry h4, .log-entry dl, .log-entry dt, .log-entry dd {
+.log-entry h4, .log-entry dl, .log-entry dt, .log-entry dd, dl.h-kvp, ul.event {
     margin: 0;
     padding: 0;
 }
@@ -342,20 +342,98 @@ table.results td.editing {
     padding: 0 0 4px 0;
     margin: -2px 0 0 0;
 }
-.log-entry dl {
+dl.v-kvp {
     vertical-align: top;
     border: 1px solid #f1f1f1;
     display: inline-block;
     margin: 4px 0 0 4px;
 }
-.log-entry dt {
+dl.v-kvp dt {
     border-bottom: 1px solid #f1f1f1;
     font-weight: normal;
     background: #f1f1f1;
 }
-.log-entry dt, .log-entry dd {
+dl.v-kvp dt, dl.v-kvp dd {
     padding: 1px 4px;
     max-width: 400px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+dl.h-kvp {
+    border: 1px solid #f1f1f1;
+    display: inline-block;
+    height: 28px;
+}
+dl.h-kvp dt, dl.h-kvp dd {
+    margin: 0;
+    padding: .25em 1em;
+    line-height: 22px;
+    display: inline-block;
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+dl.h-kvp dt {
+    border-right: 1px solid #f1f1f1;
+    background: #f1f1f1;
+}
+ul.event, ul.event li {
+    display: inline-block;
+}
+li.by span, li.on span {
+    padding-left: .5em;
+}
+li.by b, li.on b {
+    padding-left: .25em;
+}
+li.on b {
+    font-weight: normal;
+}
+li.by b i, li.on b i {
+    font-weight: normal;
+    color: #aaa;
+    font-style: normal;
+}
+.event.summary {
+    cursor: default;
+}
+.event-detail {
+    margin: 0 0 5px 22px;
+}
+.event .type {
+    min-width: 40px;
+}
+.event .op {
+}
+.event .ip {
+    border: 1px solid #f1f1f1;
+    padding: 0 5px 0 0;
+    margin: 2px 0 0 5px;
+}
+.event .ip span {
+    background: #f1f1f1;
+    padding: 1px 5px;
+    margin: 0 5px 0 0;
+}
+
+.ellipsis {
+    max-width: 200px;
+    text-overflow: ellipsis;
+}
+
+
+.jsonviewer .ib { display: inline-block; }
+.jsonviewer table { border-collapse:collapse; border: solid 1px #ccc; clear: left; }
+.jsonviewer th { text-align: left; padding: 4px 8px; text-shadow: #fff 1px 1px -1px; background: #f1f1f1; white-space:nowrap; font-weight: bold; }
+.jsonviewer td { padding: 8px 8px 0 8px; vertical-align: top; line-height: 18px; }
+.jsonviewer dl { margin: 0; clear: left; }
+.jsonviewer dt { font-weight: bold; width: 160px; clear: left; float: left; display:block; white-space:nowrap; line-height: 26px; }
+.jsonviewer dd { display: block; float: left; line-height: 26px; max-width: 600px; margin: 0; }
+.jsonviewer dl dl dt { font-weight: bold; }
+.jsonviewer hr { display:none; }
+.jsonviewer td dl HR { display:block; padding: 0; clear: left; border: none; }
+.jsonviewer td dl { padding: 4px; margin: 0; height:100%; max-width: 700px; }
+.jsonviewer dl td dl dt { padding: 2px; margin: 0 10px 0 0; font-weight: bold; width: 120px; overflow: hidden; clear: left; float: left; display:block; }
+.jsonviewer dl td dl dd { margin: 0; padding: 2px; display: block; float: left; }
+.jsonviewer tbody>tr:last-child>td { padding: 8px; }
