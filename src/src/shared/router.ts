@@ -6,11 +6,13 @@ import {store, bus, log} from './index';
 import { Forbidden } from '@servicestack/vue';
 import { Home } from '../components/Home';
 import { AutoQuery } from '../components/AutoQuery';
+import { Validation } from '../components/Validation';
 import { About } from '../components/About';
 
 export enum Routes {
   Home = '/',
   AutoQuery = '/:slug/autoquery',
+  Validation = '/:slug/validation',
   About = '/about',
   Forbidden = '/forbidden',
 }
@@ -42,12 +44,14 @@ function requiresRole(role: string) {
 const routes = [
   { path: Routes.Home, component: Home, props: { name: '' } },
   { path: Routes.AutoQuery, component: AutoQuery },
+  { path: Routes.Validation, component: Validation },
   { path: Routes.About, component: About, props: { message: 'About page' } },
   { path: Routes.Forbidden, component: Forbidden },
   { path: '*', redirect: '/' },
 ];
 
-export const autoQueryRoute = (slug:string) => Routes.AutoQuery.replace(':slug',slug); 
+export const autoQueryRoute = (slug:string) => Routes.AutoQuery.replace(':slug',slug);
+export const validationRoute = (slug:string) => Routes.Validation.replace(':slug',slug);
 
 export const router = new Router ({
     mode: 'history',

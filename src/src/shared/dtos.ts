@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-04-18 06:59:38
+Date: 2020-04-21 00:25:42
 Version: 5.8
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -222,6 +222,16 @@ export class SharpPagesInfo
     public constructor(init?: Partial<SharpPagesInfo>) { (Object as any).assign(this, init); }
 }
 
+export class RequestLogsInfo
+{
+    public requiredRoles: string[];
+    public requestLogger: string;
+    public serviceRoutes: { [index: string]: string[]; };
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<RequestLogsInfo>) { (Object as any).assign(this, init); }
+}
+
 export class PluginInfo
 {
     public loaded: string[];
@@ -229,6 +239,7 @@ export class PluginInfo
     public autoQuery: AutoQueryInfo;
     public validation: ValidationInfo;
     public sharpPages: SharpPagesInfo;
+    public requestLogs: RequestLogsInfo;
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<PluginInfo>) { (Object as any).assign(this, init); }
@@ -500,6 +511,34 @@ export class CrudEvent
     public constructor(init?: Partial<CrudEvent>) { (Object as any).assign(this, init); }
 }
 
+export class ValidateRule
+{
+    public validator: string;
+    public condition: string;
+    public errorCode: string;
+    public message: string;
+
+    public constructor(init?: Partial<ValidateRule>) { (Object as any).assign(this, init); }
+}
+
+export class ValidationRule extends ValidateRule
+{
+    public id: number;
+    // @Required()
+    public type: string;
+
+    public field: string;
+    public createdBy: string;
+    public createdDate?: string;
+    public modifiedBy: string;
+    public modifiedDate?: string;
+    public suspendedBy: string;
+    public suspendedDate?: string;
+    public notes: string;
+
+    public constructor(init?: Partial<ValidationRule>) { super(init); (Object as any).assign(this, init); }
+}
+
 export class Condition
 {
     public searchField: string;
@@ -604,6 +643,18 @@ export class QueryResponse<T>
     public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<QueryResponse<T>>) { (Object as any).assign(this, init); }
+}
+
+// @DataContract
+export class GetValidationRulesResponse
+{
+    // @DataMember(Order=1, EmitDefaultValue=true)
+    public results: ValidationRule[];
+
+    // @DataMember(Order=2, EmitDefaultValue=true)
+    public responseStatus: ResponseStatus;
+
+    public constructor(init?: Partial<GetValidationRulesResponse>) { (Object as any).assign(this, init); }
 }
 
 // @DataContract
@@ -804,11 +855,53 @@ export class GetCrudEvents extends QueryDb<CrudEvent> implements IReturn<QueryRe
     public model: string;
 
     // @DataMember(Order=3, EmitDefaultValue=true)
-    public id: string;
+    public modelId: string;
 
     public constructor(init?: Partial<GetCrudEvents>) { super(init); (Object as any).assign(this, init); }
     public createResponse() { return new QueryResponse<CrudEvent>(); }
     public getTypeName() { return 'GetCrudEvents'; }
+}
+
+// @Route("/validation/rules/{Type}")
+// @DataContract
+export class GetValidationRules implements IReturn<GetValidationRulesResponse>
+{
+    // @DataMember(Order=1, EmitDefaultValue=true)
+    public authSecret: string;
+
+    // @DataMember(Order=2, EmitDefaultValue=true)
+    public type: string;
+
+    public constructor(init?: Partial<GetValidationRules>) { (Object as any).assign(this, init); }
+    public createResponse() { return new GetValidationRulesResponse(); }
+    public getTypeName() { return 'GetValidationRules'; }
+}
+
+// @Route("/validation/rules")
+// @DataContract
+export class ModifyValidationRules implements IReturnVoid
+{
+    // @DataMember(Order=1, EmitDefaultValue=true)
+    public authSecret: string;
+
+    // @DataMember(Order=2, EmitDefaultValue=true)
+    public saveRules: ValidationRule[];
+
+    // @DataMember(Order=3, EmitDefaultValue=true)
+    public deleteRuleIds: number[];
+
+    // @DataMember(Order=4, EmitDefaultValue=true)
+    public suspendRuleIds: number[];
+
+    // @DataMember(Order=5, EmitDefaultValue=true)
+    public unsuspendRuleIds: number[];
+
+    // @DataMember(Order=6, EmitDefaultValue=true)
+    public clearCache?: boolean;
+
+    public constructor(init?: Partial<ModifyValidationRules>) { (Object as any).assign(this, init); }
+    public createResponse() {}
+    public getTypeName() { return 'ModifyValidationRules'; }
 }
 
 // @Route("/auth")

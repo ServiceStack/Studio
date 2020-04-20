@@ -28,7 +28,7 @@ header {
     padding: 5px 5px 0 0;
     text-align: right;
 }
-.autoquery-breadcrumbs {
+.site-breadcrumbs {
     padding-left: 0;
     height: 80px;
 }
@@ -66,10 +66,16 @@ main {
         "query"
         "results"
 }
+#validation main {
+    grid-template-areas:
+        "results"
+        "results"
+}
+
 .query-form {
     grid-area: query;
 }
-.results-container {
+.main-container {
     grid-area: results;
     overflow-y: scroll;
 }
@@ -81,4 +87,7 @@ footer {
 }
 #footer {
     border: 1px solid #eee;
+}
+.collapse-footer #footer .text-close {
+    display: none;
 }

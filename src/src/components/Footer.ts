@@ -52,7 +52,8 @@ export class Footer extends Vue {
     get baseUrl() { return store.getSite(this.slug).baseUrl; }
     
     createUrl(invoke:SiteInvoke) {
-        const op = store.getApp(this.slug).api.operations.find(x => x.request.name == invoke.request);
+        if (!invoke) return;
+        const op = store.getApp(this.slug).api.operations?.find(x => x.request.name == invoke.request);
         const defaultRoute = op?.routes.find(x => x.path.indexOf('{') == -1);
         let url = defaultRoute
             ? combinePaths(this.baseUrl, defaultRoute.path)

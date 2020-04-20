@@ -16,16 +16,17 @@
 </head>
 <body>
 {{ 'buttons,/assets/css/default.css,/assets/css/layout.css' |> cssIncludes }}
-{{ 'svg-auth,app' |> cssIncludes |> svgFill('#212121') }}
+{{ 'svg-auth,app' |> cssIncludes |> svgFill('#212529') }}
 {{ 'svg-icons' |> cssIncludes |> svgFill('#4183B8') }}
 
-<style>
+<style>w
 .auth-warning { {{'auth'.svgBackgroundImageCss('#ffc107')}} }
 .help-muted { {{'help'.svgBackgroundImageCss('#999')}} }
 .history-muted { {{'history'.svgBackgroundImageCss('#999')}} }
 .bool-off-muted { {{'check_box_off'.svgBackgroundImageCss('#999')}} }
 .bool-on-muted { {{'check_box_on'.svgBackgroundImageCss('#999')}} }
 .db-dark { {{'db'.svgBackgroundImageCss('#6c757d')}} }
+.lock-dark { {{'lock'.svgBackgroundImageCss('#6c757d')}} }
 .done-success { {{'done'.svgBackgroundImageCss('#28a745')}} }
 </style>
 
@@ -45,7 +46,7 @@
 '/lib/vue-class-component/vue-class-component.js',
 '/lib/vue-property-decorator/vue-property-decorator.umd.js',
 '/lib/@servicestack/vue/servicestack-vue.umd.js',
-] |> bundleJs({ disk:!debug, out:`/js/lib.bundle${dist}.js` }) }}
+] |> bundleJs({ disk:!debug, out:`/js/lib.bundle${dist}.js`, cache:true }) }}
 
 <script>
     var ALIASES = {

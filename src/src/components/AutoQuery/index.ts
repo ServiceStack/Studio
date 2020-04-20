@@ -26,7 +26,7 @@ import {getField} from "@servicestack/client";
 
         <header id="header">
             <h1 v-if="site">
-                <nav class="autoquery-breadcrumbs">
+                <nav class="site-breadcrumbs">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
                             <router-link to="/"><i class="svg-home svg-3x mb-1" title="home" /></router-link>
@@ -50,7 +50,7 @@ import {getField} from "@servicestack/client";
                 <error-summary :responseStatus="responseStatus" />
                 <router-link to="/">&lt; back to sites</router-link>
             </div>
-            <auth id="auth" v-if="site && app" :slug="slug" /> 
+            <auth id="auth" v-if="site && app" :slug="slug" feature="autoquery" /> 
         </header>
         
         <nav v-if="app" id="left">
@@ -102,7 +102,7 @@ import {getField} from "@servicestack/client";
                   </div>
                 </div>
             </div>
-            <div v-if="model && response && !responseStatus" class="results-container">
+            <div v-if="model && response && !responseStatus" class="main-container">
                 <results :slug="slug" :results="results" :type="model" :crud="crudOperations" :eventIds="eventIds" @refresh="reset()" />
             </div>
             <div v-else-if="responseStatus"><error-view :responseStatus="responseStatus" class="mt-5" /></div>
@@ -135,13 +135,13 @@ export class AutoQuery extends Vue {
     get slug() { return this.$route.params.slug as string; }
 
     get op() { return this.$route.query.op as string; }
-    
+
+    get windowStyles() { return collapsed(this.slug,'footer') ? 'collapse-footer' : ''; }
+
     @Watch('$route', { immediate: true, deep: true })
     async onUrlChange(newVal: Route) {
         await this.reset();
     }
-    
-    get windowStyles() { return collapsed(this.slug,'footer') ? 'collapse-footer' : ''; }
     
     async resetQuery() {
         const pk = this.model?.properties.find(x => x.isPrimaryKey) as MetadataPropertyType;

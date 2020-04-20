@@ -1,6 +1,7 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import {store, bus, client, Authenticate, loadSite, exec, log} from '../../shared';
 import {SiteAuthenticate} from "../../shared/dtos";
+import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
 
 @Component({ template: 
     `<div v-if="enabled">
@@ -10,6 +11,10 @@ import {SiteAuthenticate} from "../../shared/dtos";
         <span v-if="session">
         
             <div class="btn-group" role="group">
+                <button v-if="feature != 'autoquery'" class="btn btn-light btn-sm" @click="goto('autoquery')"
+                        title="Go to AutoQuery"><i class="svg-db svg-lg"/></button>
+                <button v-if="feature != 'validation'" class="btn btn-light btn-sm" @click="goto('validation')"
+                        title="Go to Validation"><i class="svg-lock svg-lg"/></button>
                 <button v-if="prefsDirty || loading" @click="savePrefs()" title="Save Preferences" 
                         class="btn btn-light btn-sm"><i :class="(loading ? 'svg-loading' : 'svg-save_alt') + ' svg-lg'" /></button>            
                 <div class="btn-group" role="group">
@@ -79,6 +84,7 @@ import {SiteAuthenticate} from "../../shared/dtos";
 export class Auth extends Vue {
 
     @Prop({ default: null }) slug: string;
+    @Prop({ default: null }) feature: string;
 
     loading = false;
     responseStatus = null;
@@ -105,6 +111,17 @@ export class Auth extends Vue {
     get session() { return store.getSession(this.slug); }
     
     get prefsDirty() { return store.isDirty(this.slug); }
+    
+    goto(feature:string) {
+        switch (feature) {
+            case 'autoquery':
+                this.$router.push(autoQueryRoute(this.slug));
+                break;
+            case 'validation':
+                this.$router.push(validationRoute(this.slug));
+                break;
+        }
+    }
     
     activeTab(tab:string) { 
         return this.tab ? this.tab == tab : this.plugin && this.plugin.authProviders[0]?.name == tab; 

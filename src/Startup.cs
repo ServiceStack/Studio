@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Funq;
 using ServiceStack;
+using ServiceStack.Validation;
 using Studio.ServiceInterface;
 using Studio.ServiceInterface;
 
@@ -60,6 +61,8 @@ namespace Studio
 
             //generate types
             RegisterService<GetCrudEventsService>("/crudevents/{Model}");
+            RegisterService<GetValidationRulesService>("/validation/rules/{Type}");
+            RegisterService<ModifyValidationRulesService>("/validation/rules");
             
             ConnectionServices.LoadAppSettings();
             //Plugins.Add(new ValidationFeature());

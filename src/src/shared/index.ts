@@ -97,7 +97,9 @@ export const store: State = {
     getApp(slug:string) { return store.apps[slug]; },
     getSession(slug:string) { return store.appSessions[slug]; },
     hasRole(slug:string, role:string) {
+        if (role == 'AllowAnon') return true;
         const session = this.getSession(slug);
+        if (role == 'AllowAnyUser' && session) return true;
         return role && session && session.roles && session.roles.indexOf(role) >= 0 || false;
     },
     getAppPrefs(slug:string) { return store.getSite(slug)?.prefs; },

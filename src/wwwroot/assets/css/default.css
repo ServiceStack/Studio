@@ -7,7 +7,7 @@ body {
 ::-webkit-scrollbar-thumb {
     background-color: #f8f8f8;
 }
-.results-container::-webkit-scrollbar-thumb, footer::-webkit-scrollbar-thumb {
+.main-container::-webkit-scrollbar-thumb, footer::-webkit-scrollbar-thumb {
     background-color: #aaa;
 }
 
@@ -108,7 +108,7 @@ span.nav-link {
 #authModal {
     width: 760px;
     height: 670px;
-    top: 170px;
+    top: 250px;
     left: 50%;
     margin-left: -350px;
 }
@@ -138,10 +138,10 @@ span.nav-link {
 .nav-query .nav-link:hover {
     color: rgba(255,255,255,.8) !important;
 }
-.autoquery-breadcrumbs .breadcrumb {
+.site-breadcrumbs .breadcrumb {
     background: none;
 }
-.autoquery-breadcrumbs .breadcrumb-item+.breadcrumb-item::before {
+.site-breadcrumbs .breadcrumb-item+.breadcrumb-item::before {
     color: #ddd;
 }
 
@@ -420,6 +420,21 @@ li.by b i, li.on b i {
 .ellipsis {
     max-width: 200px;
     text-overflow: ellipsis;
+}
+
+#validation-rules {
+    width: 100%;
+    max-width: 900px;
+    bborder: 1px solid #000;
+}
+#validation-rules th {
+    font-size: 1.4em;
+    font-weight: normal;
+    padding: 0 0 .5em 0;
+}
+#validation-rules th, #validation-rules td {
+    width: 50%;
+    vertical-align: top;
 }
 
 
