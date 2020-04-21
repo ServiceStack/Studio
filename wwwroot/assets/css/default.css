@@ -262,11 +262,7 @@ table.results td.editing {
     font-size: 1.25rem;
 }
 .confirm-delete {
-    margin: -58px 0 0 20px;
     position: absolute;
-}
-.confirm-delete.md {
-    margin: -38px 0 0 20px;
 }
 .confirm-delete .form-check-input {
     margin: 10px 0 0 -10px;
@@ -365,7 +361,7 @@ dl.v-kvp>dt, dl.v-kvp>dd {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-dl.v-kvp.log-response, dl.v-kvp.log-response>dt, dl.v-kvp.log-response>dd {
+dl.v-kvp.log-response, dl.v-kvp.log-response>dt, dl.v-kvp.log-response>dd, dl.v-kvp.log-response .jsonviewer dd {
     max-width: none;
 }
 dl.v-kvp.log-response>dt {

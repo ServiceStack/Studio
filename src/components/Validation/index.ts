@@ -70,7 +70,7 @@ import {nameOf} from "@servicestack/client";
             <span v-else>Create Rule</span>
         </button>
     </div>
-    <div v-if="rule" class="confirm-delete md">
+    <div v-if="rule" class="confirm-delete" style="margin:-38px 0 0 20px;line-height: 30px;">
         <input type="checkbox" class="form-check-input" @change="allowDelete=!allowDelete" :id="id('confirm')"/>
         <label :for="id('confirm')" class="form-check-label" >confirm</label>
         <button class="btn btn-danger" @click.prevent="submitDelete()" :disabled="!allowDelete">delete</button>
@@ -195,21 +195,17 @@ export class EditValidationRule extends Vue {
 
             const request = new ValidationRule({
                 type: this.type.name,
-                errorCode:this.errorCode,
-                message:this.message,
-                notes:this.notes,
             });
-            if (this.field) {
-                request.field = this.field;
-            }
             if (this.validator) {
                 request.validator = this.validator;
             } else if (this.condition) {
                 request.condition = this.condition;
             }
-            if (this.rule) {
-                request.id = this.rule.id;
-            } 
+            if (this.field) request.field = this.field;
+            if (this.errorCode) request.errorCode = this.errorCode;
+            if (this.message) request.message = this.message;
+            if (this.notes) request.notes = this.notes;
+            if (this.rule) request.id = this.rule.id;
             
             await postSiteProxy(new SiteProxy({
                     slug: this.slug,
@@ -272,88 +268,90 @@ Vue.component('edit-validation-rule', EditValidationRule);
             </div>
         </nav>
         
-        <main v-if="operation && !loading">
-            <div v-if="accessible" class="main-container">
-                <table id="validation-rules" class="ml-2">
-                <thead>
+        <main>
+            <div v-if="operation && !loading">
+                <div v-if="accessible" class="main-container">
+                    <table id="validation-rules" class="ml-2">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="svg svg-lock svg-lg"/> Type Validation Rules
+                            </th>
+                            <th>
+                                <div v-if="hasProperties">
+                                    <i class="svg svg-lock svg-lg"/> Property Validation Rules
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
                     <tr>
-                        <th>
-                            <i class="svg svg-lock svg-lg"/> Type Validation Rules
-                        </th>
-                        <th>
-                            <div v-if="hasProperties">
-                                <i class="svg svg-lock svg-lg"/> Property Validation Rules
+                        <td class="pr-3">
+                            <div v-for="x in results.filter(x => x.field == null)" :key="x.id" class="rule">
+                                <edit-validation-rule v-if="editTypeRule==x.id" :slug="slug" :type="operation.request" :rule="x" 
+                                                      :validators="plugin.typeValidators" @done="handleDone($event)" />
+                                <div v-else>
+                                    <button class="btn btn-light btn-sm edit-rule" @click="viewTypeForm(x.id)"
+                                            title="Edit Rule"><i class="svg-update svg-md"/></button>
+                                    <dl class="h-kvp">
+                                        <dt>{{x.validator ? 'validator':'script'}}</dt>
+                                        <dd><b class="field">{{x.field}}</b>{{x.validator ?? x.condition}}</dd>
+                                    </dl>
+                                </div>
                             </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td class="pr-3">
-                        <div v-for="x in results.filter(x => x.field == null)" :key="x.id" class="rule">
-                            <edit-validation-rule v-if="editTypeRule==x.id" :slug="slug" :type="operation.request" :rule="x" 
+                        
+                            <button v-if="!showTypeForm" class="btn btn-outline-primary btn-lg" @click="viewTypeForm()">&plus;
+                                Add Type Validation Rule 
+                            </button>
+                            <edit-validation-rule v-else-if="editTypeRule==null" :slug="slug" :type="operation.request" 
                                                   :validators="plugin.typeValidators" @done="handleDone($event)" />
-                            <div v-else>
-                                <button class="btn btn-light btn-sm edit-rule" @click="viewTypeForm(x.id)"
-                                        title="Edit Rule"><i class="svg-update svg-md"/></button>
-                                <dl class="h-kvp">
-                                    <dt>{{x.validator ? 'validator':'script'}}</dt>
-                                    <dd><b class="field">{{x.field}}</b>{{x.validator ?? x.condition}}</dd>
-                                </dl>
+                        </td>
+                        <td>
+                            <div v-for="x in results.filter(x => x.field != null)" :key="x.id" class="h-kvp rule">
+                                <edit-validation-rule v-if="editPropertyRule==x.id" :slug="slug" :type="operation.request" :rule="x" 
+                                                      :validators="plugin.propertyValidators" :properties="operation.request.properties" 
+                                                      @done="handleDone($event)" />
+                                <div v-else>
+                                    <button class="btn btn-light btn-sm edit-rule" @click="viewPropertyForm(x.id)"
+                                            title="Edit Rule"><i class="svg-update svg-md"/></button>
+                                    <dl class="h-kvp">
+                                        <dt>{{x.field}} {{x.validator ? 'validator':'script'}}</dt>
+                                        <dd>{{x.validator ?? x.condition}}</dd>
+                                    </dl>
+                                </div>
                             </div>
-                        </div>
+                        
+                            <button v-if="!showPropertyForm" class="btn btn-outline-primary btn-lg" @click="viewPropertyForm()">&plus;
+                                Add Property Validation Rule 
+                            </button>
+                            <edit-validation-rule v-else-if="editPropertyRule==null" :slug="slug" :type="operation.request" 
+                                                  :validators="plugin.propertyValidators" @done="handleDone($event)" 
+                                                  :properties="operation.request.properties" />
+                        </td>
+                    </tr>
+                    </tbody>
+                    </table>
                     
-                        <button v-if="!showTypeForm" class="btn btn-outline-primary btn-lg" @click="viewTypeForm()">&plus;
-                            Add Type Validation Rule 
-                        </button>
-                        <edit-validation-rule v-else-if="editTypeRule==null" :slug="slug" :type="operation.request" 
-                                              :validators="plugin.typeValidators" @done="handleDone($event)" />
-                    </td>
-                    <td>
-                        <div v-for="x in results.filter(x => x.field != null)" :key="x.id" class="h-kvp rule">
-                            <edit-validation-rule v-if="editPropertyRule==x.id" :slug="slug" :type="operation.request" :rule="x" 
-                                                  :validators="plugin.propertyValidators" :properties="operation.request.properties" 
-                                                  @done="handleDone($event)" />
-                            <div v-else>
-                                <button class="btn btn-light btn-sm edit-rule" @click="viewPropertyForm(x.id)"
-                                        title="Edit Rule"><i class="svg-update svg-md"/></button>
-                                <dl class="h-kvp">
-                                    <dt>{{x.field}} {{x.validator ? 'validator':'script'}}</dt>
-                                    <dd>{{x.validator ?? x.condition}}</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    
-                        <button v-if="!showPropertyForm" class="btn btn-outline-primary btn-lg" @click="viewPropertyForm()">&plus;
-                            Add Property Validation Rule 
-                        </button>
-                        <edit-validation-rule v-else-if="editPropertyRule==null" :slug="slug" :type="operation.request" 
-                                              :validators="plugin.propertyValidators" @done="handleDone($event)" 
-                                              :properties="operation.request.properties" />
-                    </td>
-                </tr>
-                </tbody>
-                </table>
-                
-                <div v-if="dataModelOps.length" class="datamodel-nav mt-5">
-                    <b class="float-left" style="line-height: 40px">Quick Jump:</b>
-                    <ul class="nav">
-                        <li v-for="x in dataModelOps" class="nav-item">
-                            <router-link :class="['nav-link',{active:x.request.name==op}]" 
-                                :to="{ query: { op:x.request.name } }">{{x.request.name}}</router-link>
-                        </li>
-                    </ul>
+                    <div v-if="dataModelOps.length" class="datamodel-nav mt-5">
+                        <b class="float-left" style="line-height: 40px">Quick Jump:</b>
+                        <ul class="nav">
+                            <li v-for="x in dataModelOps" class="nav-item">
+                                <router-link :class="['nav-link',{active:x.request.name==op}]" 
+                                    :to="{ query: { op:x.request.name } }">{{x.request.name}}</router-link>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-            <div v-else-if="!session" class="text-center" style="position:absolute;left:50%;margin:50px 0 0 -100px">
-                <i class="svg svg-lock svg-10x mb-1" />
-                <h3 class="mb-3">Validation</h3>
-                <button v-if="!loading" @click="bus.$emit('signin')" class="btn btn-outline-primary">
-                    Sign In
-                </button>
-            </div>
-            <div v-else>
-                Only {{plugin.accessRole}} Users can maintain Validation Rules
+                <div v-else-if="!session" class="text-center" style="position:absolute;left:50%;margin:50px 0 0 -100px">
+                    <i class="svg svg-lock svg-10x mb-1" />
+                    <h3 class="mb-3">Validation</h3>
+                    <button v-if="!loading" @click="bus.$emit('signin')" class="btn btn-outline-primary">
+                        Sign In
+                    </button>
+                </div>
+                <div v-else>
+                    Only {{plugin.accessRole}} Users can maintain Validation Rules
+                </div>
             </div>
         </main>
         

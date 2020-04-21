@@ -25,7 +25,7 @@ import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate,
             </div>
             <div class="form-group text-right">
                 <span class="btn btn-link" @click="$emit('done')">Close</span>
-                <button type="submit" class="btn btn-primary btn-lg">Create {{type.name}}</button>
+                <button type="submit" class="btn btn-primary">Create {{type.name}}</button>
             </div>
         </form>
       </div>
