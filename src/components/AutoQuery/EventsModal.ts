@@ -34,7 +34,7 @@ import {dateFmt, getField, timeFmt12, toDate} from "@servicestack/client";
             <ul class="event summary" @click="toggle(x.id)">
                 <li class="type">{{x.eventType | upper}}</li>
                 <li class="by"><b><i>[{{x.userAuthId}}]</i> {{x.userAuthName}}</b></li>
-                <li class="on"><b>{{dateFmt(x.eventDate)}}</b></li>
+                <li class="on"><b :title="dateFmt(x.eventDate)">{{dateFmt(x.eventDate)}}</b></li>
             </ul>
             <div v-if="expanded(x.id)" class="event-detail">
                 <ul class="event">

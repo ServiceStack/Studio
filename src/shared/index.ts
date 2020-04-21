@@ -54,6 +54,8 @@ export interface LogItem {
     invoke:SiteInvoke;
 }
 
+let logId = 0;
+
 // Shared state between all Components
 interface State {
     nav: GetNavItemsResponse;
@@ -77,8 +79,8 @@ interface State {
     getType(slug:string,typeRef:IModelRef): MetadataType|null;
     hasPlugin(slug:string, plugin:string): boolean;
     isDirty(slug:string): boolean;
-    logInvoke(method:string,invoke:SiteInvoke): SiteInvoke;
-    logProxy(method:string,proxy:SiteProxy,body:string): SiteProxy;
+    logInvoke(method:string,invoke:SiteInvoke,response:string): string;
+    logProxy(method:string,proxy:SiteProxy,body:string,response:string): string;
 }
 export const store: State = {
     nav: global.NAV_ITEMS as GetNavItemsResponse,
@@ -116,18 +118,18 @@ export const store: State = {
     isDirty(slug:string) {
         return store.appDirty[slug];
     },
-    logInvoke(method:string,invoke:SiteInvoke) {
+    logInvoke(method:string,invoke:SiteInvoke, response:string) {
         const existingEntries = this.appLogEntries[invoke.slug] || [];
-        const newEntries = [{ method, invoke }, ...existingEntries];
+        const newEntries = [{ id:++logId, method, invoke, response }, ...existingEntries];
         Vue.set(this.appLogEntries, invoke.slug, newEntries);
-        return invoke;
+        return response;
     },
-    logProxy(method:string, proxy:SiteProxy, body:any) {
+    logProxy(method:string, proxy:SiteProxy, body:any, response:string) {
         log('logProxy', method, proxy, body);
         const existingEntries = this.appLogEntries[proxy.slug] || [];
-        const newEntries = [{ method, proxy, body }, ...existingEntries];
+        const newEntries = [{ id:++logId, method, proxy, body, response }, ...existingEntries];
         Vue.set(this.appLogEntries, proxy.slug, newEntries);
-        return proxy;
+        return response;
     }
 };
 
@@ -178,13 +180,14 @@ export const dtoAsArgs = (dto:{[id:string]:any}) => {
     return to;
 };
 
-export const getSiteInvoke = (invoke:SiteInvoke) => client.get(store.logInvoke('GET', invoke));
-export const postSiteInvoke = (invoke:SiteInvoke) => client.post(store.logInvoke('POST', invoke));
-export const putSiteInvoke = (invoke:SiteInvoke) => client.put(store.logInvoke('PUT', invoke));
-export const patchSiteInvoke = (invoke:SiteInvoke) => client.patch(store.logInvoke('PATCH', invoke));
-export const deleteSiteInvoke = (invoke:SiteInvoke) => client.delete(store.logInvoke('DELETE', invoke));
+export const getSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('GET', invoke, await client.get(invoke));
+export const postSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('POST', invoke, await client.post(invoke));
+export const putSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('PUT', invoke, await client.put(invoke));
+export const patchSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('PATCH', invoke, await client.patch(invoke));
+export const deleteSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('DELETE', invoke, await client.delete(invoke));
 
-export const postSiteProxy = (proxy:SiteProxy,body:any) => client.postBody(store.logProxy('POST', proxy, body), body);
+export const postSiteProxy = async (proxy:SiteProxy,body:any) => store.logProxy('POST', proxy, body, 
+    new TextDecoder("utf-8").decode(await client.postBody(proxy, body)));
 
 const zero = () => 0, doubleZero = () => 0.0;
 const types:{[id:string]:() => any} = {

@@ -18,6 +18,11 @@ import {appendQueryString, combinePaths} from "@servicestack/client";
                             <dt>{{x.key}}</dt>
                             <dd v-if="x.value!=''" :title="x.value">{{x.value}}</dd>
                         </dl>
+                        <dl v-if="x.response" class="v-kvp log-response">
+                            <dt v-if="responseVisible(x.id)" @click="toggleResponse(x.id)"><i class="svg svg-chevron-down svg-sm"/>response</dt>
+                            <dt v-else @click="toggleResponse(x.id)"><i class="svg svg-chevron-right svg-sm"/>response</dt>
+                            <dd v-if="responseVisible(x.id)"><jsonviewer :json="x.response"/></dd>
+                        </dl>
                     </div>
                 </div>
             </div>
@@ -29,6 +34,8 @@ import {appendQueryString, combinePaths} from "@servicestack/client";
 })
 export class Footer extends Vue {
     @Prop() slug: string;
+
+    showResponseIds:number[] = [];
     
     get store() { return store; }
     
@@ -45,6 +52,15 @@ export class Footer extends Vue {
     }
     hideView(view:string) {
         this.views = this.views.filter(x => x != view);
+    }
+    
+    responseVisible(id:number) { return this.showResponseIds.indexOf(id) >= 0; }
+    toggleResponse(id:number) {
+        if (this.responseVisible(id)) {
+            this.showResponseIds = this.showResponseIds.filter(x => x != id);
+        } else {
+            this.showResponseIds.push(id);
+        }
     }
     
     get logEntries() { return this.store.appLogEntries[this.slug] || []; }

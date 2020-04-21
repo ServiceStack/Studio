@@ -196,14 +196,15 @@ export class Results extends Vue {
     getId(row:any) { return getId(this.type, row); }
     
     hasEvent(row:any) {
-        const id = getId(this.type, row);
+        const id = `${getId(this.type, row)}`; //need to use string comparison
         const ret = id && this.eventIds && this.eventIds.indexOf(id) >= 0;
-        //log('hasEvent',row,pk?.name,id,ret);
+        //log('hasEvent',row,this.eventIds,id,ret);
         return ret;
     }
     
     moveSelected(y:number,x:number) {
         if (!this.selectedField) return;
+        if (document.activeElement?.tagName == 'INPUT') return;
         if (y != 0) {
             const prevY = this.selectedField[0];
             this.$set(this.selectedField, 0, prevY + y >= this.results.length
@@ -245,8 +246,17 @@ export class Results extends Vue {
                 this.moveSelected( 0, -1);
             } else if (e.key == 'ArrowRight') {
                 this.moveSelected( 0, 1);
+            } else if (e.key == 'Home') {
+                this.$set(this.selectedField, 1, 0);
+                this.focusSelected();
+            } else if (e.key == 'End') {
+                this.$set(this.selectedField, 1, this.fieldNames.length-1);
+                this.focusSelected();
             }
         }
+    }
+    focusSelected() {
+        this.$nextTick(() => (document.querySelector('.results td.selected') as HTMLElement)?.scrollIntoView());
     }
 
     beforeDestroy() {
@@ -368,6 +378,7 @@ export class Results extends Vue {
 
             this.$set(updateRow, updateKey, updateValue);
             this.resetEdit();
+            this.$emit('refresh');
         });
     }
 }

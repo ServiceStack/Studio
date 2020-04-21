@@ -354,16 +354,23 @@ dl.v-kvp {
     display: inline-block;
     margin: 4px 0 0 4px;
 }
-dl.v-kvp dt {
+dl.v-kvp>dt {
     border-bottom: 1px solid #f1f1f1;
     font-weight: normal;
     background: #f1f1f1;
 }
-dl.v-kvp dt, dl.v-kvp dd {
+dl.v-kvp>dt, dl.v-kvp>dd {
     padding: 1px 4px;
     max-width: 400px;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+dl.v-kvp.log-response, dl.v-kvp.log-response>dt, dl.v-kvp.log-response>dd {
+    max-width: none;
+}
+dl.v-kvp.log-response>dt {
+    cursor: pointer;
+    user-select: none;
 }
 
 dl.h-kvp {
@@ -371,7 +378,7 @@ dl.h-kvp {
     display: inline-block;
     height: 31px;
 }
-dl.h-kvp dt, dl.h-kvp dd {
+dl.h-kvp>dt, dl.h-kvp>dd {
     margin: 0;
     padding: .25em .5em;
     line-height: 22px;
@@ -380,14 +387,14 @@ dl.h-kvp dt, dl.h-kvp dd {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-dl.h-kvp dt {
+dl.h-kvp>dt {
     border-right: 1px solid #f8f9fa;
     background: #f8f9fa;
 }
 .rule dl {
     min-width: 300px;
 }
-.rule dl dt {
+.rule dl>dt {
     min-width: 83px;
 }
 .rule button {
@@ -416,13 +423,20 @@ li.by b i, li.on b i {
     overflow-x: hidden;
 }
 .event.summary {
-    cursor: default;
+    cursor: pointer;
+}
+.event.summary b {
+    font-weight: normal;
+}
+.event.summary li.on b {
+    font-weight: normal;
+    color: #aaa;
 }
 .event-detail {
     margin: 0 0 5px 22px;
 }
 .event .type {
-    min-width: 40px;
+    min-width: 56px;
 }
 .event .op {
 }
