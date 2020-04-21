@@ -21,7 +21,7 @@ import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate,
             </div>        
             <div v-for="f in op.request.properties" :key="f.name" class="form-group">
                 <v-input type="text" :id="f.name" v-model="model[f.name]" :placeholder="f.name" :responseStatus="responseStatus" 
-                         :inputClass="['form-control-' + size]" />                
+                         :inputClass="['form-control-' + size]" :help="f.name" />                
             </div>
             <div class="form-group text-right">
                 <span class="btn btn-link" @click="$emit('done')">Close</span>

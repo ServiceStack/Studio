@@ -1,7 +1,7 @@
 import {Vue, Component, Prop} from 'vue-property-decorator';
-import {store, client, bus, exec, log} from '../../shared';
+import {store, client, bus, exec, log, loadSite} from '../../shared';
 import {autoQueryRoute, validationRoute} from "../../shared/router";
-import {AddConnection, GetSites, RemoveConnection, SiteSetting} from "../../shared/dtos";
+import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
 
 @Component({
     template: `<div id="content" class="container mt-4">
@@ -89,7 +89,7 @@ export class Home extends Vue {
     protected deleteSite(site:SiteSetting) {
         if (confirm(`Are you sure you want to remove '${site.baseUrl}' ?`)) {
             exec(this, async () => {
-               await client.delete(new RemoveConnection({ slug: site.slug }));
+               await client.delete(new ModifyConnection({ removeSlug: site.slug }));
                bus.$emit('removeSite', site.slug);
             });
         }
@@ -101,17 +101,17 @@ export class Home extends Vue {
         
         if (this.$route.query.connect) {
             this.txtBaseUrl = this.$route.query.connect as string;
-            await this.submit();
+            await this.submit(true);
         }
     }
 
-    protected async submit() {
+    protected async submit(autoLoad:boolean=false) {
         try {
             this.loading = true;
             this.responseStatus = null;
 
-            const response = await client.post(new AddConnection({
-                baseUrl: this.txtBaseUrl,
+            const response = await client.post(new ModifyConnection({
+                addBaseUrl: this.txtBaseUrl,
             }));
 
             bus.$emit('sites', response.sites);
@@ -120,6 +120,9 @@ export class Home extends Vue {
             this.txtBaseUrl = '';
             log(`/sites/${response.slug}`);
             this.$router.push(`/sites/${response.slug}`);
+            if (autoLoad) {
+                await loadSite(response.slug);
+            }
         } catch (e) {
             this.responseStatus = e.responseStatus || e;
         } finally {

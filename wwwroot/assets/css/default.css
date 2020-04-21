@@ -175,6 +175,9 @@ table.results td {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+th .modal-content, td .modal-content {
+    font-size: 1rem; /*revert*/
+}
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;   /* Chrome/Safari/Opera */
@@ -259,8 +262,11 @@ table.results td.editing {
     font-size: 1.25rem;
 }
 .confirm-delete {
-    float: left;
-    margin: 5px 0 0 20px;
+    margin: -58px 0 0 20px;
+    position: absolute;
+}
+.confirm-delete.md {
+    margin: -38px 0 0 20px;
 }
 .confirm-delete .form-check-input {
     margin: 10px 0 0 -10px;
@@ -361,13 +367,13 @@ dl.v-kvp dt, dl.v-kvp dd {
 }
 
 dl.h-kvp {
-    border: 1px solid #f1f1f1;
+    border: 1px solid #f8f9fa;
     display: inline-block;
-    height: 28px;
+    height: 31px;
 }
 dl.h-kvp dt, dl.h-kvp dd {
     margin: 0;
-    padding: .25em 1em;
+    padding: .25em .5em;
     line-height: 22px;
     display: inline-block;
     max-width: 400px;
@@ -375,9 +381,19 @@ dl.h-kvp dt, dl.h-kvp dd {
     text-overflow: ellipsis;
 }
 dl.h-kvp dt {
-    border-right: 1px solid #f1f1f1;
-    background: #f1f1f1;
+    border-right: 1px solid #f8f9fa;
+    background: #f8f9fa;
 }
+.rule dl {
+    min-width: 300px;
+}
+.rule dl dt {
+    min-width: 83px;
+}
+.rule button {
+    vertical-align: top;
+} 
+
 ul.event, ul.event li {
     display: inline-block;
 }
@@ -394,6 +410,10 @@ li.by b i, li.on b i {
     font-weight: normal;
     color: #aaa;
     font-style: normal;
+}
+.event-line {
+    white-space: nowrap;
+    overflow-x: hidden;
 }
 .event.summary {
     cursor: default;
@@ -425,7 +445,6 @@ li.by b i, li.on b i {
 #validation-rules {
     width: 100%;
     max-width: 900px;
-    bborder: 1px solid #000;
 }
 #validation-rules th {
     font-size: 1.4em;
@@ -436,7 +455,15 @@ li.by b i, li.on b i {
     width: 50%;
     vertical-align: top;
 }
-
+.type-rule {
+    margin-bottom: 10px;
+}
+.datamodel-nav .router-link-exact-active {
+    font-weight: bold;
+}
+.invalid-feedback {
+    font-size: inherit;
+}
 
 .jsonviewer .ib { display: inline-block; }
 .jsonviewer table { border-collapse:collapse; border: solid 1px #ccc; clear: left; }

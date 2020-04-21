@@ -64,7 +64,7 @@ namespace Studio
             RegisterService<GetValidationRulesService>("/validation/rules/{Type}");
             RegisterService<ModifyValidationRulesService>("/validation/rules");
             
-            ConnectionServices.LoadAppSettings();
+            StudioServices.LoadAppSettings();
             //Plugins.Add(new ValidationFeature());
         }
     }

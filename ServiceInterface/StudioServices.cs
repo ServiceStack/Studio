@@ -10,6 +10,7 @@ using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Text;
 using ServiceStack.Web;
+using Studio.ServiceModel.Types;
 
 namespace Studio.ServiceInterface
 {
@@ -58,7 +59,7 @@ namespace Studio.ServiceInterface
         }
     }
 
-    public class ConnectionServices : Service
+    public class StudioServices : Service
     {
         public static ConcurrentDictionary<string, SiteInfo> Sites =
             new ConcurrentDictionary<string, SiteInfo>(StringComparer.OrdinalIgnoreCase);
@@ -67,7 +68,7 @@ namespace Studio.ServiceInterface
             Sites = CreateSiteSettings().Sites,
         };
         
-        static HashSet<string> nonProviders = new HashSet<string> {
+        static readonly HashSet<string> nonProviders = new HashSet<string> {
             "bearer",
             "session",
             "authsecret",
@@ -263,75 +264,80 @@ namespace Studio.ServiceInterface
             return req;
         }
 
-        public void Any(RemoveConnection request)
+        public object Any(ModifyConnection request)
         {
-            string removeKey = null;
-            foreach (var entry in Sites)
+            if (!string.IsNullOrEmpty(request.AddBaseUrl))
             {
-                if (entry.Value.Slug == request.Slug)
+                var baseUrl = request.AddBaseUrl;
+                if ((baseUrl.Contains("://") && Sites.TryGetValue(baseUrl, out var site)) ||
+                    Sites.TryGetValue("http://" + baseUrl, out site) ||
+                    Sites.TryGetValue("https://" + baseUrl, out site))
                 {
-                    removeKey = entry.Key;
-                    break;
+                    return new ModifyConnectionResponse {
+                        Slug = site.Slug,
+                        Sites = CreateSiteSettings().Sites,
+                        Result = InitSite(site).Metadata,
+                    };
                 }
-            }
 
-            if (removeKey != null && Sites.TryRemove(removeKey, out _))
-            {
+                var useBaseUrl = baseUrl;
+                if (baseUrl.IndexOf("://", StringComparison.Ordinal) == -1)
+                    useBaseUrl = "https://" + baseUrl;
+
+                AppMetadata appMetadata;
+                try 
+                { 
+                    appMetadata = GetAppMetadata(useBaseUrl);
+                }
+                catch (Exception e)
+                {
+                    if (useBaseUrl == baseUrl)
+                        throw;
+
+                    appMetadata = GetAppMetadata("http://" + useBaseUrl);
+                }
+
+                var slug = useBaseUrl.RightPart("://").SafeVarName().Replace("__","_");
+                var siteInfo = new SiteInfo {
+                    BaseUrl = useBaseUrl,
+                    Slug = slug,
+                    Metadata = appMetadata,
+                    AddedDate = DateTime.Now,
+                    AccessDate = DateTime.Now,
+                };
+
+                Sites[useBaseUrl] = siteInfo;
+
                 SaveSettings();
-            }
-        }
-
-        public object Any(AddConnection request)
-        {
-            if (string.IsNullOrEmpty(request.BaseUrl))
-                throw new ArgumentNullException(nameof(request.BaseUrl));
-
-            if ((request.BaseUrl.Contains("://") && Sites.TryGetValue(request.BaseUrl, out var site)) ||
-                Sites.TryGetValue("http://" + request.BaseUrl, out site) ||
-                Sites.TryGetValue("https://" + request.BaseUrl, out site))
-            {
-                return new AddConnectionResponse {
-                    Slug = site.Slug,
+            
+                return new ModifyConnectionResponse {
+                    Slug = slug,
+                    Result = appMetadata,
                     Sites = CreateSiteSettings().Sites,
-                    Result = InitSite(site).Metadata,
                 };
             }
 
-            var baseUrl = request.BaseUrl;
-            if (baseUrl.IndexOf("://", StringComparison.Ordinal) == -1)
-                baseUrl = "https://" + baseUrl;
-
-            AppMetadata appMetadata;
-            try 
-            { 
-                appMetadata = GetAppMetadata(baseUrl);
-            }
-            catch (Exception e)
+            if (!string.IsNullOrEmpty(request.RemoveSlug))
             {
-                if (baseUrl == request.BaseUrl)
-                    throw;
+                string removeKey = null;
+                foreach (var entry in Sites)
+                {
+                    if (entry.Value.Slug == request.RemoveSlug)
+                    {
+                        removeKey = entry.Key;
+                        break;
+                    }
+                }
 
-                appMetadata = GetAppMetadata("http://" + baseUrl);
+                if (removeKey != null && Sites.TryRemove(removeKey, out _))
+                {
+                    SaveSettings();
+                }
+                
+                return new ModifyConnection();
             }
 
-            var slug = baseUrl.RightPart("://").SafeVarName().Replace("__","_");
-            var siteInfo = new SiteInfo {
-                BaseUrl = baseUrl,
-                Slug = slug,
-                Metadata = appMetadata,
-                AddedDate = DateTime.Now,
-                AccessDate = DateTime.Now,
-            };
-
-            Sites[baseUrl] = siteInfo;
-
-            SaveSettings();
-            
-            return new AddConnectionResponse {
-                Slug = slug,
-                Result = appMetadata,
-                Sites = CreateSiteSettings().Sites,
-            };
+            throw new ArgumentNullException(nameof(ModifyConnection.AddBaseUrl));
         }
 
         private SiteInfo InitSite(SiteInfo site)

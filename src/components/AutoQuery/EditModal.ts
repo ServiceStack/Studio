@@ -43,13 +43,13 @@ import {getField, normalizeKey} from "@servicestack/client";
                          :inputClass="['form-control-' + size]" :help="f.name" />                
             </div>
             <div class="form-group text-right">
-                <span v-if="deleteOp" :class="['confirm-delete',size]">
-                    <input id="chkDelete" type="checkbox" class="form-check-input" @change="confirmDelete=!confirmDelete"/> 
-                    <label for="chkDelete" class="form-check-label">confirm</label>
-                    <button class="btn btn-danger " @click.prevent="confirmDelete && deleteRow()" :disabled="!confirmDelete">Delete</button>
-                </span>
                 <span class="btn btn-link" @click="$emit('done')">Close</span>
                 <button type="submit" class="btn btn-primary btn-lg">{{labelButton}}</button>
+            </div>
+            <div v-if="deleteOp" :class="['confirm-delete',size]">
+                <input id="chkDelete" type="checkbox" class="form-check-input" @change="confirmDelete=!confirmDelete"/> 
+                <label for="chkDelete" class="form-check-label">confirm</label>
+                <button class="btn btn-danger " @click.prevent="confirmDelete && deleteRow()" :disabled="!confirmDelete">Delete</button>
             </div>
         </form>
       </div>

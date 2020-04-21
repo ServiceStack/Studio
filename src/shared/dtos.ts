@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-04-21 00:25:42
+Date: 2020-04-21 18:27:17
 Version: 5.8
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -607,21 +607,14 @@ export class GetAppMetadataResponse
     public constructor(init?: Partial<GetAppMetadataResponse>) { (Object as any).assign(this, init); }
 }
 
-export class AddConnectionResponse
+export class ModifyConnectionResponse
 {
     public slug: string;
     public result: AppMetadata;
     public sites: SiteSetting[];
     public responseStatus: ResponseStatus;
 
-    public constructor(init?: Partial<AddConnectionResponse>) { (Object as any).assign(this, init); }
-}
-
-export class HelloResponse
-{
-    public result: string;
-
-    public constructor(init?: Partial<HelloResponse>) { (Object as any).assign(this, init); }
+    public constructor(init?: Partial<ModifyConnectionResponse>) { (Object as any).assign(this, init); }
 }
 
 // @DataContract
@@ -780,7 +773,7 @@ export class SiteInvoke implements IReturn<string>
 }
 
 // @DataContract
-export class SiteProxy
+export class SiteProxy implements IReturn<Uint8Array>
 {
     // @DataMember(Order=1, EmitDefaultValue=true)
     public slug: string;
@@ -792,26 +785,18 @@ export class SiteProxy
     public query: string[];
 
     public constructor(init?: Partial<SiteProxy>) { (Object as any).assign(this, init); }
+    public createResponse() { return new Uint8Array(0); }
+    public getTypeName() { return 'SiteProxy'; }
 }
 
-export class RemoveConnection implements IReturnVoid
+export class ModifyConnection implements IReturn<ModifyConnectionResponse>
 {
-    // @Validate(Validator="NotNull")
-    public slug: string;
+    public addBaseUrl: string;
+    public removeSlug: string;
 
-    public constructor(init?: Partial<RemoveConnection>) { (Object as any).assign(this, init); }
-    public createResponse() {}
-    public getTypeName() { return 'RemoveConnection'; }
-}
-
-export class AddConnection implements IReturn<AddConnectionResponse>
-{
-    // @Validate(Validator="NotNull")
-    public baseUrl: string;
-
-    public constructor(init?: Partial<AddConnection>) { (Object as any).assign(this, init); }
-    public createResponse() { return new AddConnectionResponse(); }
-    public getTypeName() { return 'AddConnection'; }
+    public constructor(init?: Partial<ModifyConnection>) { (Object as any).assign(this, init); }
+    public createResponse() { return new ModifyConnectionResponse(); }
+    public getTypeName() { return 'ModifyConnection'; }
 }
 
 export class GetSiteAppPrefs implements IReturn<AppPrefs>
@@ -831,17 +816,6 @@ export class SaveSiteAppPrefs implements IReturnVoid
     public constructor(init?: Partial<SaveSiteAppPrefs>) { (Object as any).assign(this, init); }
     public createResponse() {}
     public getTypeName() { return 'SaveSiteAppPrefs'; }
-}
-
-// @Route("/hello")
-// @Route("/hello/{Name}")
-export class Hello implements IReturn<HelloResponse>
-{
-    public name: string;
-
-    public constructor(init?: Partial<Hello>) { (Object as any).assign(this, init); }
-    public createResponse() { return new HelloResponse(); }
-    public getTypeName() { return 'Hello'; }
 }
 
 // @Route("/crudevents/{Model}")

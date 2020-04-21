@@ -85,6 +85,7 @@ export class Auth extends Vue {
 
     @Prop({ default: null }) slug: string;
     @Prop({ default: null }) feature: string;
+    @Prop({ default: null }) op?: string;
 
     loading = false;
     responseStatus = null;
@@ -115,10 +116,10 @@ export class Auth extends Vue {
     goto(feature:string) {
         switch (feature) {
             case 'autoquery':
-                this.$router.push(autoQueryRoute(this.slug));
+                this.$router.push(autoQueryRoute(this.slug, this.op ? { op:this.op} : null));
                 break;
             case 'validation':
-                this.$router.push(validationRoute(this.slug));
+                this.$router.push(validationRoute(this.slug, this.op ? { op:this.op} : null));
                 break;
         }
     }

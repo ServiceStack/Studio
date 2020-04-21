@@ -50,7 +50,7 @@ import {getField} from "@servicestack/client";
                 <error-summary :responseStatus="responseStatus" />
                 <router-link to="/">&lt; back to sites</router-link>
             </div>
-            <auth id="auth" v-if="site && app" :slug="slug" feature="autoquery" /> 
+            <auth id="auth" v-if="site && app" :slug="slug" feature="autoquery" :op="op" /> 
         </header>
         
         <nav v-if="app" id="left">
@@ -219,6 +219,7 @@ export class AutoQuery extends Vue {
         const typesMap = store.appTypes[this.slug];
         const existingKeys:{ [id:string]: boolean} = {};
 
+        const search = this.txtFilter.toLowerCase();
         this.api?.operations.forEach(op => {
             if (!op.dataModel)
                 return;
@@ -230,7 +231,7 @@ export class AutoQuery extends Vue {
 
             const type = typesMap[typeKey];
             if (type) {
-                if (!this.txtFilter || type.name.toLowerCase().indexOf(this.txtFilter.toLowerCase()) >= 0) {
+                if (type.name.toLowerCase().indexOf(search) >= 0) {
                     if (!fn || fn(op,type))
                         to.push(op);
                 }
@@ -305,6 +306,8 @@ export class AutoQuery extends Vue {
             request:'CheckCrudEvents',
             args:['model',this.model!.name,'ids',ids]
         }));
+        log('loadEvents', response);
+
         const obj = JSON.parse(response);
         this.eventIds = obj.results;
     }

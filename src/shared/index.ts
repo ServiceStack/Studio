@@ -24,7 +24,6 @@ export {
     ResponseStatus, ResponseError,
     Authenticate, AuthenticateResponse,
     Register,
-    Hello, HelloResponse,
     AppPrefs, Condition
 } from './dtos';
 
@@ -38,7 +37,7 @@ import {
     MetadataType,
     MetadataOperationType,
     GetSites,
-    GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs, MetadataPropertyType, SiteInvoke,
+    GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs, MetadataPropertyType, SiteInvoke, SiteProxy, IReturn,
 } from './dtos';
 
 export enum Roles {
@@ -79,6 +78,7 @@ interface State {
     hasPlugin(slug:string, plugin:string): boolean;
     isDirty(slug:string): boolean;
     logInvoke(method:string,invoke:SiteInvoke): SiteInvoke;
+    logProxy(method:string,proxy:SiteProxy,body:string): SiteProxy;
 }
 export const store: State = {
     nav: global.NAV_ITEMS as GetNavItemsResponse,
@@ -121,6 +121,13 @@ export const store: State = {
         const newEntries = [{ method, invoke }, ...existingEntries];
         Vue.set(this.appLogEntries, invoke.slug, newEntries);
         return invoke;
+    },
+    logProxy(method:string, proxy:SiteProxy, body:any) {
+        log('logProxy', method, proxy, body);
+        const existingEntries = this.appLogEntries[proxy.slug] || [];
+        const newEntries = [{ method, proxy, body }, ...existingEntries];
+        Vue.set(this.appLogEntries, proxy.slug, newEntries);
+        return proxy;
     }
 };
 
@@ -139,7 +146,7 @@ export const matchesType = (x:IModelRef,y:IModelRef) =>
     (x && y) && x.name == y.name && ((!x.namespace || !y.namespace) || x.namespace == y.namespace);
 
 export const collapsed = (slug:string, view:string) => {
-    return (store.getAppPrefs(slug).views || []).indexOf(view) == -1;
+    return (store.getAppPrefs(slug)?.views || []).indexOf(view) == -1;
 };
 
 export const toInvokeArgs = (args:{[id:string]:string}[]) => {
@@ -160,13 +167,13 @@ export const argsAsKvps = (args:string[]) => {
     return to;
 };
 
-export const argsOf = (...args:any[]) => {
-    const to = [];
-    if (args.length % 2 != 0)
-        throw { message: `Invalid number of arguments in argsOf: ${JSON.stringify(args)}` };
-    for (let i=0; i<args.length; i+=2) {
-        to.push(args[i]);
-        to.push(args[i+1]);
+export const dtoAsArgs = (dto:{[id:string]:any}) => {
+    const to:string[] = [];
+    for (let k in dto) {
+        const val = dto[k];
+        if (typeof val == 'function') continue;
+        to.push(k);
+        to.push(`${dto[k]}`);
     }
     return to;
 };
@@ -176,6 +183,8 @@ export const postSiteInvoke = (invoke:SiteInvoke) => client.post(store.logInvoke
 export const putSiteInvoke = (invoke:SiteInvoke) => client.put(store.logInvoke('PUT', invoke));
 export const patchSiteInvoke = (invoke:SiteInvoke) => client.patch(store.logInvoke('PATCH', invoke));
 export const deleteSiteInvoke = (invoke:SiteInvoke) => client.delete(store.logInvoke('DELETE', invoke));
+
+export const postSiteProxy = (proxy:SiteProxy,body:any) => client.postBody(store.logProxy('POST', proxy, body), body);
 
 const zero = () => 0, doubleZero = () => 0.0;
 const types:{[id:string]:() => any} = {
@@ -249,6 +258,7 @@ export const loadSite = async (slug:string, force?:boolean) => {
     if (store.appErrors[slug] && !force)
         return;
     
+    log(`loading site: ${slug}...`);
     let site = store.getSite(slug);
     try {
         bus.$emit('appLoading', { slug, result:true });
@@ -309,6 +319,7 @@ bus.$on('removeSite', (slug:string) => {
 });
 
 bus.$on('app', (app:{ slug:string, result:AppMetadata }) => {
+    log('on$app', app.slug, app.result);
     const newApps = Object.assign({}, store.apps);
     newApps[app.slug] = app.result;
     bus.$set(store, 'apps', newApps);

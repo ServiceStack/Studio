@@ -28,7 +28,7 @@ import {dateFmt, getField, timeFmt12, toDate} from "@servicestack/client";
             <dt>{{pk.name}}</dt>
             <dd>{{id}}</dd>
         </dl>
-        <div v-for="x in results" :key="x.id">
+        <div v-for="x in results" :key="x.id" class="event-line">
             <i v-if="!expanded(x.id)" class="svg svg-chevron-right svg-btn svg-md" title="expand" @click="toggle(x.id)"></i>
             <i v-else class="svg svg-chevron-down svg-btn svg-md" title="collapse" @click="toggle(x.id)"></i>
             <ul class="event summary" @click="toggle(x.id)">
