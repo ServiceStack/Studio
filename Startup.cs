@@ -12,13 +12,10 @@ namespace Studio
 {
     public class Startup : ModularStartup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public new void ConfigureServices(IServiceCollection services)
         {
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -35,17 +32,16 @@ namespace Studio
 
     public class AppHost : AppHostBase
     {
-        public AppHost() : base("AutoQueryStudio", typeof(MyServices).Assembly) { }
+        public AppHost() : base("ServiceStack Studio", typeof(MyServices).Assembly) { }
 
-        // Configure your AppHost with the necessary configuration and dependencies your App needs
         public override void Configure(Container container)
         {
             SetConfig(new HostConfig
             {
                 EmbeddedResourceBaseTypes = { typeof(ServiceStack.Desktop.DesktopAssets) },
+                DebugMode = HostingEnvironment.IsDevelopment(),
                 UseSameSiteCookies = true,
                 AddRedirectParamsToQueryString = true,
-                DebugMode = true,
                 ReturnsInnerException = false,
             });
 
@@ -54,19 +50,18 @@ namespace Studio
                 Plugins.Add(new HotReloadFeature {
                     VirtualFiles = VirtualFiles, //Monitor all folders for changes including /src & /wwwroot
                 });
+
+                //generate types
+                RegisterService<GetCrudEventsService>("/crudevents/{Model}");
+                RegisterService<GetValidationRulesService>("/validation/rules/{Type}");
+                RegisterService<ModifyValidationRulesService>("/validation/rules");
             }
             
             Plugins.Add(new SessionFeature());    // store client auth in session 
             
-            Plugins.Add(new SharpPagesFeature()); // enable server-side rendering, see: https://sharpscript.net/docs/sharp-pages
-
-            //generate types
-            RegisterService<GetCrudEventsService>("/crudevents/{Model}");
-            RegisterService<GetValidationRulesService>("/validation/rules/{Type}");
-            RegisterService<ModifyValidationRulesService>("/validation/rules");
+            Plugins.Add(new SharpPagesFeature());
             
             StudioServices.LoadAppSettings();
-            //Plugins.Add(new ValidationFeature());
         }
     }
 }

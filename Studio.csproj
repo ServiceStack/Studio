@@ -8,10 +8,28 @@
   
   <ItemGroup>
     <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\js" />
+    <Folder Include="wwwroot\lib\css" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />
+    <Content Update="wwwroot\lib\vue\vue.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\vue\vue.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\vue-router\vue-router.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\vue-router\vue-router.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

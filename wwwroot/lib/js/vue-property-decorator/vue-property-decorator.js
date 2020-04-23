@@ -1,8 +1,8 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('vue'), require('vue-class-component')) :
-	typeof define === 'function' && define.amd ? define(['exports', 'vue', 'vue-class-component'], factory) :
-	(factory((global['vue-property-decorator'] = {}),global.Vue,global.VueClassComponent));
-}(this, (function (exports,vue,vueClassComponent) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('vue'), require('vue-class-component')) :
+        typeof define === 'function' && define.amd ? define(['exports', 'vue', 'vue-class-component'], factory) :
+            (global = global || self, factory(global.VuePropertyDecorator = {}, global.Vue, global.VueClassComponent));
+}(this, function (exports, vue, vueClassComponent) { 'use strict';
 
     vue = vue && vue.hasOwnProperty('default') ? vue['default'] : vue;
     var vueClassComponent__default = 'default' in vueClassComponent ? vueClassComponent['default'] : vueClassComponent;
@@ -296,5 +296,5 @@
     exports.Watch = Watch;
 
     Object.defineProperty(exports, '__esModule', { value: true });
-    
-})));
+
+}));

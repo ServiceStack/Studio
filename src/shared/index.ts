@@ -12,7 +12,7 @@ declare let global: any; // populated from package.json/jest
 
 export const client = new JsonServiceClient('/');
 
-export const debug = true;
+export const debug = global.DEBUG as boolean;
 
 export {
     errorResponse, errorResponseExcept,
