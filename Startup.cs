@@ -42,6 +42,7 @@ namespace Studio
         {
             SetConfig(new HostConfig
             {
+                EmbeddedResourceBaseTypes = { typeof(ServiceStack.Desktop.DesktopAssets) },
                 UseSameSiteCookies = true,
                 AddRedirectParamsToQueryString = true,
                 DebugMode = true,

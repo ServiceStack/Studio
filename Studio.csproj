@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
     <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack.Server\ServiceStack.Server.Source.csproj" />
     <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack\ServiceStack.Source.csproj" />
+    <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack.Desktop\ServiceStack.Desktop.csproj" />
   </ItemGroup>
 
   <ItemGroup>
