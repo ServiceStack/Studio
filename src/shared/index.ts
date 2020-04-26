@@ -5,7 +5,7 @@ import {
     UserAttributes,
     IAuthSession,
     normalizeKey,
-    toDate, getField
+    toDate, getField, splitOnFirst
 } from '@servicestack/client';
 
 declare let global: any; // populated from package.json/jest
@@ -58,6 +58,7 @@ let logId = 0;
 
 // Shared state between all Components
 interface State {
+    cef: boolean;
     nav: GetNavItemsResponse;
     userSession: IAuthSession | null;
     userAttributes?: string[];
@@ -83,9 +84,10 @@ interface State {
     logProxy(method:string,proxy:SiteProxy,body:string,response:string): string;
 }
 export const store: State = {
-    nav: global.NAV_ITEMS as GetNavItemsResponse,
-    userSession: global.AUTH as AuthenticateResponse,
-    userAttributes: UserAttributes.fromSession(global.AUTH),
+    cef: global.CONFIG.cef as boolean,
+    nav: global.CONFIG.nav as GetNavItemsResponse,
+    userSession: global.CONFIG.auth as AuthenticateResponse,
+    userAttributes: UserAttributes.fromSession(global.CONFIG.auth),
     sites:[],
     apps:{},
     appTypes:{},
@@ -136,6 +138,12 @@ export const store: State = {
 export function log(...o:any[]) {
     if (debug) console.log.apply(console, arguments as any);
     return o;
+}
+
+export function proxyUrl(url:string) {
+    return url && url.indexOf('://') >= 0 && store.cef
+        ? "proxy:" + splitOnFirst(url, ':')[1]
+        : url;
 }
 
 export const isQuery = (op:MetadataOperationType) => op.request.inherits?.name?.startsWith('QueryDb`');

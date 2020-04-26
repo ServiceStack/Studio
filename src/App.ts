@@ -3,7 +3,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import { bus, store } from './shared';
 
 @Component({ template: 
-    `<div class="has-auth2">
+    `<div>
         <router-view></router-view>
     </div>`
 })

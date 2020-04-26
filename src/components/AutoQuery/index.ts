@@ -29,7 +29,7 @@ import {getField} from "@servicestack/client";
                 <nav class="site-breadcrumbs">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
-                            <router-link to="/"><i class="svg-home svg-3x mb-1" title="home" /></router-link>
+                            <router-link to="/"><i class="home-link svg-3x mb-1" title="home" /></router-link>
                         </li>
                         <li :class="['breadcrumb-item',{active:!model}]">
                             <img v-if="site.iconUrl" :src="site.iconUrl" class="sq-3x mb-1">

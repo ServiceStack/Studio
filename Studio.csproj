@@ -8,8 +8,6 @@
   
   <ItemGroup>
     <Folder Include="wwwroot\" />
-    <Folder Include="wwwroot\js" />
-    <Folder Include="wwwroot\lib\css" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +28,10 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Include="_bundle.ss">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +49,14 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="src\components\AutoQuery\Results.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\_init.ss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\lib\js\@servicestack\desktop\servicestack-desktop.d.ts" />
   </ItemGroup>
 
 </Project>

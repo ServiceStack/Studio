@@ -1,0 +1,5 @@
+name Studio
+port 5002
+
+debug false
+CefConfig { width:1280, height:1024 }

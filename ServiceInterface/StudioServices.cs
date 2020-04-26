@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Studio.ServiceModel;
 using ServiceStack;
 using ServiceStack.Auth;
+using ServiceStack.DataAnnotations;
 using ServiceStack.Text;
 using ServiceStack.Web;
 using Studio.ServiceModel.Types;
@@ -59,6 +60,13 @@ namespace Studio.ServiceInterface
         }
     }
 
+    [ExcludeMetadata]
+    [FallbackRoute("/{PathInfo*}", Matches="AcceptsHtml")]
+    public class FallbackForClientRoutes
+    {
+        public string PathInfo { get; set; }
+    }
+
     public class StudioServices : Service
     {
         public static ConcurrentDictionary<string, SiteInfo> Sites =
@@ -73,6 +81,10 @@ namespace Studio.ServiceInterface
             "session",
             "authsecret",
         };
+
+        //Return index.html for unmatched requests so routing is handled on client
+        public object Any(FallbackForClientRoutes request) => 
+            Request.GetPageResult("/");
 
         public object Any(SiteAuthenticate request)
         {
@@ -452,7 +464,7 @@ namespace Studio.ServiceInterface
             return settings;
         }
 
-        public static void LoadAppSettings()
+        public static ConcurrentDictionary<string, SiteInfo> LoadAppSettings()
         {
             var appSettingsPath = GetAppSettingsPath();
             try
@@ -478,6 +490,7 @@ namespace Studio.ServiceInterface
                     throw new Exception($"Could not load '{appSettingsPath}': {e.Message}", e);
                 }
             }
+            return Sites;
         }
 
         public static string GetAppSettingsPath()

@@ -1,11 +1,5 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec, splitOnFirst} from '../../shared';
-import {MetaAuthProvider, SiteAuthenticate} from "../../shared/dtos";
-import {BearerToken} from "./BearerToken";
-import {OAuthSecret} from "./OAuthSecret";
-import {Credentials} from "./Credentials";
-import {AuthSecret} from "./AuthSecret";
-import {SessionId} from "./SessionId";
+import {store, bus, client, exec, splitOnFirst, proxyUrl} from '../../shared';
 
 @Component({ template: 
     `<div v-if="enabled" id="authModal" class="modal" tabindex="-1" role="dialog" style="display:block">
@@ -39,14 +33,16 @@ export class AuthModal extends Vue {
 
     get enabled() { return this.app && this.app.plugins.auth; }
     
-    get providerUrl() { return this.provider ? `${this.app.app.baseUrl}/auth/${this.provider}` : this.app.app.baseUrl + '/auth?noredirect'; }
+    get providerUrl() { 
+        return proxyUrl(this.provider ? `${this.app.app.baseUrl}/auth/${this.provider}` : this.app.app.baseUrl + '/auth?noredirect')
+    }
     
     get displayUrl() { return splitOnFirst(this.providerUrl,'?')[0]; }
     
     get url() {
         const baseUrl = this.app.app.baseUrl;
         const suffix = this.provider ? '/' + this.provider + `?continue=${encodeURIComponent('/auth')}&` : '?';
-        return `${baseUrl}/auth${suffix}noredirect`;
+        return proxyUrl(`${baseUrl}/auth${suffix}noredirect`);
     }
 
     protected mounted() {

@@ -229,7 +229,7 @@ Vue.component('edit-validation-rule', EditValidationRule);
                 <nav class="site-breadcrumbs">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
-                            <router-link to="/"><i class="svg-home svg-3x mb-1" title="home" /></router-link>
+                            <router-link to="/"><i class="home-link svg-3x mb-1" title="home" /></router-link>
                         </li>
                         <li :class="['breadcrumb-item',{active:!operation}]">
                             <img v-if="site.iconUrl" :src="site.iconUrl" class="sq-3x mb-1">
@@ -271,6 +271,7 @@ Vue.component('edit-validation-rule', EditValidationRule);
         <main>
             <div v-if="operation && !loading">
                 <div v-if="accessible" class="main-container">
+                    <div style="min-height:200px">
                     <table id="validation-rules" class="ml-2">
                     <thead>
                         <tr>
@@ -331,6 +332,7 @@ Vue.component('edit-validation-rule', EditValidationRule);
                     </tr>
                     </tbody>
                     </table>
+                    </div>
                     
                     <div v-if="dataModelOps.length" class="datamodel-nav mt-5">
                         <b class="float-left" style="line-height: 40px">Quick Jump:</b>

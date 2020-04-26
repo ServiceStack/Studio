@@ -12,11 +12,11 @@ import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
         
             <div class="btn-group" role="group">
                 <button v-if="feature != 'autoquery'" class="btn btn-light btn-sm" @click="goto('autoquery')"
-                        title="Go to AutoQuery"><i class="svg-db svg-lg"/></button>
+                        title="Go to AutoQuery"><i class="db-link svg-lg"/></button>
                 <button v-if="feature != 'validation'" class="btn btn-light btn-sm" @click="goto('validation')"
-                        title="Go to Validation"><i class="svg-lock svg-lg"/></button>
+                        title="Go to Validation"><i class="lock-link svg-lg"/></button>
                 <button v-if="prefsDirty || loading" @click="savePrefs()" title="Save Preferences" 
-                        class="btn btn-light btn-sm"><i :class="(loading ? 'svg-loading' : 'svg-save_alt') + ' svg-lg'" /></button>            
+                        class="btn btn-light btn-sm"><i :class="(loading ? 'svg-loading' : 'save-link') + ' svg-lg'" /></button>            
                 <div class="btn-group" role="group">
                     <button @click="showUserPopup=!showUserPopup" id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle">
                         <img v-if="session.profileUrl" :src="session.profileUrl" class="sq-lg mr-1 mb-1">

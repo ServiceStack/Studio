@@ -16,6 +16,9 @@
         "nav  main main"
         "nav  main main"
 }
+.grid-layout.collapse-footer #footer {
+    display: none;
+}
 header {
     background: #fff;
     grid-area: head;

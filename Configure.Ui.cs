@@ -10,7 +10,7 @@ namespace Studio
     {
         public void Configure(IAppHost appHost)
         {
-            Svg.Load(appHost.RootDirectory.GetDirectory("/assets/svg"));
+            // Svg.Load(appHost.RootDirectory.GetDirectory("/assets/svg"));
         }
     }
 }
