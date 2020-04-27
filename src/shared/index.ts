@@ -39,6 +39,7 @@ import {
     GetSites,
     GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs, MetadataPropertyType, SiteInvoke, SiteProxy, IReturn,
 } from './dtos';
+import {evaluateCode} from '@servicestack/desktop';
 
 export enum Roles {
   Admin = 'Admin',
@@ -54,11 +55,17 @@ export interface LogItem {
     invoke:SiteInvoke;
 }
 
+export interface DesktopInfo {
+    tool:string;
+    toolVersion:string;
+    chromeVersion:string;
+}
+
 let logId = 0;
 
 // Shared state between all Components
 interface State {
-    cef: boolean;
+    desktop: DesktopInfo|null;
     nav: GetNavItemsResponse;
     userSession: IAuthSession | null;
     userAttributes?: string[];
@@ -84,7 +91,7 @@ interface State {
     logProxy(method:string,proxy:SiteProxy,body:string,response:string): string;
 }
 export const store: State = {
-    cef: global.CONFIG.cef as boolean,
+    desktop: global.CONFIG.desktop as DesktopInfo,
     nav: global.CONFIG.nav as GetNavItemsResponse,
     userSession: global.CONFIG.auth as AuthenticateResponse,
     userAttributes: UserAttributes.fromSession(global.CONFIG.auth),
@@ -140,10 +147,12 @@ export function log(...o:any[]) {
     return o;
 }
 
-export function proxyUrl(url:string) {
-    return url && url.indexOf('://') >= 0 && store.cef
-        ? "proxy:" + splitOnFirst(url, ':')[1]
-        : url;
+export async function openUrl(url:string) {
+    if (store.desktop) {
+        await evaluateCode(`openUrl('${url}')`);
+    } else {
+        window.open(url);
+    }
 }
 
 export const isQuery = (op:MetadataOperationType) => op.request.inherits?.name?.startsWith('QueryDb`');

@@ -49,6 +49,7 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="src\components\AutoQuery\Results.ts" />
+    <TypeScriptCompile Include="src\components\Validation\EditValidationRule.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,7 +57,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="wwwroot\lib\js\@servicestack\desktop\servicestack-desktop.d.ts" />
+    <EmbeddedResource Include="wwwroot\lib\js\@servicestack\desktop\index.d.ts" />
   </ItemGroup>
 
 </Project>

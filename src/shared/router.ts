@@ -8,7 +8,7 @@ import { Home } from '../components/Home';
 import { AutoQuery } from '../components/AutoQuery';
 import { Validation } from '../components/Validation';
 import { About } from '../components/About';
-import {appendQueryString} from "@servicestack/client";
+import {appendQueryString} from '@servicestack/client';
 
 export enum Routes {
   Home = '/',

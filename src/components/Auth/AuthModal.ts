@@ -1,5 +1,5 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec, splitOnFirst, proxyUrl} from '../../shared';
+import {store, bus, client, exec, splitOnFirst } from '../../shared';
 
 @Component({ template: 
     `<div v-if="enabled" id="authModal" class="modal" tabindex="-1" role="dialog" style="display:block">
@@ -34,7 +34,7 @@ export class AuthModal extends Vue {
     get enabled() { return this.app && this.app.plugins.auth; }
     
     get providerUrl() { 
-        return proxyUrl(this.provider ? `${this.app.app.baseUrl}/auth/${this.provider}` : this.app.app.baseUrl + '/auth?noredirect')
+        return this.provider ? `${this.app.app.baseUrl}/auth/${this.provider}` : this.app.app.baseUrl + '/auth?noredirect';
     }
     
     get displayUrl() { return splitOnFirst(this.providerUrl,'?')[0]; }
@@ -42,7 +42,7 @@ export class AuthModal extends Vue {
     get url() {
         const baseUrl = this.app.app.baseUrl;
         const suffix = this.provider ? '/' + this.provider + `?continue=${encodeURIComponent('/auth')}&` : '?';
-        return proxyUrl(`${baseUrl}/auth${suffix}noredirect`);
+        return `${baseUrl}/auth${suffix}noredirect`;
     }
 
     protected mounted() {

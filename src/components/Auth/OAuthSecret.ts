@@ -1,7 +1,8 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec} from '../../shared';
+import {store, bus, client, exec, splitOnFirst, log, openUrl} from '../../shared';
 import {MetaAuthProvider, SiteAuthenticate} from "../../shared/dtos";
 import {SessionId} from "./SessionId";
+import {evaluateCode} from '@servicestack/desktop';
 
 @Component({ template: 
     `<div v-if="enabled">
@@ -14,8 +15,7 @@ import {SessionId} from "./SessionId";
                     1. Sign In
                 </p>
                 <div class="mb-3">
-                    <button class="btn btn-outline-primary btn-sm mr-1" @click="showOAuthModal='session'">session</button>
-                    <button v-for="x in iframeProviders" class="btn btn-outline-primary btn-sm mr-1" @click="showOAuthModal=x.name">{{x.name}}</button>
+                    <button v-for="x in authProviders" class="btn btn-outline-primary btn-sm mr-1" @click="showProvider(x.name)">{{x.name}}</button>
                 </div>
                 
                 <auth-modal v-if="showOAuthModal" :slug="slug" :provider="oauthModalProvider" @done="modalDone" />
@@ -24,21 +24,32 @@ import {SessionId} from "./SessionId";
                     2. Copy Session Id 
                     <span v-if="includesOAuthTokens">or OAuth AccessToken</span>
                 </p>
-                <ul v-if="tokenProvider" class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                    <li class="nav-item btn-outline-secondary">
-                        <span :class="['nav-link','btn-outline-secondary', {active:true}]">{{tokenProvider}}</span>
+                
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item btn-outline-secondary" @click="selectedProvider='session'">
+                        <span :class="['nav-link','btn-outline-secondary', {active:selectedProvider=='session'}]">sessionId</span>
+                    </li>
+                    <li v-if="tokenProvider != 'session'" class="nav-item btn-outline-secondary" @click="selectedProvider=tokenProvider">
+                        <span :class="['nav-link','btn-outline-secondary', {active:selectedProvider==tokenProvider}]">{{tokenProvider}}</span>
                     </li>
                 </ul>
-                <div v-if="tokenProvider" class="tab-content" id="pills-tabContent">
-                    <div :class="['tab-pane', {active:true}]" id="pills-session" role="tabpanel">
+                <div class="tab-content">
+                    <div :class="['tab-pane', {active:selectedProvider=='session'}]" role="tabpanel">
+                        <div class="form-group">
+                            <v-input id="sessionId" v-model="sessionId" placeholder="Session Id" :responseStatus="responseStatus" />
+                        </div>
+                    </div>
+                    <div v-if="tokenProvider != 'session'" :class="['tab-pane', {active:selectedProvider==tokenProvider}]" role="tabpanel">
                         <div class="form-group">
                             <v-input id="token" v-model="token" placeholder="Token" :responseStatus="responseStatus" />
                         </div>
-                        <div class="form-group">
-                            <button class="btn btn-lg btn-outline-primary" @click="submit">Login</button>
-                        </div>
                     </div>
-                </div>               
+                    <div class="form-group">
+                        <button class="btn btn-lg btn-outline-primary" @click="submit" :disabled="loading">Login</button>
+                        <i v-if="loading" class="svg-loading svg-lg ml-2"></i>
+                    </div>
+                </div>
+                               
             </div>
         </form>
     </div>`,
@@ -52,10 +63,53 @@ export class OAuthSecret extends Vue {
 
     showOAuthModal = '';
     tab = 'session';
-    tokenProvider = '';
+    tokenProvider = 'session';
+    selectedProvider = 'session';
     token = '';
+    sessionId = '';
+    originalClip = '';
+    monitorClip = false;
     
-    get iframeProviders() { return this.providers.filter(x => x.meta && x.meta.allows?.indexOf('embed') >= 0); }
+    get authProviders() { return [{name:'session'}, ...this.providers.filter(x => x.type == 'oauth')]; }
+
+    async showProvider(provider:string) {
+        this.monitorClip = false;
+        this.tokenProvider = provider;
+
+        const authUrl = provider == 'session'
+            ? '/auth?noredirect&copy=session'
+            : `/auth/${provider}?continue=` + encodeURIComponent(`/auth?noredirect&copy=session,${provider}`);
+        
+        await openUrl(this.app.app.baseUrl + authUrl);
+
+        if (store.desktop) {
+            this.selectedProvider = this.tokenProvider;
+            this.monitorClip = true;
+            this.originalClip = await evaluateCode('clip');
+            log('monitorClipboard originalClip: ' + this.originalClip);
+            await this.monitorClipboard();
+        }
+    }
+    
+    async monitorClipboard() {
+        const currentClip = await evaluateCode('clip');
+        if (currentClip && currentClip != this.originalClip) {
+            this.monitorClip = false;
+            if (currentClip.length < 25) {
+                this.selectedProvider = 'session';
+                this.sessionId = currentClip;
+            } else {
+                this.selectedProvider = this.tokenProvider;
+                this.token = currentClip;
+            }
+            let success = await evaluateCode("sendToForeground('browser')");
+            log(`monitorClipboard copy detected: '${currentClip}', sendToForeground: ${success}`);
+            await this.submit();
+        }
+        
+        if (this.monitorClip)
+            setTimeout(() => this.monitorClipboard(), 200);
+    }
     
     get oauthModalProvider() { return this.showOAuthModal === 'session' ? '' : this.showOAuthModal; }
     
@@ -79,15 +133,16 @@ export class OAuthSecret extends Vue {
     }
 
     protected async submit() {
-        if (!(this.tokenProvider && this.token)) {
+        this.monitorClip = false;
+        if (!this.sessionId && !this.token) {
             return;
         }
         await exec(this, async () => {
 
             const response = await client.post(new SiteAuthenticate({
                 slug: this.slug,
-                provider: this.tokenProvider,
-                accessToken: this.token,
+                provider: this.selectedProvider,
+                accessToken: this.selectedProvider == 'session' ? this.sessionId : this.token,
             }));
 
             bus.$emit('appSession', { slug:this.slug, result:response });
