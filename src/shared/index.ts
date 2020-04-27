@@ -66,6 +66,7 @@ let logId = 0;
 // Shared state between all Components
 interface State {
     desktop: DesktopInfo|null;
+    connect:string|null;
     nav: GetNavItemsResponse;
     userSession: IAuthSession | null;
     userAttributes?: string[];
@@ -92,6 +93,7 @@ interface State {
 }
 export const store: State = {
     desktop: global.CONFIG.desktop as DesktopInfo,
+    connect: global.CONFIG.connect as string|null,
     nav: global.CONFIG.nav as GetNavItemsResponse,
     userSession: global.CONFIG.auth as AuthenticateResponse,
     userAttributes: UserAttributes.fromSession(global.CONFIG.auth),

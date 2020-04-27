@@ -32,6 +32,7 @@
 CONFIG = {
   debug:   {{ debug ? 'true' : 'false' }},
   desktop: {{ desktopInfo |> json }},
+  connect: {{ connect |> json }},
   nav:     {{ 'GetNavItems'  |> execService |> json }},
   auth:    {{ 'Authenticate' |> execService({ ifErrorReturn: "null" }) |> json }}
 } 

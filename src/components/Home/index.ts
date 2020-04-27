@@ -99,8 +99,9 @@ export class Home extends Vue {
         const response = await client.get(new GetSites());
         bus.$emit('sites', response.sites);
         
-        if (this.$route.query.connect) {
-            this.txtBaseUrl = this.$route.query.connect as string;
+        const connect = this.$route.query.connect || store.connect;
+        if (connect) {
+            this.txtBaseUrl = connect as string;
             await this.submit(true);
         }
     }
