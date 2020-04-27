@@ -3,3 +3,8 @@ port 5002
 
 debug false
 CefConfig { width:1280, height:1024 }
+
+appName studio
+description Admin UI for managing ServiceStack Instances (v5.9+)
+tags servicestack
+publish https://gist.github.com/gistlyn/d8e7a56027ed6ec3060d9a9896931909
