@@ -9,8 +9,14 @@
     <title>{{ title ?? 'Studio' }}</title>
 </head>
 <body>
-{{ 'buttons,/assets/css/default.css,/assets/css/layout.css' |> cssIncludes }}
+{{ 'buttons' |> cssIncludes }}
 {{ 'svg-auth,app' |> cssIncludes |> svgFill('#212529') }}
+
+{{#if fileExists('/bundle.css') }}
+<link rel="stylesheet" href="/bundle.css">
+{{else}}
+{{ 'content:/src/css/' |> bundleCss({ minify:false, cache:false, out:'/app.bundle.css' }) }}
+{{/if}}
 
 <style>
 .home-link { {{'home'.svgBackgroundImageCss('#4183B8')}} }
