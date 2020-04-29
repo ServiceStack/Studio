@@ -1,8 +1,7 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import {store, bus, client, exec, splitOnFirst, log, openUrl} from '../../shared';
 import {MetaAuthProvider, SiteAuthenticate} from "../../shared/dtos";
-import {SessionId} from "./SessionId";
-import {evaluateCode} from '@servicestack/desktop';
+import {clipboard, sendToForeground} from '@servicestack/desktop';
 
 @Component({ template: 
     `<div v-if="enabled">
@@ -85,14 +84,14 @@ export class OAuthSecret extends Vue {
         if (store.desktop) {
             this.selectedProvider = this.tokenProvider;
             this.monitorClip = true;
-            this.originalClip = await evaluateCode('clip');
+            this.originalClip = await clipboard();
             log('monitorClipboard originalClip: ' + this.originalClip);
             await this.monitorClipboard();
         }
     }
     
     async monitorClipboard() {
-        const currentClip = await evaluateCode('clip');
+        const currentClip = await clipboard();
         if (currentClip && currentClip != this.originalClip) {
             this.monitorClip = false;
             if (currentClip.length < 25) {
@@ -102,7 +101,7 @@ export class OAuthSecret extends Vue {
                 this.selectedProvider = this.tokenProvider;
                 this.token = currentClip;
             }
-            let success = await evaluateCode("sendToForeground('browser')");
+            let success = await sendToForeground('browser');
             log(`monitorClipboard copy detected: '${currentClip}', sendToForeground: ${success}`);
             await this.submit();
         }

@@ -1,4 +1,4 @@
-rem dotnet publish -c release
+dotnet publish -c release
 rd /q /s dist
 md dist\plugins dist\assets
 x run _bundle.ss

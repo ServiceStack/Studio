@@ -19,18 +19,23 @@
 {{/if}}
 
 <style>
-.home-link { {{'home'.svgBackgroundImageCss('#4183B8')}} }
-.db-link { {{'db'.svgBackgroundImageCss('#4183B8')}} }
-.lock-link { {{'lock'.svgBackgroundImageCss('#4183B8')}} }
-.save-link { {{'save'.svgBackgroundImageCss('#4183B8')}} }
-.auth-warning { {{'auth'.svgBackgroundImageCss('#ffc107')}} }
-.help-muted { {{'help'.svgBackgroundImageCss('#999')}} }
-.history-muted { {{'history'.svgBackgroundImageCss('#999')}} }
-.bool-off-muted { {{'check_box_off'.svgBackgroundImageCss('#999')}} }
-.bool-on-muted { {{'check_box_on'.svgBackgroundImageCss('#999')}} }
-.db-dark { {{'db'.svgBackgroundImageCss('#6c757d')}} }
-.lock-dark { {{'lock'.svgBackgroundImageCss('#6c757d')}} }
-.done-success { {{'done'.svgBackgroundImageCss('#28a745')}} }
+{{ {
+'.home-link':      ['home','#4183B8'],
+'.db-link':        ['db','#4183B8'],
+'.lock-link':      ['lock','#4183B8'],
+'.save-link':      ['save','#4183B8'],
+'.help-muted':     ['help','#999'],
+'.history-muted':  ['history','#999'],
+'.bool-off-muted': ['check_box_off','#999'],
+'.bool-on-muted':  ['check_box_on','#999'],
+'.db-dark':        ['db','#6c757d'],
+'.lock-dark':      ['lock','#6c757d'],
+'.auth-warning':   ['auth','#ffc107'],
+'.done-success':   ['done','#28a745'],
+'.block-danger':   ['block','#dc3545'],
+} |> toList |> map => `${it.Key} { ${it.Value[0].svgBackgroundImageCss(it.Value[1])} }` |> joinln |> raw  }}
+
+.text-close::after { content:'\00D7'; }
 </style>
 
 <i hidden>{{ '/js/hot-fileloader.js' |> ifDebugIncludeScript }}</i>

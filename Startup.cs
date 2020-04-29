@@ -63,6 +63,7 @@ namespace Studio
             
             Plugins.AddIfNotExists(new SessionFeature());    // store client auth in session 
             
+            DesktopConfig.Instance.ImportParams.Add("debug"); //needs to happen at appHost initialization
             DesktopConfig.Instance.ImportParams.Add("connect"); //needs to happen at appHost initialization
 
             Plugins.AddIfNotExists(new SharpPagesFeature {

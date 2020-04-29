@@ -50,12 +50,22 @@ namespace Studio.ServiceInterface
                 Slug = request.Slug,
                 User = user,
             };
-            if (request.provider == "bearer")
-                to.BearerToken = request.AccessToken;
-            else if (request.provider == "session")
-                to.SessionId = request.AccessToken;
-            else if (request.provider == "authsecret")
-                to.AuthSecret = request.AccessToken;
+            if (user != null && request.provider != "authsecret")
+            {
+                if (!string.IsNullOrEmpty(user.BearerToken))
+                    to.BearerToken = user.BearerToken;
+                else if (!string.IsNullOrEmpty(user.SessionId))
+                    to.SessionId = user.SessionId;
+            }
+            if (request.AccessToken != null)
+            {
+                if (request.provider == "bearer")
+                    to.BearerToken = request.AccessToken;
+                else if (request.provider == "session")
+                    to.SessionId = request.AccessToken;
+                else if (request.provider == "authsecret")
+                    to.AuthSecret = request.AccessToken;
+            }
             return to;
         }
     }
@@ -235,7 +245,7 @@ namespace Studio.ServiceInterface
                 else if (siteSession.SessionId != null)
                 {
                     client.RequestFilter = req => 
-                        req.Headers[HttpHeaders.XParamOverridePrefix + Keywords.SessionId] = siteSession.SessionId;
+                        req.Headers["X-" + Keywords.SessionId] = siteSession.SessionId;
                 }
                 else if (siteSession.UserName != null && siteSession.Password != null)
                 {
@@ -262,7 +272,8 @@ namespace Studio.ServiceInterface
                 }
                 else if (siteSession.SessionId != null)
                 {
-                    req.Headers[HttpHeaders.XParamOverridePrefix + Keywords.SessionId] = siteSession.SessionId;
+                    var overrideParam = "X-" + Keywords.SessionId;
+                    req.Headers[overrideParam] = siteSession.SessionId;
                 }
                 else if (siteSession.UserName != null && siteSession.Password != null)
                 {
@@ -270,7 +281,8 @@ namespace Studio.ServiceInterface
                 }
                 else if (siteSession.AuthSecret != null)
                 {
-                    req.Headers[HttpHeaders.XParamOverridePrefix + Keywords.AuthSecret] = siteSession.AuthSecret;
+                    var overrideParam = HttpHeaders.XParamOverridePrefix + Keywords.AuthSecret;
+                    req.Headers[overrideParam] = siteSession.AuthSecret;
                 }
             }
             return req;
@@ -406,7 +418,7 @@ namespace Studio.ServiceInterface
                 if (ssMetadata.IndexOf("https://servicestack.net", StringComparison.Ordinal) == -1)
                     throw new Exception("Not a remote ServiceStack Instance");
 
-                throw new Exception("ServiceStack Instance v5.9 or higher required", appEx);
+                throw new Exception("ServiceStack Instance v5.8.1 or higher required", appEx);
             }
 
             AppMetadata appMetadata;

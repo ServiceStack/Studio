@@ -7,14 +7,14 @@ import { Forbidden } from '@servicestack/vue';
 import { Home } from '../components/Home';
 import { AutoQuery } from '../components/AutoQuery';
 import { Validation } from '../components/Validation';
-import { About } from '../components/About';
+import { Desktop } from '../components/Desktop';
 import {appendQueryString} from '@servicestack/client';
 
 export enum Routes {
   Home = '/',
   AutoQuery = '/:slug/autoquery',
   Validation = '/:slug/validation',
-  About = '/about',
+  Desktop = '/desktop',
   Forbidden = '/forbidden',
 }
 
@@ -46,7 +46,7 @@ const routes = [
   { path: Routes.Home, component: Home, props: { name: '' } },
   { path: Routes.AutoQuery, component: AutoQuery },
   { path: Routes.Validation, component: Validation },
-  { path: Routes.About, component: About, props: { message: 'About page' } },
+  { path: Routes.Desktop, component: Desktop },
   { path: Routes.Forbidden, component: Forbidden },
   { path: '*', redirect: '/' },
 ];

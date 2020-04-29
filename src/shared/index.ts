@@ -112,8 +112,11 @@ export const store: State = {
     hasRole(slug:string, role:string) {
         if (role == 'AllowAnon') return true;
         const session = this.getSession(slug);
-        if (role == 'AllowAnyUser' && session) return true;
-        return role && session && session.roles && session.roles.indexOf(role) >= 0 || false;
+        if (!session) return false;
+        if (isAdminAuth(session)) return true;
+        if (role == 'AllowAnyUser') return true;
+        const roles = session.roles || [];
+        return role && roles.indexOf(role) >= 0 || false;
     },
     getAppPrefs(slug:string) { return store.getSite(slug)?.prefs; },
     getType(slug:string,typeRef:IModelRef) {
@@ -143,6 +146,10 @@ export const store: State = {
         return response;
     }
 };
+
+export function isAdminAuth(session:IAuthSession) {
+    return session && session.userName == "authsecret" && session.roles && session.roles.indexOf('Admin') >= 0;
+}
 
 export function log(...o:any[]) {
     if (debug) console.log.apply(console, arguments as any);
@@ -244,6 +251,7 @@ export async function exec(c:any, fn:() => Promise<any>) {
         return await fn();
 
     } catch (e) {
+        log(e);
         c.responseStatus = e.responseStatus || e;
         c.$emit('error', c.responseStatus);
     } finally {
@@ -262,6 +270,8 @@ export const canAccess = (slug:string, op:MetadataOperationType) => {
     const session = store.appSessions[slug];
     if (!session)
         return false;
+    if (isAdminAuth(session))
+        return true;
     const userRoles = session.roles || [];
     if (op.requiredRoles?.length > 0 && !op.requiredRoles.every(role => userRoles.indexOf(role) >= 0))
         return false;

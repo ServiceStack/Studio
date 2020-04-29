@@ -23,7 +23,7 @@ header {
     background: #fff;
     grid-area: head;
     display: grid;
-    grid-template-columns: auto 250px;
+    grid-template-columns: auto auto;
     grid-template-areas: "breadcrumb auth"
 }
 #header {}

@@ -2,7 +2,7 @@ name Studio
 port 5002
 
 debug false
-CefConfig { width:1280, height:1024 }
+CefConfig {}
 
 appName studio
 description Admin UI for managing ServiceStack Instances (v5.9+)

@@ -294,9 +294,6 @@ table.results td.editing {
 .text-close:hover {
     color: #666;
 }
-.text-close::after {
-    content:'\00D7';
-}
 
 #footer .text-close {
     position: fixed;

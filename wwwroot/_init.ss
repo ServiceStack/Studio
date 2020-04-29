@@ -23,6 +23,7 @@
         'content/save_alt.svg':               'save',
         'image/edit.svg':                     'update',
         'action/home.svg':                    'home',
+        'content/block.svg':                  'block',
     } 
 }}
 

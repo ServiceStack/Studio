@@ -52,15 +52,17 @@ Vue.component('edit-validation-rule', EditValidationRule);
         </header>
         
         <nav id="left">
-            <div id="nav-filter">
-                <i v-if="txtFilter" class="text-close" style="position:absolute;margin:0 0 0 265px;" title="clear" @click="txtFilter=''"></i>
-                <v-input v-model="txtFilter" id="txtFilter" placeholder="filter" inputClass="form-control" />
-            </div>
-            <div id="sidebar" class="">
-                <div class="pl-2">
-                    <div v-for="x in operations" :key="typeKey(x.request)" 
-                        :class="['datamodel',{selected:x.request.name==op}]" :title="x.request.name">
-                        <router-link :to="{ query: { op:x.request.name } }">{{x.request.name}}</router-link>
+            <div v-if="accessible">
+                <div id="nav-filter">
+                    <i v-if="txtFilter" class="text-close" style="position:absolute;margin:0 0 0 265px;" title="clear" @click="txtFilter=''"></i>
+                    <v-input v-model="txtFilter" id="txtFilter" placeholder="filter" inputClass="form-control" />
+                </div>
+                <div id="sidebar" class="">
+                    <div class="pl-2">
+                        <div v-for="x in operations" :key="typeKey(x.request)" 
+                            :class="['datamodel',{selected:x.request.name==op}]" :title="x.request.name">
+                            <router-link :to="{ query: { op:x.request.name } }">{{x.request.name}}</router-link>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -150,8 +152,11 @@ Vue.component('edit-validation-rule', EditValidationRule);
                     Sign In
                 </button>
             </div>
-            <div v-else-if="op && !operation">
-                Only {{plugin.accessRole}} Users can maintain Validation Rules
+            <div v-else-if="op && !operation || !accessible" class="text-danger">                
+                <h4>
+                    <i class="svg block-danger svg-2x" />
+                    Only {{plugin.accessRole}} Users can maintain Validation Rules
+                </h4>                
             </div>
         </main>
         
@@ -263,7 +268,7 @@ export class Validation extends Vue {
     }
 
     get operations() :MetadataOperationType[] {
-        if (!this.app)
+        if (!this.app || !this.accessible)
             return [];
 
         const search = this.txtFilter.toLowerCase();

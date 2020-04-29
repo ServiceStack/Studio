@@ -58,6 +58,9 @@
 
   <ItemGroup>
     <None Include="wwwroot\_init.ss" />
+    <None Update="src\components\Desktop.js">
+      <DependentUpon>Desktop.ts</DependentUpon>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
