@@ -42,7 +42,7 @@ import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
               </div>
               <div class="modal-body">
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                    <li class="nav-item" v-if="hasProvider('credentials')" @click="tab='credentials'">
+                    <li class="nav-item" v-if="hasProvider('credentials') && store.desktop" @click="tab='credentials'">
                         <span :class="['nav-link', {active:activeTab('credentials')}]">Credentials</span>
                     </li>
                     <li class="nav-item" v-if="hasOAuth" @click="tab='oauth'">
@@ -59,7 +59,7 @@ import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
                     </li>
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
-                    <div v-if="hasProvider('credentials')" :class="['tab-pane', {active:activeTab('credentials')}]" id="pills-credentials" role="tabpanel">
+                    <div v-if="hasProvider('credentials') && store.desktop" :class="['tab-pane', {active:activeTab('credentials')}]" id="pills-credentials" role="tabpanel">
                         <credentials :slug="slug" @done="showAuthDialog=false" />
                     </div>
                     <div v-if="hasOAuth" :class="['tab-pane', {active:activeTab('oauth')}]" id="pills-oauth" role="tabpanel">
@@ -124,19 +124,25 @@ export class Auth extends Vue {
         }
     }
     
-    activeTab(tab:string) { 
-        return this.tab ? this.tab == tab : this.plugin && this.plugin.authProviders[0]?.name == tab; 
+    get authProviders() { 
+        return (store.desktop ? this.plugin?.authProviders : this.plugin?.authProviders.filter(x => x.type != 'credentials')) || []; 
     }
     
-    hasProvider(provider:string) { return this.plugin.authProviders.some(x => x.name == provider); }
+    get tabActive() { return this.authProviders[0]?.name; }
+    
+    activeTab(tab:string) { 
+        return this.tab ? this.tab == tab : this.authProviders[0]?.type == tab; 
+    }
+    
+    hasProvider(provider:string) { return this.authProviders.some(x => x.name == provider); }
 
-    get hasBearer() { return this.plugin.authProviders.some(x => x.type == 'Bearer'); }
+    get hasBearer() { return this.authProviders.some(x => x.type == 'Bearer'); }
 
-    get hasOAuth() { return this.plugin.authProviders.some(x => x.type == 'oauth'); }
+    get hasOAuth() { return this.authProviders.some(x => x.type == 'oauth'); }
 
-    get oauthProviders() { return this.plugin.authProviders.filter(x => x.type == 'oauth'); }
+    get oauthProviders() { return this.authProviders.filter(x => x.type == 'oauth'); }
 
-    get hasSession() { return this.plugin.authProviders.some(x => x.type == 'credentials' || x.type == 'oauth'); }
+    get hasSession() { return this.authProviders.some(x => x.type == 'credentials' || x.type == 'oauth'); }
 
     get hasAuthSecret() { return this.plugin.hasAuthSecret; }
     
