@@ -41,7 +41,7 @@
 <i hidden>{{ '/js/hot-fileloader.js' |> ifDebugIncludeScript }}</i>
 <script>
 CONFIG = {
-  debug:   {{ debug ? 'true' : 'false' }},
+  debug:   {{ debugMode |> json }},
   desktop: {{ desktopInfo |> json }},
   connect: {{ connect |> json }},
   nav:     {{ 'GetNavItems'  |> execService |> json }},

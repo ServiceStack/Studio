@@ -1,7 +1,7 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import {store, bus, client, exec, splitOnFirst, log, openUrl} from '../../shared';
 import {MetaAuthProvider, SiteAuthenticate} from "../../shared/dtos";
-import {clipboard, sendToForeground} from '@servicestack/desktop';
+import {clipboard, windowSendToForeground} from '@servicestack/desktop';
 
 @Component({ template: 
     `<div v-if="enabled">
@@ -101,7 +101,7 @@ export class OAuthSecret extends Vue {
                 this.selectedProvider = this.tokenProvider;
                 this.token = currentClip;
             }
-            let success = await sendToForeground('browser');
+            let success = await windowSendToForeground();
             log(`monitorClipboard copy detected: '${currentClip}', sendToForeground: ${success}`);
             await this.submit();
         }

@@ -11,7 +11,7 @@ import {
     isQuery,
     isCrud,
     matchesType,
-    toInvokeArgs, collapsed, getSiteInvoke, debug, log, postSiteInvoke
+    toInvokeArgs, collapsed, getSiteInvoke, log, postSiteInvoke
 } from '../../shared';
 import {
     MetadataOperationType, MetadataPropertyType,

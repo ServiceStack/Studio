@@ -12,8 +12,6 @@ declare let global: any; // populated from package.json/jest
 
 export const client = new JsonServiceClient('/');
 
-export const debug = global.DEBUG as boolean;
-
 export {
     errorResponse, errorResponseExcept,
     splitOnFirst, toPascalCase,
@@ -65,6 +63,7 @@ let logId = 0;
 
 // Shared state between all Components
 interface State {
+    debug: boolean|null;
     desktop: DesktopInfo|null;
     connect:string|null;
     nav: GetNavItemsResponse;
@@ -92,6 +91,7 @@ interface State {
     logProxy(method:string,proxy:SiteProxy,body:string,response:string): string;
 }
 export const store: State = {
+    debug: global.CONFIG.debug as boolean,
     desktop: global.CONFIG.desktop as DesktopInfo,
     connect: global.CONFIG.connect as string|null,
     nav: global.CONFIG.nav as GetNavItemsResponse,
@@ -152,7 +152,8 @@ export function isAdminAuth(session:IAuthSession) {
 }
 
 export function log(...o:any[]) {
-    if (debug) console.log.apply(console, arguments as any);
+    if (store.debug) 
+        console.log.apply(console, arguments as any);
     return o;
 }
 
@@ -252,7 +253,7 @@ export async function exec(c:any, fn:() => Promise<any>) {
 
     } catch (e) {
         log(e);
-        c.responseStatus = e.responseStatus || e;
+        c.responseStatus = e.responseStatus || (typeof e == 'string' ? { errorCode:'Error', message:e } : null) || e;
         c.$emit('error', c.responseStatus);
     } finally {
         c.loading = false;

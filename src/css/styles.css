@@ -76,6 +76,14 @@ span.nav-link {
         opacity: 1;
     }
 }
+#debug-links {
+    position:absolute;
+    bottom:1em;
+    right:1em;
+}
+#desktop input[type=number] {
+    width: 100px;
+}
 #sig {
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     width: 100%;

@@ -61,6 +61,10 @@ import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
                 </table>
             </div>
         </div>
+        <div id="debug-links">
+            <button v-if="store.debug" class="btn btn-light btn-sm" @click="$router.push('/desktop')"
+                    title="Go to Desktop"><i class="svg-debug svg-lg"/></button>
+        </div>
     </div>`,
     components: {},
 })
@@ -70,9 +74,7 @@ export class Home extends Vue {
     loading = false;
     responseStatus = null;
 
-    get store() {
-        return store;
-    }
+    get store() { return store;}
 
     protected routeAutoQuery(slug: string) {
         return autoQueryRoute(slug);
