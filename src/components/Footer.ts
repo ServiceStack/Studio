@@ -1,7 +1,8 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import {store, collapsed, argsAsKvps} from '../shared';
+import {store, collapsed, argsAsKvps, log} from '../shared';
 import {SiteInvoke} from "../shared/dtos";
 import {appendQueryString, combinePaths} from "@servicestack/client";
+import {clipboard, setClipboard} from "@servicestack/desktop";
 
 @Component({ template: 
     `<footer id="footer" v-if="!collapsed('footer')">
@@ -10,6 +11,8 @@ import {appendQueryString, combinePaths} from "@servicestack/client";
             <div v-for="x in logEntries" class="log-entry">
                 <div v-if="x.invoke" class="invoke">
                     <h4><i>{{x.method}}</i><b>{{x.invoke.request}}</b>
+                        <a v-if="store.desktop && x.method == 'GET'" href="javascript:void(0)" @click="copy(createUrl(x.invoke))" title="copy url" 
+                           class="svg-copy svg-md mb-1"></a> 
                         <a v-if="x.method == 'GET'" :href="createUrl(x.invoke)" :title="createUrl(x.invoke)" 
                            class="svg-external-link svg-md mb-1" target="_blank"></a> 
                     </h4>
@@ -79,6 +82,11 @@ export class Footer extends Vue {
             url += invoke.args[i] + '=' + encodeURIComponent(invoke.args[i + 1]);
         }
         return url;
+    }
+    
+    async copy(text:string) {
+        log('copy',text);
+        await setClipboard(text); 
     }
 }
 Vue.component('Footer', Footer);

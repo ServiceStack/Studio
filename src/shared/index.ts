@@ -37,7 +37,7 @@ import {
     GetSites,
     GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs, MetadataPropertyType, SiteInvoke, SiteProxy, IReturn,
 } from './dtos';
-import {evaluateCode} from '@servicestack/desktop';
+import {desktopInfo, evaluateCode} from '@servicestack/desktop';
 
 export enum Roles {
   Admin = 'Admin',
@@ -146,6 +146,15 @@ export const store: State = {
         return response;
     }
 };
+
+(async () => {
+    try {
+        store.desktop = await desktopInfo();
+        log('In Desktop app:', store.desktop);
+    } catch (e) {
+        log(`Not in Desktop app:`, e);
+    }
+})();
 
 export function isAdminAuth(session:IAuthSession) {
     return session && session.userName == "authsecret" && session.roles && session.roles.indexOf('Admin') >= 0;

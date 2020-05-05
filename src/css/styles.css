@@ -5,10 +5,7 @@ body {
     height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-    background-color: #f8f8f8;
-}
-.main-container::-webkit-scrollbar-thumb, footer::-webkit-scrollbar-thumb {
-    background-color: #aaa;
+    background-color: #f1f1f1;
 }
 
 .navbar {

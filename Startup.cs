@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Funq;
 using ServiceStack;
+using ServiceStack.Configuration;
 using ServiceStack.Desktop;
 using ServiceStack.Text;
 using ServiceStack.Validation;
@@ -41,12 +42,10 @@ namespace Studio
             Env.StrictMode = true;
             SetConfig(new HostConfig
             {
-                EmbeddedResourceBaseTypes = { typeof(DesktopAssets) },
                 DebugMode = AppSettings.Get("debug", HostingEnvironment.IsDevelopment()),
                 UseSameSiteCookies = false,
                 UseSecureCookies = true,
                 AddRedirectParamsToQueryString = true,
-                ReturnsInnerException = false,
             });
 
             if (Config.DebugMode)
@@ -63,33 +62,28 @@ namespace Studio
             
             Plugins.AddIfNotExists(new SessionFeature());    // store client auth in session 
             
-            DesktopConfig.Instance.ImportParams.Add("debug"); //needs to happen at appHost initialization
-            DesktopConfig.Instance.ImportParams.Add("connect"); //needs to happen at appHost initialization
-
             Plugins.AddIfNotExists(new SharpPagesFeature {
                 // Args = { ["connect"] = "https://localhost:5001" } //test ?connect={url} import scheme
             });
             
             var sites = StudioServices.LoadAppSettings();
-            foreach (var baseUrl in sites.Keys)
-            {
-                try
-                {
-                    var uri = new Uri(baseUrl);                    
-                    DesktopConfig.Instance.ProxyConfigs.Add(new ProxyConfig {
+            Plugins.Add(new DesktopFeature {
+                AccessRole = Config.DebugMode 
+                    ? RoleNames.AllowAnon
+                    : RoleNames.Admin,
+                ImportParams = {
+                    "debug",
+                    "connect",
+                },
+                ProxyConfigs = sites.Keys.Map(baseUrl => new Uri(baseUrl))
+                    .Map(uri => new ProxyConfig {
                         Scheme = uri.Scheme,
                         TargetScheme = uri.Scheme,
                         Domain = uri.Host,
                         AllowCors = true,
                         IgnoreHeaders = { "X-Frame-Options", "Content-Security-Policy" }, 
-                    });
-                }
-                catch (Exception e)
-                {
-                    OnStartupException(e);
-                }
-            }
-
+                    })
+            });
         }
     }
 }

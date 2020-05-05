@@ -13,8 +13,8 @@ import {SessionId} from "./SessionId";
                 <error-summary except="token" :responseStatus="responseStatus" />
             </div>
             <div class="form-group">
-                <v-input id="token" v-model="token" placeholder="AuthSecret" :responseStatus="responseStatus" 
-                         help="The configured AdminAuthSecret" />
+                <v-input id="token" type="password" v-model="token" placeholder="AuthSecret" 
+                         help="The configured AdminAuthSecret" :responseStatus="responseStatus" />
                 <a href="https://docs.servicestack.net/debugging#authsecret" class="lnk-help help-muted" target="_blank" title="help"></a>                                
             </div>
             <div class="form-group">

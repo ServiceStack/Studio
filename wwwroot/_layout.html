@@ -93,6 +93,7 @@ Object.assign(window, window["@servicestack/desktop"], window["@servicestack/cli
 
 {{ scripts |> raw }}
 
+{{initError |> htmlError}}
 {{htmlError}}
 
 </body>

@@ -24,6 +24,7 @@
         'image/edit.svg':                     'update',
         'action/home.svg':                    'home',
         'content/block.svg':                  'block',
+        'content/content_copy.svg':           'copy',
         'action/bug_report.svg':              'debug',
     } 
 }}

@@ -1,0 +1,1 @@
+app start https://localhost:5002 -debug
