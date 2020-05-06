@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/AutoQueryStudio.csproj"
+                "${workspaceFolder}/Studio.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -17,7 +17,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/AutoQueryStudio.csproj"
+                "${workspaceFolder}/Studio.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -28,9 +28,17 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/AutoQueryStudio.csproj"
+                "${workspaceFolder}/Studio.csproj"
             ],
             "problemMatcher": "$tsc"
-        }
+        },
+        {
+            "label": "app start",
+            "command": "dotnet",
+            "windows": {
+                "command": "${env:USERPROFILE}/.dotnet/tools/app.exe start"
+            },
+            "args": ["${file}"]
+        }       
     ]
 }

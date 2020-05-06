@@ -12,6 +12,32 @@
     <Folder Include="wwwroot\assets" />
   </ItemGroup>
 
+  <!--Launch a Process in Parallel-->
+  <UsingTask TaskName="ExecAsync" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <!--The file path is the full path to the executable file to run-->
+      <FilePath ParameterType="System.String" Required="true" />
+      <!--The arguments should contain all the command line arguments that need to be sent to the application-->
+      <Arguments ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+  string name = System.IO.Path.GetFileNameWithoutExtension(FilePath);
+  Log.LogMessage("Starting {0}...", name);        
+  System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo(FilePath, Arguments);
+  processStartInfo.UseShellExecute = true;
+  System.Diagnostics.Process.Start(processStartInfo);
+  Log.LogMessage("Finished running process {0}.", name);
+  ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(OS)'=='Windows_NT'">
+    <ExecAsync FilePath="start" Arguments="app -debug start %ASPNETCORE_URLS%" />
+  </Target>
+  
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />
     <Content Update="wwwroot\lib\vue\vue.js">
@@ -34,6 +60,11 @@
     <Content Include="src\css\styles.css" />
     <Content Include="_bundle.ss">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="package.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>

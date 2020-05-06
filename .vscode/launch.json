@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/AutoQueryStudio.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/Studio.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
@@ -21,7 +21,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/AutoQueryStudio.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/Studio.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -30,21 +30,22 @@
                 "enabled": true,
                 "args": "${auto-detect-url}",
                 "windows": {
-                    "command": "cmd.exe",
-                    "args": "/C start ${auto-detect-url}"
+                    "command": "app.exe",
+                    "args": "-debug start ${auto-detect-url}"
                 },
                 "osx": {
                     "command": "open"
                 },
                 "linux": {
                     "command": "xdg-open"
+                },
+                "windows.original": {
+                    "command": "cmd.exe",
+                    "args": "/C start ${auto-detect-url}"
                 }
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
             }
         },
         {

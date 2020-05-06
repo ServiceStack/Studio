@@ -1,3 +1,3 @@
-pushd dist
+PUSHD ..\dist
 app publish -token %GISTLYN_TOKEN%
-popd
+POPD
