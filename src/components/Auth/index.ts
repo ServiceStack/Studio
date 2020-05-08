@@ -142,7 +142,7 @@ export class Auth extends Vue {
 
     get oauthProviders() { return this.authProviders.filter(x => x.type == 'oauth'); }
 
-    get hasSession() { return this.authProviders.some(x => x.type == 'credentials' || x.type == 'oauth'); }
+    get hasSession() { return this.authProviders.some(x => x.type == 'session' || x.type == 'credentials' || x.type == 'oauth'); }
 
     get hasAuthSecret() { return this.plugin.hasAuthSecret; }
     
