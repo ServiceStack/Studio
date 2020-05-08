@@ -514,7 +514,7 @@ namespace Studio.ServiceInterface
         public static string GetAppPath()
         {
             var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(homeDir, ".servicestack", "autoquery-studio");
+            return Path.Combine(homeDir, ".servicestack", "studio");
         }
     }
 
