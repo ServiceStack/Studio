@@ -97,13 +97,4 @@
     <EmbeddedResource Include="wwwroot\lib\js\@servicestack\desktop\index.d.ts" />
   </ItemGroup>
 
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\css\default.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\layout.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\src2\css\layout.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\src2\css\styles.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\assets\css\layout.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\assets\css\styles.css" />
-  </ItemGroup>
-
 </Project>

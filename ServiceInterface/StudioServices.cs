@@ -70,13 +70,6 @@ namespace Studio.ServiceInterface
         }
     }
 
-    [ExcludeMetadata]
-    [FallbackRoute("/{PathInfo*}", Matches="AcceptsHtml")]
-    public class FallbackForClientRoutes
-    {
-        public string PathInfo { get; set; }
-    }
-
     public class StudioServices : Service
     {
         public static ConcurrentDictionary<string, SiteInfo> Sites =
@@ -91,10 +84,6 @@ namespace Studio.ServiceInterface
             "session",
             "authsecret",
         };
-
-        //Return index.html for unmatched requests so routing is handled on client
-        public object Any(FallbackForClientRoutes request) => 
-            Request.GetPageResult("/");
 
         public object Any(SiteAuthenticate request)
         {

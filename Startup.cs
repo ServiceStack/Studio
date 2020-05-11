@@ -63,6 +63,7 @@ namespace Studio
             Plugins.AddIfNotExists(new SessionFeature());    // store client auth in session 
             
             Plugins.AddIfNotExists(new SharpPagesFeature {
+                EnableSpaFallback = true,
                 // Args = { ["connect"] = "https://localhost:5001" } //test ?connect={url} import scheme
             });
             
