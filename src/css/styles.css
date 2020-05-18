@@ -183,6 +183,15 @@ table.results td {
 th .modal-content, td .modal-content {
     font-size: 1rem; /*revert*/
 }
+table.results .filters td {
+    padding: 0 1px;
+    margin: 0;
+}
+.filters input {
+    min-width: 50px;
+    width: 100%;
+    font-size: 11px;
+}
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;   /* Chrome/Safari/Opera */
@@ -213,7 +222,7 @@ th .modal-content, td .modal-content {
     pointer-events: auto;
     color: #4183B8;
 }
-.svg-btn, .btn-link {
+.svg-btn, .btn-link, .th-link {
     cursor: pointer;
     user-select: none;
 }
@@ -475,6 +484,9 @@ li.by b i, li.on b i {
 }
 .invalid-feedback {
     font-size: inherit;
+}
+.btn-compact.btn-sm {
+    padding:.10rem .4rem;
 }
 
 .jsonviewer .ib { display: inline-block; }

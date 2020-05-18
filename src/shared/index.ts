@@ -5,7 +5,7 @@ import {
     UserAttributes,
     IAuthSession,
     normalizeKey,
-    toDate, getField, splitOnFirst
+    toDate, getField, splitOnFirst, padInt
 } from '@servicestack/client';
 
 declare let global: any; // populated from package.json/jest
@@ -22,7 +22,7 @@ export {
     ResponseStatus, ResponseError,
     Authenticate, AuthenticateResponse,
     Register,
-    AppPrefs, Condition
+    AppPrefs, 
 } from './dtos';
 
 import {
@@ -35,7 +35,13 @@ import {
     MetadataType,
     MetadataOperationType,
     GetSites,
-    GetAppMetadata, Condition, AppPrefs, SaveSiteAppPrefs, MetadataPropertyType, SiteInvoke, SiteProxy, IReturn,
+    GetAppMetadata,
+    AppPrefs,
+    SaveSiteAppPrefs,
+    MetadataPropertyType,
+    SiteInvoke,
+    SiteProxy,
+    QueryPrefs,
 } from './dtos';
 import {desktopInfo, evaluateCode} from '@servicestack/desktop';
 
@@ -58,6 +64,10 @@ export interface DesktopInfo {
     toolVersion:string;
     chromeVersion:string;
 }
+export interface ColumnSchema {
+    columnName: string;
+    dataType: string;
+}
 
 let logId = 0;
 
@@ -65,6 +75,7 @@ let logId = 0;
 interface State {
     debug: boolean|null;
     desktop: DesktopInfo|null;
+    hasExcel: boolean|null;
     connect:string|null;
     nav: GetNavItemsResponse;
     userSession: IAuthSession | null;
@@ -93,6 +104,7 @@ interface State {
 export const store: State = {
     debug: global.CONFIG.debug as boolean,
     desktop: global.CONFIG.desktop as DesktopInfo,
+    hasExcel: global.CONFIG.hasExcel as boolean || false,
     connect: global.CONFIG.connect as string|null,
     nav: global.CONFIG.nav as GetNavItemsResponse,
     userSession: global.CONFIG.auth as AuthenticateResponse,
@@ -118,7 +130,13 @@ export const store: State = {
         const roles = session.roles || [];
         return role && roles.indexOf(role) >= 0 || false;
     },
-    getAppPrefs(slug:string) { return store.getSite(slug)?.prefs; },
+    getAppPrefs(slug:string) { 
+        const ret = store.getSite(slug)?.prefs;
+        if (ret) {
+            if (!ret.query) ret.query = {};
+        }
+        return ret;
+    },
     getType(slug:string,typeRef:IModelRef) {
         if (!typeRef) return null;
         const siteTypes = store.appTypes[slug];
@@ -187,15 +205,18 @@ export const collapsed = (slug:string, view:string) => {
     return (store.getAppPrefs(slug)?.views || []).indexOf(view) == -1;
 };
 
-export const toInvokeArgs = (args:{[id:string]:string}[]) => {
-    var to:string[] = [];
+export const toInvokeArgs = (args:{[id:string]:string}[],encode=true) => {
+    const to:string[] = [];
     if (!args) return to;
     args.forEach(o => Object.keys(o).forEach(k => {
         to.push(k);
-        to.push(o[k]);
+        to.push(encode ? invokeValue(o[k]) : o[k]);
     }));
     return to;
 };
+
+//Need to rewrite ',' in values so SiteInvoke.Args doesn't treat as multiple fields 
+export const invokeValue = (s:string) => s.indexOf(',') >= 0 ? s.replace(/,/g,String.fromCharCode(31)) : s;
 
 export const argsAsKvps = (args:string[]) => {
     const to = [];
@@ -233,6 +254,10 @@ const types:{[id:string]:() => any} = {
     DateTime: () => new Date().toISOString(), DateTimeOffset: () => new Date().toISOString(),
     TimeSpan: () => '00:00:00',
 };
+
+export const dateFmtHMS = (d: Date = new Date()) =>
+    `${d.getFullYear()-2000}${padInt(d.getMonth() + 1)}${padInt(d.getDate())}-${padInt(d.getHours())}${padInt(d.getMinutes())}${padInt(d.getSeconds())}`;
+
 
 export const defaultValue = (prop:MetadataPropertyType) => {
     const f = types[prop.type];
@@ -413,20 +438,21 @@ bus.$on('appError', (siteResult:{ slug:string, result:ResponseStatus }) => {
     bus.$set(store, 'appErrors', newErrors);
 });
 
-bus.$on('appPrefs', (siteResult:{ slug:string, request:string, queryConditions?:Condition[] }) => {
-    const { slug, request, queryConditions } = siteResult;
-    log('appPrefs', slug, request, queryConditions);
+bus.$on('appPrefs', (siteResult:{ slug:string, request:string, query?:QueryPrefs }) => {
+    const { slug, request, query } = siteResult;
+    log('appPrefs', slug, request, query);
     const siteIndex = store.sites.findIndex(x => x.slug == slug);
     const site = store.sites[siteIndex];
     if (!site) return;
-    if (queryConditions) {
-        const appPrefs = site.prefs || new AppPrefs({ queryConditions:{} });
-        Vue.set(appPrefs.queryConditions, request, queryConditions);
+    if (query) {
+        const appPrefs = site.prefs || new AppPrefs({ query:{} });
+        Vue.set(appPrefs.query, request, query);
         Vue.set(site, 'prefs', appPrefs);
         Vue.set(store.sites, siteIndex, site);
     }
     Vue.set(store.appDirty, slug, true);
     log('isDirty', store.isDirty(slug));
+    bus.$emit('savePrefs', { slug });
 });
 
 export const checkAuth = async () => {

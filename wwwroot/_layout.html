@@ -21,6 +21,10 @@
 <style>
 {{ {
 '.home-link':      ['home','#4183B8'],
+'.first-link':     ['chevron-first','#4183B8'],
+'.left-link':      ['chevron-left','#4183B8'],
+'.right-link':     ['chevron-right','#4183B8'],
+'.last-link':      ['chevron-last','#4183B8'],
 '.db-link':        ['db','#4183B8'],
 '.lock-link':      ['lock','#4183B8'],
 '.save-link':      ['save','#4183B8'],
@@ -43,6 +47,7 @@
 CONFIG = {
   debug:   {{ debugMode |> json }},
   desktop: {{ desktopInfo |> json }},
+  hasExcel:{{ (isWin ? typeofProgId('Excel.Application') != null : false) |> json }},
   connect: {{ connect |> json }},
   nav:     {{ 'GetNavItems'  |> execService |> json }},
   auth:    {{ 'Authenticate' |> execService({ ifErrorReturn: "null" }) |> json }}

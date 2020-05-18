@@ -1,7 +1,7 @@
 import {Component, Vue} from 'vue-property-decorator';
 import {
     openUrl,
-    open,
+    start,
     messageBox,
     MessageBoxType,
     clipboard,
@@ -40,8 +40,8 @@ import {exec, log } from "../shared";
                 <h3 class="mb-4">Desktop General APIs</h3>
 
                 <p>
-                    <pre>open('%USERPROFILE%\\.sharp-apps')</pre>
-                    <button class="btn btn-outline-primary" @click="exec('open')">open</button>
+                    <pre>start('%USERPROFILE%\\.sharp-apps')</pre>
+                    <button class="btn btn-outline-primary" @click="exec('start')">start</button>
                     <span class="result">{{results.open}}</span>
                 </p>
 
@@ -137,7 +137,7 @@ export class Desktop extends Vue {
     loading = false;
     
     cmds:{[id:string]:() => Promise<any>} = {
-        open: () => open('%USERPROFILE%\\\\.sharp-apps'),
+        start: () => start('%USERPROFILE%\\\\.sharp-apps'),
         openUrl: () => openUrl('https://google.com'),
         messageBox: () => messageBox('The Title', 'Caption', MessageBoxType.YesNo | MessageBoxType.IconInformation),
         clipboard: () => clipboard(),

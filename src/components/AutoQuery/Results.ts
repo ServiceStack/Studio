@@ -29,15 +29,26 @@ Vue.component('format', FormatString);
                 <i v-if="!session" class="svg svg-btn svg-auth svg-md" title="Sign In to Edit" @click="bus.$emit('signin')" />
                 <i v-else-if="createOp" class="svg svg-btn svg-create svg-md" :title="createLabel" @click="show('Create')"/>
             </th>
-            <th v-for="f in fieldNames" :key="f" :class="{partial:isPartialField(f)}">
-                {{ humanize(f) }}
+            <th v-for="f in fieldNames" :key="f" :class="{partial:isPartialField(f)}" @click="setOrderBy(f)" class="th-link">
+                <div class="text-nowrap">
+                    {{ humanize(f) }}
+                    <span v-if="orderBy==f" class="svg svg-chevron-up svg-md align-top"></span>
+                    <span v-else-if="orderBy=='-'+f" class="svg svg-chevron-down svg-md align-top"></span>
+                </div>
             </th>
             <th v-if="enableEvents">
                 <i class="svg svg-history history-muted svg-md" title="Event History" />
             </th>
         </tr></thead>
         <tbody>
-            <tr v-for="(r,i) in results" :key="i" :class="{ selected:selectedRow(i) }">
+            <tr class="filters">
+                <td><span><i class="ml-1 svg svg-btn svg-filter svg-md" :title="helpFilters()" /></span></td>
+                <td v-for="(f,j) in fieldNames">
+                    <input type="text" v-model="filters[f]" @keydown.enter.stop="filterSearch()">
+                </td>
+            </tr>
+            <template v-for="(r,i) in results">
+            <tr :key="i" :class="{ selected:selectedRow(i) }">
                 <td v-if="crud.length">
                     <span v-if="hasCrud(['Update','Delete'])">
                         <i v-if="session && hasAccessibleCrud(['Update','Delete'])" class="svg svg-btn svg-update svg-sm" :title="updateLabel" 
@@ -69,6 +80,7 @@ Vue.component('format', FormatString);
                     <i v-if="hasEvent(r)" class="svg svg-history history-muted svg-btn svg-md" title="Event History" @click="show('Events',i)" />
                 </td>
             </tr>
+            </template>
         </tbody>
     </table>
     <error-view :responseStatus="responseStatus" />
@@ -76,6 +88,10 @@ Vue.component('format', FormatString);
 <div v-else class="results-none">
     <div class="ml-1 mb-3">
         <span class="mr-1 d-inline-block">There were no results</span>        
+        <button v-if="hasFilters" class="btn btn-outline-secondary btn-sm" @click="filterSearch(filters={})"
+            >&times;
+            reset filters
+        </button>
         <button v-if="session && createOp" class="btn btn-outline-primary btn-sm" :title="createLabel" @click="show('Create')"
             >&plus;
             New {{type.name}}
@@ -87,9 +103,15 @@ Vue.component('format', FormatString);
 export class Results extends Vue {
     @Prop({ default: '' }) public slug: string;
     @Prop() public results: any[];
+    @Prop() public fields: string[];
+    @Prop() public defaultFilters: { [id:string]: string };
+    @Prop() public orderBy: string;
     @Prop() public eventIds: string[];
     @Prop() public type: MetadataType;
     @Prop({ default:[] }) public crud: MetadataOperationType[];
+    @Prop() public resetPulse: boolean;
+    
+    filters: { [id:string]: string } = {};
 
     loading = false;
     responseStatus:any = null;
@@ -111,11 +133,17 @@ export class Results extends Vue {
     get store() { return store; }
     get session() { return store.getSession(this.slug); }
     get plugin() { return store.getApp(this.slug).plugins.autoQuery; }
+    get hasFilters() { return Object.keys(this.filters).length > 0; }
 
     get enableEvents() { return this.plugin.crudEventsServices && store.hasRole(this.slug, this.plugin?.accessRole); }
 
-    get fields() { return this.type.properties; }
-    get fieldNames() { return this.type.properties.map(x => x.name); }
+    get fieldNames() { 
+        let ret = this.type.properties.map(x => x.name);
+        if (this.fields.length > 0) {
+            ret = ret.filter(x => this.fields.indexOf(x) >= 0);
+        }
+        return ret;
+    }
     
     show(tab?:string,rowIndex?:number) {
         this.selectedField = null;
@@ -159,12 +187,12 @@ export class Results extends Vue {
     }
 
     hasAccessibleCrud(actions:string[]) {
-        var crudInterfaces = actions.map(x => `I${x}Db\`1`);
+        const crudInterfaces = actions.map(x => `I${x}Db\`1`);
         return this.crud.some(x => canAccess(this.slug,x) && x.request.implements?.some(r => crudInterfaces.indexOf(r.name) >= 0));
     }
 
     hasCrud(actions:string[]) {
-        var crudInterfaces = actions.map(x => `I${x}Db\`1`);
+        const crudInterfaces = actions.map(x => `I${x}Db\`1`);
         return this.crud.some(x => x.request.implements?.some(r => crudInterfaces.indexOf(r.name) >= 0));
     }
 
@@ -249,9 +277,11 @@ export class Results extends Vue {
             } else if (e.key == 'Home') {
                 this.$set(this.selectedField, 1, 0);
                 this.focusSelected();
+                e.preventDefault();
             } else if (e.key == 'End') {
                 this.$set(this.selectedField, 1, this.fieldNames.length-1);
                 this.focusSelected();
+                e.preventDefault();
             }
         }
     }
@@ -266,6 +296,10 @@ export class Results extends Vue {
     mounted() {
         window.addEventListener('keydown', this.onKeyDown);
         log('Results.mounted()');
+    }
+    
+    updated() {
+        this.filters = this.defaultFilters;
     }
     
     isEditingRow(rowIndex:number) {
@@ -321,6 +355,7 @@ export class Results extends Vue {
         this.responseStatus = null;
         this.editingField = null;
         this.editingValue = '';
+        this.filters = this.defaultFilters;
     }
     
     // need to find what serialized key (default camelCase) is from schema key (default PascalCase) 
@@ -380,6 +415,31 @@ export class Results extends Vue {
             this.resetEdit();
             this.$emit('refresh');
         });
+    }
+    
+    setOrderBy(field:string) {
+        this.$emit('orderBy',field);
+    }
+
+    filterSearch() {
+        Object.keys(this.filters).forEach(k => {
+            if (this.filters[k] === '') {
+                delete this.filters[k];
+            }
+        })
+        this.$emit('filterSearch',this.filters);
+    }
+
+    helpFilters() {
+        return `Search Filters:
+Use '=null' or '!=null' to search NULL columns
+Use '<= < > >= <> !=' prefix to search with that operator
+Use ',' suffix to perform an IN(values) search on integers
+Use '%' prefix or suffix to perform a LIKE wildcard search`
+/*
+Use '=' prefix to perform an exact coerced search
+Otherwise a 'string equality' search is performed
+* */
     }
 }
 export default Results;

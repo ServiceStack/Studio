@@ -162,6 +162,7 @@ namespace Studio.ServiceInterface
                     
                     var key = args[i];
                     var val = args[i + 1];
+                    val = val?.Replace((char)31, ','); // 31 1F US (unit separator) 
                     sb.Append(key).Append('=').Append(val.UrlEncode());
                 }
                 return StringBuilderCache.ReturnAndFree(sb);
@@ -175,7 +176,7 @@ namespace Studio.ServiceInterface
             if (request.Request == null)
                 throw new ArgumentNullException(nameof(request.Request));
 
-            var url = site.BaseUrl.CombineWith("json", "reply", request.Request);
+            var url = CreateSiteRequestUrl(site, request.Request);
             var qs = ToUrlEncoded(request.Args);
             var sendInBody = HttpUtils.HasRequestBody(Request.Verb);
             if (!string.IsNullOrEmpty(qs) && !sendInBody)
@@ -203,7 +204,7 @@ namespace Studio.ServiceInterface
             if (request.Request == null)
                 throw new ArgumentNullException(nameof(request.Request));
 
-            var url = site.BaseUrl.CombineWith("json", "reply", request.Request);
+            var url = CreateSiteRequestUrl(site, request.Request);
             var qs = ToUrlEncoded(request.Query);
             if (!string.IsNullOrEmpty(qs))
                 url += "?" + qs;
@@ -212,6 +213,13 @@ namespace Studio.ServiceInterface
 
             var proxy = new ProxyFeatureHandler();
             await proxy.ProxyRequestAsync((IHttpRequest) Request, webReq);
+        }
+
+        private string CreateSiteRequestUrl(SiteInfo site, string requestDtoName)
+        {
+            // /json/reply/{Request} or /csv/reply/{Request} 
+            var url = site.BaseUrl.CombineWith(Request.PathInfo.LastLeftPart('/'), requestDtoName);
+            return url;
         }
 
         private static SiteInfo GetSite(string slug) => 
@@ -513,18 +521,27 @@ namespace Studio.ServiceInterface
         {
             if (prefs == null) return null;
 
-            if (prefs.QueryConditions != null)
+            if (prefs.Query != null)
             {
                 var keysToRemove = new List<string>();
-                foreach (var entry in prefs.QueryConditions)
+                foreach (var entry in prefs.Query)
                 {
                     if (entry.Value.IsEmpty())
                         keysToRemove.Add(entry.Key);
                 }
-                keysToRemove.Each(x => prefs.QueryConditions.Remove(x));
+                keysToRemove.Each(x => prefs.Query.Remove(x));
             }
             
             return prefs;
+        }
+
+        public static bool IsEmpty(this QueryPrefs dto)
+        {
+            return string.IsNullOrEmpty(dto.SearchText)
+               && string.IsNullOrEmpty(dto.OrderBy)
+               && dto.Fields.IsEmpty()
+               && dto.Filters.IsEmpty()
+               && dto.Skip == 100;
         }
     }
 }

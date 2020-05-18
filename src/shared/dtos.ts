@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-04-25 03:28:18
+Date: 2020-05-18 20:46:39
 Version: 5.8
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -40,9 +40,23 @@ export interface IPost
 {
 }
 
+export class QueryPrefs
+{
+    public searchField: string;
+    public searchType: string;
+    public searchText: string;
+    public skip: number;
+    public take: number;
+    public orderBy: string;
+    public filters: { [index: string]: string; };
+    public fields: string[];
+
+    public constructor(init?: Partial<QueryPrefs>) { (Object as any).assign(this, init); }
+}
+
 export class AppPrefs
 {
-    public queryConditions: { [index: string]: Condition[]; };
+    public query: { [index: string]: QueryPrefs; };
     public views: string[];
 
     public constructor(init?: Partial<AppPrefs>) { (Object as any).assign(this, init); }
@@ -85,19 +99,19 @@ export class ResponseError
 // @DataContract
 export class ResponseStatus
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public errorCode: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public message: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public stackTrace: string;
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public errors: ResponseError[];
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<ResponseStatus>) { (Object as any).assign(this, init); }
@@ -156,6 +170,7 @@ export class AuthInfo
     public includesOAuthTokens?: boolean;
     public htmlRedirect: string;
     public authProviders: MetaAuthProvider[];
+    public serviceRoutes: { [index: string]: string[]; };
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<AuthInfo>) { (Object as any).assign(this, init); }
@@ -166,6 +181,7 @@ export class AutoQueryConvention
     public name: string;
     public value: string;
     public types: string;
+    public valueType: string;
 
     public constructor(init?: Partial<AutoQueryConvention>) { (Object as any).assign(this, init); }
 }
@@ -217,6 +233,7 @@ export class SharpPagesInfo
     public scriptAdminRole: string;
     public metadataDebugAdminRole: string;
     public metadataDebug?: boolean;
+    public spaFallback?: boolean;
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<SharpPagesInfo>) { (Object as any).assign(this, init); }
@@ -243,6 +260,16 @@ export class PluginInfo
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<PluginInfo>) { (Object as any).assign(this, init); }
+}
+
+export class CustomPlugin
+{
+    public accessRole: string;
+    public serviceRoutes: { [index: string]: string[]; };
+    public enabled: string[];
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<CustomPlugin>) { (Object as any).assign(this, init); }
 }
 
 export class MetadataTypesConfig
@@ -421,6 +448,7 @@ export class AppMetadata
     public app: AppInfo;
     public contentTypeFormats: { [index: string]: string; };
     public plugins: PluginInfo;
+    public customPlugins: { [index: string]: CustomPlugin; };
     public api: MetadataTypes;
     public meta: { [index: string]: string; };
 
@@ -430,25 +458,25 @@ export class AppMetadata
 // @DataContract
 export class QueryBase
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public skip?: number;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public take?: number;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public orderBy: string;
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public orderByDesc: string;
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public include: string;
 
-    // @DataMember(Order=6, EmitDefaultValue=true)
+    // @DataMember(Order=6)
     public fields: string;
 
-    // @DataMember(Order=7, EmitDefaultValue=true)
+    // @DataMember(Order=7)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<QueryBase>) { (Object as any).assign(this, init); }
@@ -463,49 +491,49 @@ export class QueryDb<T> extends QueryBase
 // @DataContract
 export class CrudEvent
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public id: number;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public eventType: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public model: string;
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public modelId: string;
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public eventDate: string;
 
-    // @DataMember(Order=6, EmitDefaultValue=true)
+    // @DataMember(Order=6)
     public rowsUpdated?: number;
 
-    // @DataMember(Order=7, EmitDefaultValue=true)
+    // @DataMember(Order=7)
     public requestType: string;
 
-    // @DataMember(Order=8, EmitDefaultValue=true)
+    // @DataMember(Order=8)
     public requestBody: string;
 
-    // @DataMember(Order=9, EmitDefaultValue=true)
+    // @DataMember(Order=9)
     public userAuthId: string;
 
-    // @DataMember(Order=10, EmitDefaultValue=true)
+    // @DataMember(Order=10)
     public userAuthName: string;
 
-    // @DataMember(Order=11, EmitDefaultValue=true)
+    // @DataMember(Order=11)
     public remoteIp: string;
 
-    // @DataMember(Order=12, EmitDefaultValue=true)
+    // @DataMember(Order=12)
     public urn: string;
 
-    // @DataMember(Order=13, EmitDefaultValue=true)
+    // @DataMember(Order=13)
     public refId?: number;
 
-    // @DataMember(Order=14, EmitDefaultValue=true)
+    // @DataMember(Order=14)
     public refIdStr: string;
 
-    // @DataMember(Order=15, EmitDefaultValue=true)
+    // @DataMember(Order=15)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<CrudEvent>) { (Object as any).assign(this, init); }
@@ -539,15 +567,6 @@ export class ValidationRule extends ValidateRule
     public constructor(init?: Partial<ValidationRule>) { super(init); (Object as any).assign(this, init); }
 }
 
-export class Condition
-{
-    public searchField: string;
-    public searchType: string;
-    public searchText: string;
-
-    public constructor(init?: Partial<Condition>) { (Object as any).assign(this, init); }
-}
-
 export class GetSitesResponse
 {
     public sites: SiteSetting[];
@@ -559,40 +578,40 @@ export class GetSitesResponse
 // @DataContract
 export class AuthenticateResponse implements IHasSessionId, IHasBearerToken
 {
-    // @DataMember(Order=11, EmitDefaultValue=true)
+    // @DataMember(Order=11)
     public responseStatus: ResponseStatus;
 
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public userId: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public sessionId: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public userName: string;
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public displayName: string;
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public referrerUrl: string;
 
-    // @DataMember(Order=6, EmitDefaultValue=true)
+    // @DataMember(Order=6)
     public bearerToken: string;
 
-    // @DataMember(Order=7, EmitDefaultValue=true)
+    // @DataMember(Order=7)
     public refreshToken: string;
 
-    // @DataMember(Order=8, EmitDefaultValue=true)
+    // @DataMember(Order=8)
     public profileUrl: string;
 
-    // @DataMember(Order=9, EmitDefaultValue=true)
+    // @DataMember(Order=9)
     public roles: string[];
 
-    // @DataMember(Order=10, EmitDefaultValue=true)
+    // @DataMember(Order=10)
     public permissions: string[];
 
-    // @DataMember(Order=12, EmitDefaultValue=true)
+    // @DataMember(Order=12)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<AuthenticateResponse>) { (Object as any).assign(this, init); }
@@ -620,19 +639,19 @@ export class ModifyConnectionResponse
 // @DataContract
 export class QueryResponse<T>
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public offset: number;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public total: number;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public results: T[];
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public meta: { [index: string]: string; };
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<QueryResponse<T>>) { (Object as any).assign(this, init); }
@@ -641,10 +660,10 @@ export class QueryResponse<T>
 // @DataContract
 export class GetValidationRulesResponse
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public results: ValidationRule[];
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<GetValidationRulesResponse>) { (Object as any).assign(this, init); }
@@ -653,16 +672,16 @@ export class GetValidationRulesResponse
 // @DataContract
 export class AssignRolesResponse
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public allRoles: string[];
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public allPermissions: string[];
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public meta: { [index: string]: string; };
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<AssignRolesResponse>) { (Object as any).assign(this, init); }
@@ -671,16 +690,16 @@ export class AssignRolesResponse
 // @DataContract
 export class UnAssignRolesResponse
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public allRoles: string[];
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public allPermissions: string[];
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public meta: { [index: string]: string; };
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<UnAssignRolesResponse>) { (Object as any).assign(this, init); }
@@ -689,28 +708,28 @@ export class UnAssignRolesResponse
 // @DataContract
 export class RegisterResponse
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public userId: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public sessionId: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public userName: string;
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public referrerUrl: string;
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public bearerToken: string;
 
-    // @DataMember(Order=6, EmitDefaultValue=true)
+    // @DataMember(Order=6)
     public refreshToken: string;
 
-    // @DataMember(Order=7, EmitDefaultValue=true)
+    // @DataMember(Order=7)
     public responseStatus: ResponseStatus;
 
-    // @DataMember(Order=8, EmitDefaultValue=true)
+    // @DataMember(Order=8)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<RegisterResponse>) { (Object as any).assign(this, init); }
@@ -758,13 +777,13 @@ export class GetAppMetadata implements IReturn<GetAppMetadataResponse>
 // @DataContract
 export class SiteInvoke implements IReturn<string>
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public slug: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public request: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public args: string[];
 
     public constructor(init?: Partial<SiteInvoke>) { (Object as any).assign(this, init); }
@@ -775,13 +794,13 @@ export class SiteInvoke implements IReturn<string>
 // @DataContract
 export class SiteProxy implements IReturn<Uint8Array>
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public slug: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public request: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public query: string[];
 
     public constructor(init?: Partial<SiteProxy>) { (Object as any).assign(this, init); }
@@ -822,13 +841,13 @@ export class SaveSiteAppPrefs implements IReturnVoid
 // @DataContract
 export class GetCrudEvents extends QueryDb<CrudEvent> implements IReturn<QueryResponse<CrudEvent>>
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public authSecret: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public model: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public modelId: string;
 
     public constructor(init?: Partial<GetCrudEvents>) { super(init); (Object as any).assign(this, init); }
@@ -840,10 +859,10 @@ export class GetCrudEvents extends QueryDb<CrudEvent> implements IReturn<QueryRe
 // @DataContract
 export class GetValidationRules implements IReturn<GetValidationRulesResponse>
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public authSecret: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public type: string;
 
     public constructor(init?: Partial<GetValidationRules>) { (Object as any).assign(this, init); }
@@ -855,22 +874,22 @@ export class GetValidationRules implements IReturn<GetValidationRulesResponse>
 // @DataContract
 export class ModifyValidationRules implements IReturnVoid
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public authSecret: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public saveRules: ValidationRule[];
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public deleteRuleIds: number[];
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public suspendRuleIds: number[];
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public unsuspendRuleIds: number[];
 
-    // @DataMember(Order=6, EmitDefaultValue=true)
+    // @DataMember(Order=6)
     public clearCache?: boolean;
 
     public constructor(init?: Partial<ModifyValidationRules>) { (Object as any).assign(this, init); }
@@ -878,66 +897,101 @@ export class ModifyValidationRules implements IReturnVoid
     public getTypeName() { return 'ModifyValidationRules'; }
 }
 
+// @Route("/script")
+export class EvalScript implements IReturn<string>
+{
+    public authSecret: string;
+    public evaluateScript: string;
+    public evaluateCode: string;
+    public evaluateLisp: string;
+    public renderScript: string;
+    public renderCode: string;
+    public renderLisp: string;
+    public evaluateScriptAsync: string;
+    public evaluateCodeAsync: string;
+    public evaluateLispAsync: string;
+    public renderScriptAsync: string;
+    public renderCodeAsync: string;
+    public renderLispAsync: string;
+
+    public constructor(init?: Partial<EvalScript>) { (Object as any).assign(this, init); }
+    public createResponse() { return ''; }
+    public getTypeName() { return 'EvalScript'; }
+}
+
+// @Route("/desktop/downloads/{File}/url/{Url*}")
+export class DesktopDownloadUrl implements IReturnVoid
+{
+    public file: string;
+    public url: string;
+    public open: boolean;
+    public start: string;
+
+    public constructor(init?: Partial<DesktopDownloadUrl>) { (Object as any).assign(this, init); }
+    public createResponse() {}
+    public getTypeName() { return 'DesktopDownloadUrl'; }
+}
+
 // @Route("/auth")
 // @Route("/auth/{provider}")
 // @DataContract
 export class Authenticate implements IReturn<AuthenticateResponse>, IPost
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public provider: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public state: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public oauth_token: string;
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public oauth_verifier: string;
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public userName: string;
 
-    // @DataMember(Order=6, EmitDefaultValue=true)
+    // @DataMember(Order=6)
     public password: string;
 
-    // @DataMember(Order=7, EmitDefaultValue=true)
+    // @DataMember(Order=7)
     public rememberMe?: boolean;
 
-    // @DataMember(Order=9, EmitDefaultValue=true)
+    // @DataMember(Order=9)
     public errorView: string;
 
-    // @DataMember(Order=10, EmitDefaultValue=true)
+    // @DataMember(Order=10)
     public nonce: string;
 
-    // @DataMember(Order=11, EmitDefaultValue=true)
+    // @DataMember(Order=11)
     public uri: string;
 
-    // @DataMember(Order=12, EmitDefaultValue=true)
+    // @DataMember(Order=12)
     public response: string;
 
-    // @DataMember(Order=13, EmitDefaultValue=true)
+    // @DataMember(Order=13)
     public qop: string;
 
-    // @DataMember(Order=14, EmitDefaultValue=true)
+    // @DataMember(Order=14)
     public nc: string;
 
-    // @DataMember(Order=15, EmitDefaultValue=true)
+    // @DataMember(Order=15)
     public cnonce: string;
 
-    // @DataMember(Order=16, EmitDefaultValue=true)
+    // @DataMember(Order=16)
     public useTokenCookie?: boolean;
 
-    // @DataMember(Order=17, EmitDefaultValue=true)
+    // @DataMember(Order=17)
     public accessToken: string;
 
-    // @DataMember(Order=18, EmitDefaultValue=true)
+    // @DataMember(Order=18)
     public accessTokenSecret: string;
 
-    // @DataMember(Order=19, EmitDefaultValue=true)
+    // @DataMember(Order=19)
     public scope: string;
 
-    // @DataMember(Order=20, EmitDefaultValue=true)
+    // @DataMember(Order=20)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<Authenticate>) { (Object as any).assign(this, init); }
@@ -949,16 +1003,16 @@ export class Authenticate implements IReturn<AuthenticateResponse>, IPost
 // @DataContract
 export class AssignRoles implements IReturn<AssignRolesResponse>, IPost
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public userName: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public permissions: string[];
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public roles: string[];
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<AssignRoles>) { (Object as any).assign(this, init); }
@@ -970,16 +1024,16 @@ export class AssignRoles implements IReturn<AssignRolesResponse>, IPost
 // @DataContract
 export class UnAssignRoles implements IReturn<UnAssignRolesResponse>, IPost
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public userName: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public permissions: string[];
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public roles: string[];
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<UnAssignRoles>) { (Object as any).assign(this, init); }
@@ -991,34 +1045,34 @@ export class UnAssignRoles implements IReturn<UnAssignRolesResponse>, IPost
 // @DataContract
 export class Register implements IReturn<RegisterResponse>, IPost
 {
-    // @DataMember(Order=1, EmitDefaultValue=true)
+    // @DataMember(Order=1)
     public userName: string;
 
-    // @DataMember(Order=2, EmitDefaultValue=true)
+    // @DataMember(Order=2)
     public firstName: string;
 
-    // @DataMember(Order=3, EmitDefaultValue=true)
+    // @DataMember(Order=3)
     public lastName: string;
 
-    // @DataMember(Order=4, EmitDefaultValue=true)
+    // @DataMember(Order=4)
     public displayName: string;
 
-    // @DataMember(Order=5, EmitDefaultValue=true)
+    // @DataMember(Order=5)
     public email: string;
 
-    // @DataMember(Order=6, EmitDefaultValue=true)
+    // @DataMember(Order=6)
     public password: string;
 
-    // @DataMember(Order=7, EmitDefaultValue=true)
+    // @DataMember(Order=7)
     public confirmPassword: string;
 
-    // @DataMember(Order=8, EmitDefaultValue=true)
+    // @DataMember(Order=8)
     public autoLogin?: boolean;
 
-    // @DataMember(Order=10, EmitDefaultValue=true)
+    // @DataMember(Order=10)
     public errorView: string;
 
-    // @DataMember(Order=11, EmitDefaultValue=true)
+    // @DataMember(Order=11)
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<Register>) { (Object as any).assign(this, init); }

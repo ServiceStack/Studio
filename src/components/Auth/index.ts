@@ -42,14 +42,14 @@ import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
               </div>
               <div class="modal-body">
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                    <li class="nav-item" v-if="hasProvider('credentials') && store.desktop" @click="tab='credentials'">
+                    <li class="nav-item" v-if="hasProvider('credentials')" @click="tab='credentials'">
                         <span :class="['nav-link', {active:activeTab('credentials')}]">Credentials</span>
                     </li>
                     <li class="nav-item" v-if="hasOAuth" @click="tab='oauth'">
                         <span :class="['nav-link', {active:activeTab('oauth')}]">OAuth</span>
                     </li>
-                    <li class="nav-item" v-if="hasBearer" @click="tab='bearer'">
-                        <span :class="['nav-link', {active:activeTab('bearer')}]">Token</span>
+                    <li class="nav-item" v-if="hasBearer" @click="tab='Bearer'">
+                        <span :class="['nav-link', {active:activeTab('Bearer')}]">Token</span>
                     </li>
                     <li class="nav-item" v-if="hasSession" @click="tab='session'">
                         <span :class="['nav-link', {active:activeTab('session')}]">Session</span>
@@ -59,13 +59,13 @@ import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
                     </li>
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
-                    <div v-if="hasProvider('credentials') && store.desktop" :class="['tab-pane', {active:activeTab('credentials')}]" id="pills-credentials" role="tabpanel">
+                    <div v-if="hasProvider('credentials')" :class="['tab-pane', {active:activeTab('credentials')}]" id="pills-credentials" role="tabpanel">
                         <credentials :slug="slug" @done="showAuthDialog=false" />
                     </div>
                     <div v-if="hasOAuth" :class="['tab-pane', {active:activeTab('oauth')}]" id="pills-oauth" role="tabpanel">
                         <oauth-secret :slug="slug" :providers="oauthProviders" @done="showAuthDialog=false" />
                     </div>
-                    <div v-if="hasBearer" :class="['tab-pane', {active:activeTab('bearer')}]" id="pills-bearer" role="tabpanel">
+                    <div v-if="hasBearer" :class="['tab-pane', {active:activeTab('Bearer')}]" id="pills-bearer" role="tabpanel">
                         <bearer-token :slug="slug" @done="showAuthDialog=false" />
                     </div>
                     <div v-if="hasSession" :class="['tab-pane', {active:activeTab('session')}]" id="pills-session" role="tabpanel">
@@ -125,7 +125,7 @@ export class Auth extends Vue {
     }
     
     get authProviders() { 
-        return (store.desktop ? this.plugin?.authProviders : this.plugin?.authProviders.filter(x => x.type != 'credentials')) || []; 
+        return this.plugin?.authProviders || []; 
     }
     
     get tabActive() { return this.authProviders[0]?.name; }

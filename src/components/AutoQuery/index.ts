@@ -7,19 +7,25 @@ import {
     loadSite,
     IModelRef,
     exec,
-    Condition,
     isQuery,
     isCrud,
     matchesType,
-    toInvokeArgs, collapsed, getSiteInvoke, log, postSiteInvoke
+    toInvokeArgs, 
+    collapsed, 
+    getSiteInvoke, 
+    log, 
+    postSiteInvoke, 
+    dateFmtHMS
 } from '../../shared';
 import {
-    MetadataOperationType, MetadataPropertyType,
+    MetadataOperationType,
     MetadataType,
-    MetadataTypes, SiteInvoke
+    MetadataPropertyType,
+    SiteInvoke,
 } from "../../shared/dtos";
 import { Route } from "vue-router";
-import {getField} from "@servicestack/client";
+import { getField } from "@servicestack/client";
+import { desktopSaveDownloadUrl } from "@servicestack/desktop";
 
 @Component({ template:
     `<section v-if="enabled" id="autoquery" :class="['grid-layout',windowStyles]">
@@ -89,12 +95,12 @@ import {getField} from "@servicestack/client";
                             <v-input v-model="searchText" placeholder="value" class="" inputClass="form-control" />
                         </td>
                         <td>
-                            <button type="submit" :disabled="!selectedCondition" class="btn btn-outline-primary ml-1" title="Search">
+                            <button type="submit" :disabled="!hasSelectedCondition" class="btn btn-outline-primary ml-1" title="Search">
                                 Search
                             </button>
                         </td>
                         <td>
-                            <i v-if="selectedCondition" class="text-close ml-2" style="line-height:.5em" title="reset query" @click="resetQuery()"/>
+                            <i v-if="dirty" class="text-close ml-2" style="line-height:.5em" title="reset query" @click="resetQuery()"/>
                         </td>
                     </tr>
                     </table>
@@ -103,7 +109,22 @@ import {getField} from "@servicestack/client";
                 </div>
             </div>
             <div v-if="model && response && !responseStatus" class="main-container">
-                <results :slug="slug" :results="results" :type="model" :crud="crudOperations" :eventIds="eventIds" @refresh="reset()" />
+                <div v-if="showSelectColumns">
+                    <select-columns :columns="columns" v-model="fields" @done="handleSelectColumns($event)" />
+                </div>
+                <div v-if="!loading" class="main-query">
+                    <span class="btn svg svg-fields svg-2x" title="View Columns" @click="showSelectColumns=!showSelectColumns"></span>
+                    <button class="btn first-link svg-2x" :disabled="skip==0" title="<< first" @click="viewNext(-total)"></button>
+                    <button class="btn left-link svg-2x"  :disabled="skip==0" title="< previous" @click="viewNext(-100)"></button>
+                    <button class="btn right-link svg-2x" :disabled="results.length < take" title="next >" @click="viewNext(100)"></button>
+                    <button class="btn last-link svg-2x"  :disabled="results.length < take" title="last >>" @click="viewNext(total)"></button>
+                    <span class="px-1 results-label">Showing Results {{skip+1}} - {{min(skip + results.length,total)}} <span v-if="total!=null">of {{total}}</span></span>
+                    <button class="btn btn-outline-success btn-sm btn-compact" @click="openCsv()" 
+                        :title="store.hasExcel ? 'Open in Excel' : 'Open CSV'"><i class="svg-md svg-excel"></i>{{store.hasExcel ? 'excel' : 'csv' }}</button>
+                </div>
+                <results :slug="slug" :results="results" :defaultFilters="filters" :fields="fields" :orderBy="orderBy" :type="model" 
+                         :crud="crudOperations" :eventIds="eventIds" :resetPulse="resetPulse"
+                         @orderBy="setOrderBy($event)" @refresh="restore()" @filterSearch="filterSearch($event)" />
             </div>
             <div v-else-if="responseStatus"><error-view :responseStatus="responseStatus" class="mt-5" /></div>
         </main>
@@ -116,12 +137,20 @@ import {getField} from "@servicestack/client";
 export class AutoQuery extends Vue {
     @Prop({ default: '' }) name: string;
     txtFilter = '';
+    showSelectColumns = false;
     
     searchField = '';
     searchType = '';
     searchText = '';
-    conditions:Condition[] = [];
-    
+    skip = 0;
+    take = 100;
+    orderBy = '';
+    filters:{[id:string]:string} = {};
+    fields:string[] = [];
+
+    resetPulse = false;
+
+    total:number|null = null;
     responseJson = '';
     response:any = null;
     results:any[] = [];
@@ -140,7 +169,7 @@ export class AutoQuery extends Vue {
 
     @Watch('$route', { immediate: true, deep: true })
     async onUrlChange(newVal: Route) {
-        await this.reset();
+        await this.restore();
     }
     
     async resetQuery() {
@@ -148,29 +177,31 @@ export class AutoQuery extends Vue {
         this.searchField = this.$route.query.field as string || pk?.name || '';
         this.searchType = this.$route.query.type as string || '%';
         this.searchText = this.$route.query.q as string || '';
-        var convention = this.plugin?.viewerConventions.find(c => c.value === this.searchType);
-        if (convention) {
-            const field = convention.value.replace("%", this.searchField);
-            await this.search([field,' ']);
-        }
+        this.skip = this.$route.query.skip && parseInt(this.$route.query.skip as string) || 0;
+        this.take = this.$route.query.take && parseInt(this.$route.query.take as string) || 100;
+        this.orderBy = this.$route.query.orderBy as string || '';
+        this.fields = this.$route.query.fields && (this.$route.query.fields as string).split(',') || [];
+        this.filters = {};
+        this.resetPulse = !this.resetPulse;
+        await this.search();
     }
     
-    async reset() {
+    async restore() {
         log('reset', this.op, this.modelRef, this.model);
         this.responseStatus = null;
         this.responseJson = '';
         const pk = this.model?.properties.find(x => x.isPrimaryKey) as MetadataPropertyType;
-        const queryPrefs = (store.getAppPrefs(this.slug)?.queryConditions[this.op] || [])[0];
+        const queryPrefs = store.getAppPrefs(this.slug)?.query[this.op] || {};
         this.searchField = this.$route.query.field as string || queryPrefs?.searchField || pk?.name || '';
         this.searchType = this.$route.query.type as string || queryPrefs?.searchType || '%';
         this.searchText = this.$route.query.q as string || queryPrefs?.searchText || '';
-        const customQuery = this.$route.query.field || this.$route.query.type || this.$route.query.q;
+        this.skip = this.$route.query.skip && parseInt(this.$route.query.skip as string) || queryPrefs?.skip || 0;
+        this.take = this.$route.query.take && parseInt(this.$route.query.take as string) || queryPrefs?.take || 100;
+        this.orderBy = this.$route.query.orderBy as string || queryPrefs?.orderBy || '';
+        this.fields = this.$route.query.fields && (this.$route.query.fields as string).split(',') || queryPrefs?.fields || [];
+        this.filters = queryPrefs?.filters || {};
 
-        if (customQuery || queryPrefs) {
-            await this.submit();
-        } else {
-            await this.search([]);
-        }
+        await this.search();
     }
     
     get site() { return store.getSite(this.slug); }
@@ -184,13 +215,20 @@ export class AutoQuery extends Vue {
     get enabled() { return this.app && store.hasPlugin(this.slug, 'autoquery'); }
     
     get enableEvents() { return this.plugin?.crudEventsServices && this.store.hasRole(this.slug, this.plugin.accessRole); }
-    
+
+    min(num1:number,num2:number) { return Math.min(num1, num2); }
+    get dirty() { return this.hasSelectedCondition || this.skip || this.orderBy || Object.keys(this.filters).length > 0 || this.fields.length > 0; }
+
     get modelRef() { return (this.api?.operations.find(x => x.request.name === this.$route.query.op) as MetadataOperationType)?.dataModel; }
 
     get model() { return store.getType(this.slug,this.modelRef); }
 
     get modelProps() { 
         return [ {key:'',value:'Columns...'}, ...this.model?.properties.map(x => ({ key:x.name, value:x.name}))||[] ]; 
+    }
+    
+    get columns() { 
+        return this.model?.properties.map(x => ({ columnName:x.name, dataType:x.typeNamespace ? `${x.typeNamespace}.${x.type}` : x.type  })) 
     }
     
     get viewerConventions() { 
@@ -255,41 +293,51 @@ export class AutoQuery extends Vue {
         return this.filterOperations((op, table) => isCrud(op) && matchesType(op.dataModel, this.modelRef));
     }
     
-    get selectedCondition():Condition|null { 
-        return !this.searchField || !this.searchType || !this.searchText ? null 
-            : { searchField:this.searchField, searchType:this.searchType, searchText:this.searchText };
-    }
+    get hasSelectedCondition() { return this.searchField && this.searchType && this.searchText; }
 
     async mounted() {
         await loadSite(this.slug);
-        await this.reset();
+        await this.restore();
         bus.$on('signedin', () => {
-            this.reset();
+            this.restore();
         });
     }
     
     async submit() {
-        log('submit', this.selectedCondition);
-        if (!this.selectedCondition) return;
-        
-        await exec(this, async () => {
-            var searchArgs = this.searchArgs();
-            searchArgs.push({ include:'total' });
-            return await this.search(toInvokeArgs(searchArgs));
-        });
+        log('submit', this.hasSelectedCondition);
+        if (!this.hasSelectedCondition) return;
+
+        return await this.search();
     }
     
-    async search(invokeArgs:string[]) {
+    async search() {
         if (!this.op) return;
+        const invokeArgs = toInvokeArgs(this.searchArgs());
         await exec(this, async () => {
             const request = new SiteInvoke({ slug:this.slug, request:this.op, args: invokeArgs});
             log('siteInvoke',request);
             this.responseJson = await getSiteInvoke(request);
             this.response = JSON.parse(this.responseJson);
             this.results = this.response && (this.response.results || this.response.Results);
-            bus.$emit('appPrefs', { slug:this.slug, request:this.op, queryConditions:this.allConditions });
+            this.total = this.response && this.response.total;
+            bus.$emit('appPrefs', { slug:this.slug, request:this.op, query:this.query });
 
             await this.loadEvents();
+        });
+    }
+
+    async openCsv() {
+        const args = this.searchArgs().filter(x => !x.take);
+        const invokeArgs = toInvokeArgs(args);
+        await exec(this, async () => {
+            const request = new SiteInvoke({ slug:this.slug, request:this.op, args: invokeArgs });
+            const url = client.createUrlFromDto("GET", request).replace("/json/","/csv/");
+            log('openCsv',request,url);
+            let downloadUrl = desktopSaveDownloadUrl(`${this.op}-${dateFmtHMS()}.csv`, url) + "?open=true";
+            if (store.hasExcel) {
+                downloadUrl += '&start=excel';
+            }
+            await fetch(downloadUrl);
         });
     }
     
@@ -317,25 +365,71 @@ export class AutoQuery extends Vue {
             && (this.searchType.toLowerCase() !== 'between' || (this.searchText.indexOf(',') > 0 && this.searchText.indexOf(',') < this.searchText.length -1));
     }
     
-    get allConditions() {
-        const conditions = [...(this.conditions || [])];
-        if (this.selectedCondition) {
-            conditions.push(this.selectedCondition);
-        }
-        return conditions;
+    get query() {
+        return ({
+            searchField: this.searchField,
+            searchType: this.searchType,
+            searchText: this.searchText,
+            skip: this.skip,
+            take: this.take,
+            orderBy: this.orderBy,
+            filters: this.filters,
+            fields: this.fields,
+        });
     }
     
     searchArgs() {
         const args:{[id:string]:string}[] = [];
-
-        this.allConditions.forEach(condition => {
-            const { searchField, searchType, searchText } = condition;
-            var convention = this.plugin?.viewerConventions.find(c => c.value === searchType);
-            if (convention) {
-                const field = convention.value.replace("%", searchField);
-                args.push({ [field]: searchText });
-            }
-        });
+        args.push({ include: 'total' });
+        if (this.fields.length > 0) {
+            args.push({ fields: this.fields.join(',') });
+        }
+        if (Object.keys(this.filters).length > 0) {
+            Object.keys(this.filters).forEach(k => {
+                const v = this.filters[k];
+                if (v == '=null') {
+                    args.push({ [`${k}IsNull`]: '' })
+                } else if (v == '!=null') {
+                    args.push({ [`${k}IsNotNull`]: '' })
+                } else if (v.startsWith('<=')) {
+                    args.push({ [`${k}<`]: v.substring(2) })
+                } else if (v.startsWith('>=')) {
+                    args.push({ [`>${k}`]: v.substring(2) })
+                } else if (v.startsWith('<>') || v.startsWith('!=') ) {
+                    args.push({ [`${k}!`]: v.substring(2) })
+                } else if (v.startsWith('<')) {
+                    args.push({ [`<${k}`]: v.substring(1) })
+                } else if (v.startsWith('>')) {
+                    args.push({ [`${k}>`]: v.substring(1) })
+                } else if (v.endsWith(',')) {
+                    args.push({ [`${k}In`]: v.substring(0,v.length-1) })
+                } else if (v.startsWith('%') && v.endsWith('%')) {
+                    args.push({ [`${k}Contains`]: v.substring(1,v.length-1) })
+                } else if (v.startsWith('%')) {
+                    args.push({ [`${k}EndsWith`]: v.substring(1) })
+                } else if (v.endsWith('%')) {
+                    args.push({ [`${k}StartsWith`]: v.substring(0,v.length-1) })
+                } else if (v.startsWith('=')) {
+                    args.push({ [k]: v.substring(1) })
+                } else {
+                    args.push({ [k]: v })
+                }
+            });
+        }
+        if (this.orderBy) {
+            args.push({ orderBy: this.orderBy });
+        }
+        if (this.skip) {
+            args.push({ skip: `${this.skip}` });
+        }
+        if (this.take) {
+            args.push({ take: `${this.take}` });
+        }
+        const convention = this.plugin?.viewerConventions.find(c => c.value === this.searchType);
+        if (convention) {
+            const field = convention.value.replace("%", this.searchField);
+            args.push({ [field]: this.searchText });
+        }
 
         return args;
     }
@@ -343,6 +437,42 @@ export class AutoQuery extends Vue {
     handleError(status:any) {
         this.responseStatus = status;
     }
+
+    async handleSelectColumns(e:any) {
+        this.showSelectColumns = false;
+        await this.search();
+    }
+
+    async viewNext(skip:number) {
+        this.skip += skip;
+        if (typeof this.total != 'number') return;
+        const lastPage = Math.floor(this.total / 100) * 100;
+        if (this.skip > lastPage) {
+            this.skip = lastPage;
+        }
+        if (this.skip < 0) {
+            this.skip = 0;
+        }
+        await this.search();
+    }
+
+    async setOrderBy(field:string) {
+        if (this.orderBy == field) {
+            this.orderBy = '-' + field;
+        } else if (this.orderBy == '-' + field) {
+            this.orderBy = '';
+        } else {
+            this.orderBy = field;
+        }
+        await this.search();
+    }
+    
+    async filterSearch(filters:{[id:string]:string}) {
+        log('filterSearch',filters)
+        this.filters = filters;
+        await this.search();
+    }
+
 }
 export default AutoQuery;
 Vue.component('autoquery', AutoQuery);

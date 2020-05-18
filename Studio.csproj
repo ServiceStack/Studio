@@ -83,6 +83,7 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="src\components\AutoQuery\Results.ts" />
+    <TypeScriptCompile Include="src\components\AutoQuery\SelectColumns.ts" />
     <TypeScriptCompile Include="src\components\Validation\EditValidationRule.ts" />
   </ItemGroup>
 
