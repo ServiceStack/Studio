@@ -41,7 +41,7 @@ Vue.component('format', FormatString);
             </th>
         </tr></thead>
         <tbody>
-            <tr class="filters">
+            <tr v-if="crud.length" class="filters">
                 <td><span><i class="ml-1 svg svg-btn svg-filter svg-md" :title="helpFilters()" /></span></td>
                 <td v-for="(f,j) in fieldNames">
                     <input type="text" v-model="filters[f]" @keydown.enter.stop="filterSearch()">

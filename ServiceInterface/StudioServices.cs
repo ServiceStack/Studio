@@ -89,7 +89,7 @@ namespace Studio.ServiceInterface
         {
             var siteInfo = AssertSite(request.Slug);
             var siteSession = SessionBag.Get<SiteSession>();
-            if (siteSession?.User != null && request.provider != AuthenticateService.LogoutAction)
+            if (siteSession?.User != null && request.provider != AuthenticateService.LogoutAction && request.provider == null)
                 return siteSession.User;
 
             try

@@ -237,11 +237,16 @@ export const dtoAsArgs = (dto:{[id:string]:any}) => {
     return to;
 };
 
-export const getSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('GET', invoke, await client.get(invoke));
-export const postSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('POST', invoke, await client.post(invoke));
-export const putSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('PUT', invoke, await client.put(invoke));
-export const patchSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('PATCH', invoke, await client.patch(invoke));
-export const deleteSiteInvoke = async (invoke:SiteInvoke) => store.logInvoke('DELETE', invoke, await client.delete(invoke));
+export const getSiteInvoke = async (invoke:SiteInvoke) => 
+    siteExec(invoke.slug, async () => store.logInvoke('GET', invoke, await client.get(invoke)));
+export const postSiteInvoke = async (invoke:SiteInvoke) =>
+    siteExec(invoke.slug, async () => store.logInvoke('POST', invoke, await client.post(invoke)));
+export const putSiteInvoke = async (invoke:SiteInvoke) =>
+    siteExec(invoke.slug, async () => store.logInvoke('PUT', invoke, await client.put(invoke)));
+export const patchSiteInvoke = async (invoke:SiteInvoke) => siteExec(invoke.slug, async () =>
+    siteExec(invoke.slug, async () => store.logInvoke('PATCH', invoke, await client.patch(invoke))));
+export const deleteSiteInvoke = async (invoke:SiteInvoke) =>
+    siteExec(invoke.slug, async () => store.logInvoke('DELETE', invoke, await client.delete(invoke)));
 
 export const postSiteProxy = async (proxy:SiteProxy,body:any) => store.logProxy('POST', proxy, body, 
     new TextDecoder("utf-8").decode(await client.postBody(proxy, body)));
@@ -277,6 +282,19 @@ export const getId = (type:MetadataType, row:any) => {
     const pk = type.properties.find(x => x.isPrimaryKey);
     return pk && getField(row, pk.name);
 };
+
+export async function siteExec(slug:string, fn:(() => Promise<any>)) {
+    try {
+        const ret = await fn();
+        return ret;
+    } catch (e) {
+        log('siteExec',slug,e);
+        if ((e.responseStatus || e).errorCode === 'Unauthorized') {
+            bus.$emit('signout', { slug });
+        }
+        throw e;
+    }
+}
 
 export async function exec(c:any, fn:() => Promise<any>) {
     try {
@@ -358,20 +376,6 @@ Vue.filter('upper', function (value:string) {
     return value?.toUpperCase();
 });
 
-// bus.$on('signout', async () => {
-//     bus.$set(store, 'userSession', null);
-//     bus.$set(store, 'userAttributes', null);
-//
-//     await client.post(new Authenticate({ provider: 'logout' }));
-// });
-// export const signout = () => bus.$emit('signout');
-//
-// bus.$on('signin', (userSession: AuthenticateResponse) => {
-//     const userAttributes = UserAttributes.fromSession(userSession);
-//     bus.$set(store, 'userSession', userSession);
-//     bus.$set(store, 'userAttributes', userAttributes);
-// });
-
 bus.$on('sites', (sites:SiteSetting[]) => {
     bus.$set(store, 'sites', sites);
 });
@@ -416,6 +420,7 @@ bus.$on('savePrefs', async (siteResult:{ slug:string, callback:() => null }) => 
 
 bus.$on('signout', (siteResult:{ slug:string }) => {
     const { slug } = siteResult;
+    log('signout',slug);
     bus.$emit('appSession', { slug, result:null });
     bus.$emit('signedout');
 });

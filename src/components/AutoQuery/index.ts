@@ -75,7 +75,7 @@ import { desktopSaveDownloadUrl } from "@servicestack/desktop";
         </nav>
         
         <main v-if="app">
-            <div v-if="model" class="query-form">
+            <div v-if="model && canQuery" class="query-form">
                 <div class="tab-content" id="v-pills-tabContent">
                   <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
                     <form class="form-inline" @submit.prevent="submit">
@@ -217,6 +217,7 @@ export class AutoQuery extends Vue {
     get enableEvents() { return this.plugin?.crudEventsServices && this.store.hasRole(this.slug, this.plugin.accessRole); }
 
     min(num1:number,num2:number) { return Math.min(num1, num2); }
+    
     get dirty() { return this.hasSelectedCondition || this.skip || this.orderBy || Object.keys(this.filters).length > 0 || this.fields.length > 0; }
 
     get modelRef() { return (this.api?.operations.find(x => x.request.name === this.$route.query.op) as MetadataOperationType)?.dataModel; }
@@ -293,6 +294,8 @@ export class AutoQuery extends Vue {
         return this.filterOperations((op, table) => isCrud(op) && matchesType(op.dataModel, this.modelRef));
     }
     
+    get canQuery() { return this.accessibleAutoQueryTables.some(op => this.op == op.request.name); }
+    
     get hasSelectedCondition() { return this.searchField && this.searchType && this.searchText; }
 
     async mounted() {
@@ -312,6 +315,7 @@ export class AutoQuery extends Vue {
     
     async search() {
         if (!this.op) return;
+        if (!this.canQuery) return;
         const invokeArgs = toInvokeArgs(this.searchArgs());
         await exec(this, async () => {
             const request = new SiteInvoke({ slug:this.slug, request:this.op, args: invokeArgs});
