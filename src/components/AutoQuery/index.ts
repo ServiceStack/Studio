@@ -328,6 +328,7 @@ export class AutoQuery extends Vue {
 
     async openCsv() {
         const args = this.searchArgs().filter(x => !x.take);
+        args.push({ jsconfig:'edv' });
         const invokeArgs = toInvokeArgs(args);
         await exec(this, async () => {
             const request = new SiteInvoke({ slug:this.slug, request:this.op, args: invokeArgs });
