@@ -26,8 +26,8 @@ Vue.component('format', FormatString);
     <table class="results">
         <thead><tr class="noselect">
             <th v-if="crud.length">
-                <i v-if="!session" class="svg svg-btn svg-auth svg-md" title="Sign In to Edit" @click="bus.$emit('signin')" />
-                <i v-else-if="createOp" class="svg svg-btn svg-create svg-md" :title="createLabel" @click="show('Create')"/>
+                <i v-if="createOp" class="svg svg-btn svg-create svg-md" :title="createLabel" @click="show('Create')"/>
+                <i v-else-if="!session && authPlugin" class="svg svg-btn svg-auth svg-md" title="Sign In to Edit" @click="bus.$emit('signin')" />
             </th>
             <th v-for="f in fieldNames" :key="f" :class="{partial:isPartialField(f)}" @click="setOrderBy(f)" class="th-link">
                 <div class="text-nowrap">
@@ -51,9 +51,9 @@ Vue.component('format', FormatString);
             <tr :key="i" :class="{ selected:selectedRow(i) }">
                 <td v-if="crud.length">
                     <span v-if="hasCrud(['Update','Delete'])">
-                        <i v-if="session && hasAccessibleCrud(['Update','Delete'])" class="svg svg-btn svg-update svg-sm" :title="updateLabel" 
+                        <i v-if="hasAccessibleCrud(['Update','Delete'])" class="svg svg-btn svg-update svg-sm" :title="updateLabel" 
                            @click="editRow(i)" />
-                        <i v-else class="svg svg-btn svg-auth auth-warning svg-md" title="Sign In" @click="bus.$emit('signin')" />
+                        <i v-else-if="!session && authPlugin" class="svg svg-btn svg-auth auth-warning svg-md" title="Sign In" @click="bus.$emit('signin')" />
                     </span>
                 </td>
                 <td v-for="(f,j) in fieldNames" :key="j" :title="renderValue(getField(r,f))" 
@@ -133,6 +133,7 @@ export class Results extends Vue {
     get store() { return store; }
     get session() { return store.getSession(this.slug); }
     get plugin() { return store.getApp(this.slug).plugins.autoQuery; }
+    get authPlugin() { return store.getApp(this.slug).plugins.auth; }
     get hasFilters() { return Object.keys(this.filters).length > 0; }
 
     get enableEvents() { return this.plugin.crudEventsServices && store.hasRole(this.slug, this.plugin?.accessRole); }
