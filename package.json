@@ -2,6 +2,6 @@
   "scripts": {
     "start": "app -debug start https://localhost:5002",
     "pack": "cd scripts && pack.bat",
-    "publish": "cd scripts && publish.bat"
+    "publish-app": "cd scripts && publish.bat"
   }
 }
