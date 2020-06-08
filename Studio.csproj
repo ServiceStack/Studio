@@ -81,21 +81,4 @@
     <ProjectReference Include="..\..\..\..\Source\ServiceStack\src\ServiceStack.Desktop\ServiceStack.Desktop.Source.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <TypeScriptCompile Include="src\components\AutoQuery\Results.ts" />
-    <TypeScriptCompile Include="src\components\AutoQuery\SelectColumns.ts" />
-    <TypeScriptCompile Include="src\components\Validation\EditValidationRule.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\_init.ss" />
-    <None Update="src\components\Desktop.js">
-      <DependentUpon>Desktop.ts</DependentUpon>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="wwwroot\lib\js\@servicestack\desktop\index.d.ts" />
-  </ItemGroup>
-
 </Project>
