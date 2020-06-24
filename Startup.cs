@@ -50,26 +50,34 @@ namespace Studio
 
             if (Config.DebugMode)
             {
-                Plugins.AddIfNotExists(new HotReloadFeature {
-                    VirtualFiles = VirtualFiles, //Monitor all folders for changes including /src & /wwwroot
-                });
-
                 //generate types
                 RegisterService<GetCrudEventsService>("/crudevents/{Model}");
                 RegisterService<GetValidationRulesService>("/validation/rules/{Type}");
                 RegisterService<ModifyValidationRulesService>("/validation/rules");
             }
             
-            Plugins.AddIfNotExists(new SessionFeature());    // store client auth in session 
-            
-            Plugins.AddIfNotExists(new SharpPagesFeature {
+            Plugins.Add(new SessionFeature()); // store client auth in session 
+        }
+    }
+    
+    // Pre Configure SharpPagesFeature & DesktopFeature 
+    public class ConfigureSharpAppFeatures : IPreConfigureAppHost
+    {
+        public void PreConfigure(IAppHost appHost)
+        {
+            var debug = appHost.AppSettings.Get("debug", appHost.GetHostingEnvironment().IsDevelopment());
+            appHost.Plugins.Add(new HotReloadFeature {
+                VirtualFiles = appHost.VirtualFiles, //Monitor all folders for changes including /src & /wwwroot
+            });
+
+            appHost.Plugins.Add(new SharpPagesFeature {
                 EnableSpaFallback = true,
                 // Args = { ["connect"] = "https://localhost:5001" } //test ?connect={url} import scheme
             });
             
             var sites = StudioServices.LoadAppSettings();
-            Plugins.Add(new DesktopFeature {
-                AccessRole = Config.DebugMode 
+            appHost.Plugins.Add(new DesktopFeature {
+                AccessRole = debug 
                     ? RoleNames.AllowAnon
                     : RoleNames.Admin,
                 ImportParams = {
@@ -87,4 +95,5 @@ namespace Studio
             });
         }
     }
+    
 }
