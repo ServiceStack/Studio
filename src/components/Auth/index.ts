@@ -1,6 +1,6 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, Authenticate, loadSite, exec, log} from '../../shared';
-import {SiteAuthenticate} from "../../shared/dtos";
+import {store, bus, client, exec, log} from '../../shared';
+import {SiteAuthenticate } from "../../shared/dtos";
 import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
 
 @Component({ template: 

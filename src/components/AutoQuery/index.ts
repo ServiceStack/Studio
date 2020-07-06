@@ -214,7 +214,7 @@ export class AutoQuery extends Vue {
 
     get enabled() { return this.app && store.hasPlugin(this.slug, 'autoquery'); }
     
-    get enableEvents() { return this.plugin?.crudEventsServices && this.store.hasRole(this.slug, this.plugin.accessRole); }
+    get enableEvents() { return this.plugin?.crudEvents && this.store.hasRole(this.slug, this.plugin.accessRole); }
 
     min(num1:number,num2:number) { return Math.min(num1, num2); }
     

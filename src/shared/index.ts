@@ -18,16 +18,8 @@ export {
     queryString,
 } from '@servicestack/client';
 
-export {
-    ResponseStatus, ResponseError,
-    Authenticate, AuthenticateResponse,
-    Register,
-    AppPrefs, 
-} from './dtos';
-
 import {
     ResponseStatus,
-    ResponseError,
     Authenticate,
     AuthenticateResponse,
     SiteSetting,
