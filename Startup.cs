@@ -43,7 +43,6 @@ namespace Studio
             SetConfig(new HostConfig
             {
                 DebugMode = AppSettings.Get("debug", HostingEnvironment.IsDevelopment()),
-                UseSameSiteCookies = false,
                 UseSecureCookies = true,
                 AddRedirectParamsToQueryString = true,
             });
