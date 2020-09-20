@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Funq;
 using ServiceStack;
+using ServiceStack.Admin;
 using ServiceStack.Configuration;
 using ServiceStack.Desktop;
 using ServiceStack.Text;
@@ -53,6 +54,7 @@ namespace Studio
                 RegisterService<GetCrudEventsService>("/crudevents/{Model}");
                 RegisterService<GetValidationRulesService>("/validation/rules/{Type}");
                 RegisterService<ModifyValidationRulesService>("/validation/rules");
+                RegisterService<AdminUsersService>("/ss_admin/users");
             }
             
             Plugins.Add(new SessionFeature()); // store client auth in session 
@@ -60,14 +62,11 @@ namespace Studio
     }
     
     // Pre Configure SharpPagesFeature & DesktopFeature 
-    public class ConfigureSharpAppFeatures : IPreConfigureAppHost
+    public class ConfigureSharpAppFeatures : IPreConfigureAppHost, IPostInitPlugin
     {
         public void PreConfigure(IAppHost appHost)
         {
             var debug = appHost.AppSettings.Get("debug", appHost.GetHostingEnvironment().IsDevelopment());
-            appHost.Plugins.Add(new HotReloadFeature {
-                VirtualFiles = appHost.VirtualFiles, //Monitor all folders for changes including /src & /wwwroot
-            });
 
             appHost.Plugins.Add(new SharpPagesFeature {
                 EnableSpaFallback = true,
@@ -91,6 +90,13 @@ namespace Studio
                         AllowCors = true,
                         IgnoreHeaders = { "X-Frame-Options", "Content-Security-Policy" }, 
                     })
+            });
+        }
+
+        public void AfterPluginsLoaded(IAppHost appHost)
+        {
+            appHost.Plugins.Add(new HotReloadFeature {
+                VirtualFiles = appHost.VirtualFiles, //Monitor all folders for changes including /src & /wwwroot
             });
         }
     }

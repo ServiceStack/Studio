@@ -33,7 +33,7 @@
     </Task>
   </UsingTask>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(OS)'=='Windows_NT' AND $(Configuration) == 'Debug'">
-    <ExecAsync FilePath="app" Arguments="-debug start https://localhost:5002" />
+<!--    <ExecAsync FilePath="app" Arguments="-debug start https://localhost:5002" />-->
   </Target>
   
   <ItemGroup>

@@ -7,12 +7,14 @@ import { Forbidden } from '@servicestack/vue';
 import { Home } from '../components/Home';
 import { AutoQuery } from '../components/AutoQuery';
 import { Validation } from '../components/Validation';
+import { AdminUsers } from '../components/AdminUsers';
 import {appendQueryString} from '@servicestack/client';
 
 export enum Routes {
   Home = '/',
   AutoQuery = '/:slug/autoquery',
   Validation = '/:slug/validation',
+  AdminUsers = '/:slug/users',
   Forbidden = '/forbidden',
 }
 
@@ -44,12 +46,14 @@ const routes = [
   { path: Routes.Home, component: Home, props: { name: '' } },
   { path: Routes.AutoQuery, component: AutoQuery },
   { path: Routes.Validation, component: Validation },
+  { path: Routes.AdminUsers, component: AdminUsers },
   { path: Routes.Forbidden, component: Forbidden },
   { path: '*', redirect: '/' },
 ];
 
 export const autoQueryRoute = (slug:string,args?:any) => appendQueryString(Routes.AutoQuery.replace(':slug',slug), args);
 export const validationRoute = (slug:string,args?:any) => appendQueryString(Routes.Validation.replace(':slug',slug), args);
+export const adminUsersRoute = (slug:string,args?:any) => appendQueryString(Routes.AdminUsers.replace(':slug',slug), args);
 
 export const router = new Router ({
     mode: 'history',

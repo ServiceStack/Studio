@@ -1,6 +1,6 @@
 import {Vue, Component, Prop} from 'vue-property-decorator';
 import {store, client, bus, exec, log, loadSite} from '../../shared';
-import {autoQueryRoute, validationRoute} from "../../shared/router";
+import {adminUsersRoute, autoQueryRoute, validationRoute} from "../../shared/router";
 import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
 
 @Component({
@@ -52,6 +52,10 @@ import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
                                     <i class="svg-lock svg-md mb-1" />
                                     Validation
                                 </button>
+                                <button v-if="hasPlugin(x,'adminusers')" @click="$router.push(routeAdminUsers(x.slug))" class="btn btn-light">
+                                    <i class="svg-users svg-md mb-1" />
+                                    Users
+                                </button>
                                 <button class="btn btn-social-icon btn-sm mx-1" @click="deleteSite(x)">
                                     <i class="fab fa-delete"></i>
                                 </button>                                
@@ -82,6 +86,10 @@ export class Home extends Vue {
 
     protected routeValidation(slug: string) {
         return validationRoute(slug);
+    }
+
+    protected routeAdminUsers(slug: string) {
+        return adminUsersRoute(slug);
     }
     
     protected hasPlugin(site:SiteSetting, id:string) {

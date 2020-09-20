@@ -226,7 +226,7 @@ table.results .filters td {
     cursor: pointer;
     user-select: none;
 }
-.btn-link {
+.btn-link { 
     text-decoration: none;
 }
 .results td {
@@ -254,6 +254,9 @@ table.results td.editing {
     min-width: 500px;
     margin: -12px 0 0 -31px;
     white-space: normal;
+}
+.modal-inline-lg .modal-dialog {
+    min-width: 700px;
 }
 .results tr.selected td {
     background: lightyellow;
@@ -487,6 +490,10 @@ li.by b i, li.on b i {
 }
 .btn-compact.btn-sm {
     padding:.10rem .4rem;
+}
+
+#adminusers #txtQuery {
+    width: 290px;
 }
 
 .jsonviewer .ib { display: inline-block; }

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import {Component, Prop, Watch} from 'vue-property-decorator';
-import {bus, canAccess, exec, getId, log, patchSiteInvoke, store} from '../../shared';
+import {bus, canAccess, exec, getId, log, patchSiteInvoke, store, renderValue} from '../../shared';
 import {MetadataOperationType, MetadataType, SiteInvoke} from "../../shared/dtos";
 import {getField, humanize, normalizeKey, toCamelCase, toDateFmt} from "@servicestack/client";
 import {Route} from "vue-router";
@@ -46,6 +46,7 @@ Vue.component('format', FormatString);
                 <td v-for="(f,j) in fieldNames">
                     <input type="text" v-model="filters[f]" @keydown.enter.stop="filterSearch()">
                 </td>
+                <td v-if="enableEvents"></td>
             </tr>
             <template v-for="(r,i) in results">
             <tr :key="i" :class="{ selected:selectedRow(i) }">
@@ -199,15 +200,7 @@ export class Results extends Vue {
 
     humanize(s:string) { return humanize(s); }
 
-    renderValue(o: any) {
-        return Array.isArray(o)
-            ? o.join(', ')
-            : typeof o == "undefined"
-                ? ""
-                : typeof o == "object"
-                    ? JSON.stringify(o)
-                    : o + "";
-    }
+    renderValue(o: any) { return renderValue(o); }
 
     get createLabel() { return `New ${this.type.name}` }
     get updateLabel() { return `Edit ${this.type.name}` }

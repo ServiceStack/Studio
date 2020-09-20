@@ -16,6 +16,19 @@
         "nav  main main"
         "nav  main main"
 }
+.grid-layout.no-sidebar {
+    grid-template-areas:
+        "head head head"
+        "main main main"
+        "foot foot foot"
+}
+.grid-layout.no-sidebar.collapse-footer {
+    grid-template-areas:
+        "head head head"
+        "main main main"
+        "main main main"
+}
+
 .grid-layout.collapse-footer #footer {
     display: none;
 }

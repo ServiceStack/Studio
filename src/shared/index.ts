@@ -5,7 +5,7 @@ import {
     UserAttributes,
     IAuthSession,
     normalizeKey,
-    toDate, getField, splitOnFirst, padInt
+    toDate, getField, splitOnFirst, padInt, toDateFmt
 } from '@servicestack/client';
 
 declare let global: any; // populated from package.json/jest
@@ -240,8 +240,20 @@ export const patchSiteInvoke = async (invoke:SiteInvoke) => siteExec(invoke.slug
 export const deleteSiteInvoke = async (invoke:SiteInvoke) =>
     siteExec(invoke.slug, async () => store.logInvoke('DELETE', invoke, await client.delete(invoke)));
 
-export const postSiteProxy = async (proxy:SiteProxy,body:any) => store.logProxy('POST', proxy, body, 
-    new TextDecoder("utf-8").decode(await client.postBody(proxy, body)));
+const decodeBody = (body:any) => {
+    if (body == null)
+        return null;
+    if (body instanceof ArrayBuffer || body instanceof Uint8Array)
+        return new TextDecoder("utf-8").decode(body);
+    if (typeof body == 'string')
+        return JSON.parse(body);
+    return body;
+}
+
+export const postSiteProxy = async (proxy:SiteProxy,body:any) => store.logProxy('POST', proxy, body,
+    decodeBody(await client.postBody(proxy, body)));
+export const putSiteProxy = async (proxy:SiteProxy,body:any) => store.logProxy('PUT', proxy, body,
+    decodeBody(await client.putBody(proxy, body)));
 
 const zero = () => 0, doubleZero = () => 0.0;
 const types:{[id:string]:() => any} = {
@@ -275,6 +287,48 @@ export const getId = (type:MetadataType, row:any) => {
     return pk && getField(row, pk.name);
 };
 
+export function renderValue(o: any) {
+    return Array.isArray(o)
+        ? o.join(', ')
+        : typeof o == "undefined"
+            ? ""
+            : typeof o == "object"
+                ? JSON.stringify(o)
+                : o + "";
+}
+
+export function allKeys(results:any[]) {
+    const props:{ [index:string]: string; } = {};
+    if (results?.length > 0) {
+        results.forEach((row) =>
+            Object.keys(row).forEach(h =>
+                props[h] = h));
+    }
+    return Object.keys(props);
+}
+
+export function gridProps(grid:string[][],props:MetadataPropertyType[]) {
+    const to:MetadataPropertyType[][] = [];
+    const propMap:{[index:string]:MetadataPropertyType} = {};
+    props.forEach(x => propMap[x.name] = x);
+    const added:{[index:string]:string} = {};
+    grid.forEach(r => {
+        const propRow:MetadataPropertyType[] = [];
+        r.forEach(f => {
+            const propType = propMap[f];
+            if (propType != null) {
+                propRow.push(propType);
+                added[f] = f;
+            }
+        });
+        if (propRow.length > 0)
+            to.push(propRow);
+    });
+    props.filter(p => !added[p.name]).forEach(p => to.push([p]));
+
+    return to;
+}
+
 export async function siteExec(slug:string, fn:(() => Promise<any>)) {
     try {
         const ret = await fn();
@@ -292,6 +346,7 @@ export async function exec(c:any, fn:() => Promise<any>) {
     try {
         c.loading = true;
         c.responseStatus = null;
+        c.success = null;
 
         return await fn();
 
@@ -356,6 +411,8 @@ export const loadSite = async (slug:string, force?:boolean) => {
         {
             const response = await client.get(new GetAppMetadata({ slug:slug }));
             bus.$emit('app', response);
+            
+            
         }
     } catch (e) {
         bus.$emit('appError', { slug, result:e.responseStatus || e });
@@ -366,6 +423,9 @@ export const loadSite = async (slug:string, force?:boolean) => {
 
 Vue.filter('upper', function (value:string) {
     return value?.toUpperCase();
+});
+Vue.filter('datefmt', function (value:string) {
+    return toDateFmt(value);
 });
 
 bus.$on('sites', (sites:SiteSetting[]) => {

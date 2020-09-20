@@ -1,6 +1,7 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import {store, bus, client, exec, splitOnFirst, defaultValue, postSiteInvoke, log} from '../../shared';
-import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate, SiteInvoke} from "../../shared/dtos";
+import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate, SiteInvoke} from '../../shared/dtos';
+import { humanize } from '@servicestack/client';
 
 @Component({ template:
 `<div id="createModal" class="modal-inline" tabindex="-1" role="dialog" @keyup.esc="$emit('done')">
@@ -20,8 +21,8 @@ import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate,
                 <error-summary :except="type.properties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>        
             <div v-for="f in op.request.properties" :key="f.name" class="form-group">
-                <v-input type="text" :id="f.name" v-model="model[f.name]" :placeholder="f.name" :responseStatus="responseStatus" 
-                         :inputClass="['form-control-' + size]" :help="f.name" />                
+                <v-input type="text" :id="f.name" v-model="model[f.name]" :responseStatus="responseStatus" 
+                         :inputClass="['form-control-' + size]" :placeholder="humanize(f.name)" :help="humanize(f.name)" />                
             </div>
             <div class="form-group text-right">
                 <span class="btn btn-link" @click="$emit('done')">Close</span>
@@ -48,7 +49,9 @@ export class CreateModal extends Vue {
 
     get enabled() { return this.app && this.app.plugins.autoQuery; }
     
-    get size() { return this.op.request.properties.length > 10 ? 'md' : 'lg'; } 
+    get size() { return this.op.request.properties.length > 10 ? 'md' : 'lg'; }
+
+    humanize(s:string) { return humanize(s); }
 
     async mounted() {
         log('CreateModal.mounted()');

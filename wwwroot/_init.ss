@@ -29,6 +29,7 @@
         'content/content_copy.svg':           'copy',
         'content/clear.svg':                  'clear',
         'content/filter_list.svg':            'filter',
+        'social/people.svg':                  'users',
     } 
 }}
 

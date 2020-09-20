@@ -1,6 +1,6 @@
 /* Options:
-Date: 2020-05-18 20:46:39
-Version: 5.8
+Date: 2020-09-18 01:26:52
+Version: 5.9
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
 
@@ -36,7 +36,19 @@ export interface IHasBearerToken
     bearerToken: string;
 }
 
+export interface IGet
+{
+}
+
 export interface IPost
+{
+}
+
+export interface IPut
+{
+}
+
+export interface IDelete
 {
 }
 
@@ -249,73 +261,6 @@ export class RequestLogsInfo
     public constructor(init?: Partial<RequestLogsInfo>) { (Object as any).assign(this, init); }
 }
 
-export class PluginInfo
-{
-    public loaded: string[];
-    public auth: AuthInfo;
-    public autoQuery: AutoQueryInfo;
-    public validation: ValidationInfo;
-    public sharpPages: SharpPagesInfo;
-    public requestLogs: RequestLogsInfo;
-    public meta: { [index: string]: string; };
-
-    public constructor(init?: Partial<PluginInfo>) { (Object as any).assign(this, init); }
-}
-
-export class CustomPlugin
-{
-    public accessRole: string;
-    public serviceRoutes: { [index: string]: string[]; };
-    public enabled: string[];
-    public meta: { [index: string]: string; };
-
-    public constructor(init?: Partial<CustomPlugin>) { (Object as any).assign(this, init); }
-}
-
-export class MetadataTypesConfig
-{
-    public baseUrl: string;
-    public usePath: string;
-    public makePartial: boolean;
-    public makeVirtual: boolean;
-    public makeInternal: boolean;
-    public baseClass: string;
-    public package: string;
-    public addReturnMarker: boolean;
-    public addDescriptionAsComments: boolean;
-    public addDataContractAttributes: boolean;
-    public addIndexesToDataMembers: boolean;
-    public addGeneratedCodeAttributes: boolean;
-    public addImplicitVersion?: number;
-    public addResponseStatus: boolean;
-    public addServiceStackTypes: boolean;
-    public addModelExtensions: boolean;
-    public addPropertyAccessors: boolean;
-    public excludeGenericBaseTypes: boolean;
-    public settersReturnThis: boolean;
-    public makePropertiesOptional: boolean;
-    public exportAsTypes: boolean;
-    public excludeImplementedInterfaces: boolean;
-    public addDefaultXmlNamespace: string;
-    public makeDataContractsExtensible: boolean;
-    public initializeCollections: boolean;
-    public addNamespaces: string[];
-    public defaultNamespaces: string[];
-    public defaultImports: string[];
-    public includeTypes: string[];
-    public excludeTypes: string[];
-    public treatTypesAsStrings: string[];
-    public exportValueTypes: boolean;
-    public globalNamespace: string;
-    public excludeNamespace: boolean;
-    public ignoreTypes: string[];
-    public exportTypes: string[];
-    public exportAttributes: string[];
-    public ignoreTypesInNamespaces: string[];
-
-    public constructor(init?: Partial<MetadataTypesConfig>) { (Object as any).assign(this, init); }
-}
-
 export class MetadataTypeName
 {
     public name: string;
@@ -404,6 +349,88 @@ export class MetadataType
     public constructor(init?: Partial<MetadataType>) { (Object as any).assign(this, init); }
 }
 
+export class AdminUsersInfo
+{
+    public accessRole: string;
+    public enabled: string[];
+    public userAuth: MetadataType;
+    public userAuthDetails: MetadataType;
+    public allRoles: string[];
+    public allPermissions: string[];
+    public queryUserAuthProperties: string[];
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<AdminUsersInfo>) { (Object as any).assign(this, init); }
+}
+
+export class PluginInfo
+{
+    public loaded: string[];
+    public auth: AuthInfo;
+    public autoQuery: AutoQueryInfo;
+    public validation: ValidationInfo;
+    public sharpPages: SharpPagesInfo;
+    public requestLogs: RequestLogsInfo;
+    public adminUsers: AdminUsersInfo;
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<PluginInfo>) { (Object as any).assign(this, init); }
+}
+
+export class CustomPlugin
+{
+    public accessRole: string;
+    public serviceRoutes: { [index: string]: string[]; };
+    public enabled: string[];
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<CustomPlugin>) { (Object as any).assign(this, init); }
+}
+
+export class MetadataTypesConfig
+{
+    public baseUrl: string;
+    public usePath: string;
+    public makePartial: boolean;
+    public makeVirtual: boolean;
+    public makeInternal: boolean;
+    public baseClass: string;
+    public package: string;
+    public addReturnMarker: boolean;
+    public addDescriptionAsComments: boolean;
+    public addDataContractAttributes: boolean;
+    public addIndexesToDataMembers: boolean;
+    public addGeneratedCodeAttributes: boolean;
+    public addImplicitVersion?: number;
+    public addResponseStatus: boolean;
+    public addServiceStackTypes: boolean;
+    public addModelExtensions: boolean;
+    public addPropertyAccessors: boolean;
+    public excludeGenericBaseTypes: boolean;
+    public settersReturnThis: boolean;
+    public makePropertiesOptional: boolean;
+    public exportAsTypes: boolean;
+    public excludeImplementedInterfaces: boolean;
+    public addDefaultXmlNamespace: string;
+    public makeDataContractsExtensible: boolean;
+    public initializeCollections: boolean;
+    public addNamespaces: string[];
+    public defaultNamespaces: string[];
+    public defaultImports: string[];
+    public includeTypes: string[];
+    public excludeTypes: string[];
+    public treatTypesAsStrings: string[];
+    public exportValueTypes: boolean;
+    public globalNamespace: string;
+    public excludeNamespace: boolean;
+    public ignoreTypes: string[];
+    public exportTypes: string[];
+    public exportAttributes: string[];
+    public ignoreTypesInNamespaces: string[];
+
+    public constructor(init?: Partial<MetadataTypesConfig>) { (Object as any).assign(this, init); }
+}
+
 export class MetadataRoute
 {
     public path: string;
@@ -429,6 +456,7 @@ export class MetadataOperationType
     public requiresAnyRole: string[];
     public requiredPermissions: string[];
     public requiresAnyPermission: string[];
+    public tags: string[];
 
     public constructor(init?: Partial<MetadataOperationType>) { (Object as any).assign(this, init); }
 }
@@ -567,6 +595,38 @@ export class ValidationRule extends ValidateRule
     public constructor(init?: Partial<ValidationRule>) { super(init); (Object as any).assign(this, init); }
 }
 
+export class AdminUserBase
+{
+    // @DataMember(Order=1)
+    public userName: string;
+
+    // @DataMember(Order=2)
+    public firstName: string;
+
+    // @DataMember(Order=3)
+    public lastName: string;
+
+    // @DataMember(Order=4)
+    public displayName: string;
+
+    // @DataMember(Order=5)
+    public email: string;
+
+    // @DataMember(Order=6)
+    public password: string;
+
+    // @DataMember(Order=7)
+    public profileUrl: string;
+
+    // @DataMember(Order=8)
+    public userAuthProperties: { [index: string]: string; };
+
+    // @DataMember(Order=9)
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<AdminUserBase>) { (Object as any).assign(this, init); }
+}
+
 export class GetSitesResponse
 {
     public sites: SiteSetting[];
@@ -578,9 +638,6 @@ export class GetSitesResponse
 // @DataContract
 export class AuthenticateResponse implements IHasSessionId, IHasBearerToken
 {
-    // @DataMember(Order=11)
-    public responseStatus: ResponseStatus;
-
     // @DataMember(Order=1)
     public userId: string;
 
@@ -610,6 +667,9 @@ export class AuthenticateResponse implements IHasSessionId, IHasBearerToken
 
     // @DataMember(Order=10)
     public permissions: string[];
+
+    // @DataMember(Order=11)
+    public responseStatus: ResponseStatus;
 
     // @DataMember(Order=12)
     public meta: { [index: string]: string; };
@@ -667,6 +727,45 @@ export class GetValidationRulesResponse
     public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<GetValidationRulesResponse>) { (Object as any).assign(this, init); }
+}
+
+// @DataContract
+export class AdminUserResponse
+{
+    // @DataMember(Order=1)
+    public id: string;
+
+    // @DataMember(Order=2)
+    public result: { [index: string]: Object; };
+
+    // @DataMember(Order=3)
+    public responseStatus: ResponseStatus;
+
+    public constructor(init?: Partial<AdminUserResponse>) { (Object as any).assign(this, init); }
+}
+
+// @DataContract
+export class AdminUsersResponse
+{
+    // @DataMember(Order=1)
+    public results: { [index:string]: Object; }[];
+
+    // @DataMember(Order=2)
+    public responseStatus: ResponseStatus;
+
+    public constructor(init?: Partial<AdminUsersResponse>) { (Object as any).assign(this, init); }
+}
+
+// @DataContract
+export class AdminDeleteUserResponse
+{
+    // @DataMember(Order=1)
+    public id: string;
+
+    // @DataMember(Order=2)
+    public responseStatus: ResponseStatus;
+
+    public constructor(init?: Partial<AdminDeleteUserResponse>) { (Object as any).assign(this, init); }
 }
 
 // @DataContract
@@ -897,6 +996,85 @@ export class ModifyValidationRules implements IReturnVoid
     public getTypeName() { return 'ModifyValidationRules'; }
 }
 
+// @DataContract
+export class AdminGetUser implements IReturn<AdminUserResponse>, IGet
+{
+    // @DataMember(Order=10)
+    public id: string;
+
+    public constructor(init?: Partial<AdminGetUser>) { (Object as any).assign(this, init); }
+    public createResponse() { return new AdminUserResponse(); }
+    public getTypeName() { return 'AdminGetUser'; }
+}
+
+// @DataContract
+export class AdminQueryUsers implements IReturn<AdminUsersResponse>, IGet
+{
+    // @DataMember(Order=1)
+    public query: string;
+
+    // @DataMember(Order=2)
+    public orderBy: string;
+
+    // @DataMember(Order=3)
+    public skip?: number;
+
+    // @DataMember(Order=4)
+    public take?: number;
+
+    public constructor(init?: Partial<AdminQueryUsers>) { (Object as any).assign(this, init); }
+    public createResponse() { return new AdminUsersResponse(); }
+    public getTypeName() { return 'AdminQueryUsers'; }
+}
+
+// @DataContract
+export class AdminCreateUser extends AdminUserBase implements IReturn<AdminUserResponse>, IPost
+{
+    // @DataMember(Order=10)
+    public roles: string[];
+
+    // @DataMember(Order=11)
+    public permissions: string[];
+
+    public constructor(init?: Partial<AdminCreateUser>) { super(init); (Object as any).assign(this, init); }
+    public createResponse() { return new AdminUserResponse(); }
+    public getTypeName() { return 'AdminCreateUser'; }
+}
+
+// @DataContract
+export class AdminUpdateUser extends AdminUserBase implements IReturn<AdminUserResponse>, IPut
+{
+    // @DataMember(Order=10)
+    public id: string;
+
+    // @DataMember(Order=11)
+    public addRoles: string[];
+
+    // @DataMember(Order=12)
+    public removeRoles: string[];
+
+    // @DataMember(Order=13)
+    public addPermissions: string[];
+
+    // @DataMember(Order=14)
+    public removePermissions: string[];
+
+    public constructor(init?: Partial<AdminUpdateUser>) { super(init); (Object as any).assign(this, init); }
+    public createResponse() { return new AdminUserResponse(); }
+    public getTypeName() { return 'AdminUpdateUser'; }
+}
+
+// @DataContract
+export class AdminDeleteUser implements IReturn<AdminDeleteUserResponse>, IDelete
+{
+    // @DataMember(Order=10)
+    public id: string;
+
+    public constructor(init?: Partial<AdminDeleteUser>) { (Object as any).assign(this, init); }
+    public createResponse() { return new AdminDeleteUserResponse(); }
+    public getTypeName() { return 'AdminDeleteUser'; }
+}
+
 // @Route("/script")
 export class EvalScript implements IReturn<string>
 {
@@ -1079,4 +1257,3 @@ export class Register implements IReturn<RegisterResponse>, IPost
     public createResponse() { return new RegisterResponse(); }
     public getTypeName() { return 'Register'; }
 }
-

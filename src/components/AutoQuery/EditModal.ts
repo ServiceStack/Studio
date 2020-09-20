@@ -18,7 +18,7 @@ import {
     SiteAuthenticate,
     SiteInvoke
 } from "../../shared/dtos";
-import {getField, normalizeKey} from "@servicestack/client";
+import {getField, humanize, normalizeKey} from "@servicestack/client";
 
 @Component({ template:
 `<div id="editModal" class="modal-inline" tabindex="-1" role="dialog" @keyup.esc="$emit('done')" title="">
@@ -39,8 +39,8 @@ import {getField, normalizeKey} from "@servicestack/client";
             </div>        
             <div v-for="f in type.properties" :key="f.name" class="form-group">
                 <span v-if="!updateOp || f.isPrimaryKey" :class="['disabled',size,'ml-2']">{{fieldValue(f)}}</span>
-                <v-input v-else type="text" :id="f.name" v-model="model[f.name]" :placeholder="f.name" :responseStatus="responseStatus" 
-                         :inputClass="['form-control-' + size]" :help="f.name" />                
+                <v-input v-else type="text" :id="f.name" v-model="model[f.name]" :responseStatus="responseStatus" 
+                         :inputClass="['form-control-' + size]" :placeholder="humanize(f.name)" :help="humanize(f.name)" />                
             </div>
             <div class="form-group text-right">
                 <span class="btn btn-link" @click="$emit('done')">close</span>
@@ -79,6 +79,8 @@ export class EditModal extends Vue {
     get size() { return (this.updateOp || this.deleteOp)?.request.properties.length > 10 ? 'md' : 'lg'; }
     
     get labelButton() { return this.type.name.length <= 13 ? `Update ${this.type.name}` : `Update` }
+
+    humanize(s:string) { return humanize(s); }
 
     fieldValue(f:MetadataPropertyType) {
         return editValue(f,this.model[f.name]);

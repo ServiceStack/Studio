@@ -1,7 +1,7 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import {store, bus, client, exec, log} from '../../shared';
 import {SiteAuthenticate } from "../../shared/dtos";
-import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
+import {adminUsersRoute, autoQueryRoute, Routes, validationRoute} from "../../shared/router";
 
 @Component({ template: 
     `<div v-if="enabled">
@@ -15,6 +15,8 @@ import {autoQueryRoute, Routes, validationRoute} from "../../shared/router";
                         title="Go to AutoQuery"><i class="db-link svg-lg"/></button>
                 <button v-if="feature != 'validation'" class="btn btn-light btn-sm" @click="goto('validation')"
                         title="Go to Validation"><i class="lock-link svg-lg"/></button>
+                <button v-if="feature != 'adminusers'" class="btn btn-light btn-sm" @click="goto('adminusers')"
+                        title="Go to Users"><i class="users-link svg-lg"/></button>
                 <button v-if="prefsDirty || loading" @click="savePrefs()" title="Save Preferences" 
                         class="btn btn-light btn-sm"><i :class="(loading ? 'svg-loading' : 'save-link') + ' svg-lg'" /></button>            
                 <div class="btn-group" role="group">
@@ -120,6 +122,9 @@ export class Auth extends Vue {
                 break;
             case 'validation':
                 this.$router.push(validationRoute(this.slug, this.op ? { op:this.op} : null));
+                break;
+            case 'adminusers':
+                this.$router.push(adminUsersRoute(this.slug, null));
                 break;
         }
     }
