@@ -51,7 +51,7 @@ import { getField, humanize } from "@servicestack/client";
             <div v-if="!loading && session && accessible">
                 <div class="main-container p-2">
                     <form class="mb-2 form-inline" @submit.prevent="search()">
-                        <i v-if="txtQuery" class="text-close" style="position:absolute;margin:0 0 0 265px;" title="clear" @click="clearQuery()"></i>
+                        <i v-if="txtQuery" class="text-close" style="position:absolute;margin:0 0 3px 265px;" title="clear" @click="clearQuery()"></i>
                         <v-input v-model="txtQuery" id="txtQuery" 
                                 :placeholder="hasFeature('query') ? 'Search Users' : 'Username or Email'" inputClass="form-control" />
                         <button @click="search()" class="ml-1 btn btn-outline-primary">Go</button>
@@ -145,6 +145,7 @@ export class AdminUsers extends Vue {
 
     @Watch('$route', { immediate: true, deep: true })
     async onUrlChange(newVal: Route) {
+        log('onUrlChange', newVal);
         await this.reset();
     }
 
@@ -169,7 +170,7 @@ export class AdminUsers extends Vue {
             }));
             const obj = JSON.parse(response);
             console.log(obj)
-            this.results = obj.results;
+            this.results = getField(obj, 'Results');
         });
     }
 
@@ -258,9 +259,11 @@ export class AdminUsers extends Vue {
     }
 
     async mounted() {
+        log('AdminUsers.mounted()');
         await loadSite(this.slug);
         await this.reset();
         bus.$on('signedin', () => {
+            log('signedin');
             this.reset();
         });
     }

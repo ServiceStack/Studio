@@ -60,19 +60,21 @@ Vue.component('format', FormatString);
                 <td v-for="(f,j) in fieldNames" :key="j" :title="renderValue(getField(r,f))" 
                     :class="{partial:isPartialField(f),editing:isEditingField(i,j), selected:selectedCell(i,j) }" 
                     @click="selectField(i,j)" @dblclick="isPartialField(f) && editField(i,j)">                
-                    <span v-if="i==0 && j==0 && showCreate">
-                        <create-modal v-if="createOp" :slug="slug" :op="createOp" :type="type" @done="handleDone('Create',$event)" />
-                    </span>
-                    <div v-else-if="isEditingRow(i) && j == 0">
-                        <edit-modal v-if="updateOp || deleteOp" :slug="slug" :updateOp="updateOp" :deleteOp="deleteOp" :type="type" :row="r" 
-                                    @done="handleDone('Edit',$event)" />
-                    </div>
-                    <div v-else-if="isEditingField(i,j)">                        
+                    <div v-if="isEditingField(i,j)">
                         <input v-model="editingValue" class="form-control form-control-sm" 
                                @keydown.enter.stop="saveEdit()" @keydown.esc.stop="cancelEdit()" @blur="onEditBlur()" />                
                         <i v-if="dirty" class="svg done-success svg-md svg-btn" title="save" @click="saveEdit()" style="float:right;margin:-27px 5px 0 0;"/>
                     </div>
-                    <format v-else :value="getField(r,f)" />
+                    <template v-else>
+                        <span v-if="i==0 && j==0 && showCreate">
+                            <create-modal v-if="createOp" :slug="slug" :op="createOp" :type="type" @done="handleDone('Create',$event)" />
+                        </span>
+                        <div v-else-if="isEditingRow(i) && j == 0">
+                            <edit-modal v-if="updateOp || deleteOp" :slug="slug" :updateOp="updateOp" :deleteOp="deleteOp" :type="type" :row="r" 
+                                        @done="handleDone('Edit',$event)" />
+                        </div>
+                        <format :value="getField(r,f)" />
+                    </template>
                 </td>
                 <td v-if="enableEvents">
                     <span v-if="selectedRow(i) && showEvents">

@@ -1,6 +1,24 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec, splitOnFirst, defaultValue, postSiteInvoke, log} from '../../shared';
-import {MetaAuthProvider, MetadataOperationType, MetadataType, SiteAuthenticate, SiteInvoke} from '../../shared/dtos';
+import {
+    store,
+    bus,
+    client,
+    exec,
+    splitOnFirst,
+    defaultValue,
+    postSiteInvoke,
+    log,
+    postSiteProxy,
+    sanitizedModel
+} from '../../shared';
+import {
+    MetaAuthProvider,
+    MetadataOperationType,
+    MetadataType,
+    SiteAuthenticate,
+    SiteInvoke,
+    SiteProxy
+} from '../../shared/dtos';
 import { humanize } from '@servicestack/client';
 
 @Component({ template:
@@ -18,11 +36,10 @@ import { humanize } from '@servicestack/client';
       <div class="modal-body">
         <form @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
             <div class="form-group">
-                <error-summary :except="type.properties.map(x => x.name)" :responseStatus="responseStatus" />
+                <error-summary :except="allProperties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>        
-            <div v-for="f in op.request.properties" :key="f.name" class="form-group">
-                <v-input type="text" :id="f.name" v-model="model[f.name]" :responseStatus="responseStatus" 
-                         :inputClass="['form-control-' + size]" :placeholder="humanize(f.name)" :help="humanize(f.name)" />                
+            <div v-for="f in allProperties" :key="f.name" class="form-group">
+                <v-input-type :property="f" :model="model" :size="size" :responseStatus="responseStatus" />
             </div>
             <div class="form-group text-right">
                 <span class="btn btn-link" @click="$emit('done')">Close</span>
@@ -48,13 +65,15 @@ export class CreateModal extends Vue {
     get app() { return store.getApp(this.slug); }
 
     get enabled() { return this.app && this.app.plugins.autoQuery; }
-    
-    get size() { return this.op.request.properties.length > 10 ? 'md' : 'lg'; }
+
+    get allProperties() { return store.getTypeProperties(this.slug, this.type); }
+
+    get size() { return this.allProperties.length <= 10 ? 'lg' : 'md'; }
 
     humanize(s:string) { return humanize(s); }
 
     async mounted() {
-        log('CreateModal.mounted()');
+        log('CreateModal.mounted()', this.op);
 
         this.type.properties.forEach((f,i) => {
             this.$set(this.model, f.name, defaultValue(f));
@@ -67,21 +86,16 @@ export class CreateModal extends Vue {
     
     async submit() {
         await exec(this, async () => {
-            log('CreateModal.submit()', this);
-            
-            var args = [];
-            for (var k in this.model) {
-                args.push(k);
-                args.push(this.model[k]);
-            }
+            const model = sanitizedModel(this.model);
+            log('CreateModal.submit()', model);
 
-            await postSiteInvoke(new SiteInvoke({
+            await postSiteProxy(new SiteProxy({
                 slug:this.slug,
                 request:this.op.request.name,
-                args
-            }));
+            }), model);
+
             
-            this.$emit('done', this.model);
+            this.$emit('done', model);
         });
     }
 }

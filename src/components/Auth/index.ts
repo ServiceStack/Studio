@@ -11,12 +11,12 @@ import {adminUsersRoute, autoQueryRoute, Routes, validationRoute} from "../../sh
         <span v-if="session">
         
             <div class="btn-group" role="group">
+                <button v-if="feature != 'adminusers'" class="btn btn-light btn-sm" @click="goto('adminusers')"
+                        title="Go to Admin Users"><i class="users-link svg-lg"/></button>
                 <button v-if="feature != 'autoquery'" class="btn btn-light btn-sm" @click="goto('autoquery')"
                         title="Go to AutoQuery"><i class="db-link svg-lg"/></button>
                 <button v-if="feature != 'validation'" class="btn btn-light btn-sm" @click="goto('validation')"
                         title="Go to Validation"><i class="lock-link svg-lg"/></button>
-                <button v-if="feature != 'adminusers'" class="btn btn-light btn-sm" @click="goto('adminusers')"
-                        title="Go to Users"><i class="users-link svg-lg"/></button>
                 <button v-if="prefsDirty || loading" @click="savePrefs()" title="Save Preferences" 
                         class="btn btn-light btn-sm"><i :class="(loading ? 'svg-loading' : 'save-link') + ' svg-lg'" /></button>            
                 <div class="btn-group" role="group">
@@ -117,14 +117,14 @@ export class Auth extends Vue {
     
     goto(feature:string) {
         switch (feature) {
+            case 'adminusers':
+                this.$router.push(adminUsersRoute(this.slug, null));
+                break;
             case 'autoquery':
                 this.$router.push(autoQueryRoute(this.slug, this.op ? { op:this.op} : null));
                 break;
             case 'validation':
                 this.$router.push(validationRoute(this.slug, this.op ? { op:this.op} : null));
-                break;
-            case 'adminusers':
-                this.$router.push(adminUsersRoute(this.slug, null));
                 break;
         }
     }

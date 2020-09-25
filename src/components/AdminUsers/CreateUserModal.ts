@@ -7,9 +7,7 @@ import {
     gridProps,
     getSiteInvoke,
     putSiteInvoke,
-    deleteSiteInvoke,
-    putSiteProxy, 
-    postSiteProxy,
+    postSiteProxy, sanitizedModel,
 } from '../../shared';
 import {
     AdminCreateUser,
@@ -18,8 +16,7 @@ import {
     SiteInvoke,
     SiteProxy,
 } from "../../shared/dtos";
-import {getField, humanize, nameOf} from "@servicestack/client";
-
+import {getField, humanize, nameOf, toDateFmt} from "@servicestack/client";
 
 @Component({ template:
 `<div id="createUserModal" class="modal-inline modal-inline-lg" tabindex="-1" role="dialog" @keyup.esc="$emit('done')" title="">
@@ -44,9 +41,8 @@ import {getField, humanize, nameOf} from "@servicestack/client";
                         <template v-for="rowProps in gridProps">
                         <div class="row mb-3">
                             <template v-for="f in rowProps">
-                                <div v-if="f.name != 'LockedDate' && !f.isPrimaryKey" class="col">
-                                    <v-input type="text" :id="f.name" v-model="model[f.name]" :responseStatus="responseStatus" 
-                                             :placeholder="humanize(f.name)" :inputClass="['form-control-' + size]" :help="humanize(f.name)" />                
+                                <div class="col">
+                                    <v-input-type :property="f" :model="model" :size="size" :responseStatus="responseStatus" />
                                 </div>
                             </template>
                         </div>
@@ -142,7 +138,7 @@ export class CreateUserModal extends Vue {
         ['LockedDate'],
     ];
 
-    get gridProps() { return gridProps(this.grid, this.type.properties); }
+    get gridProps() { return gridProps(this.grid, this.type.properties.filter(f => f.name != 'LockedDate' && !f.isPrimaryKey)); }
 
     get app() { return store.getApp(this.slug); }
 
@@ -241,7 +237,8 @@ export class CreateUserModal extends Vue {
     async submit() {
         if (!this.canSubmit) return;
         await exec(this, async () => {
-            log('CreateUserModal.submit()', this);
+            const model = sanitizedModel(this.model);
+            log('CreateUserModal.submit()', model);
 
             let request = new AdminCreateUser({
                 userAuthProperties: {},
@@ -251,9 +248,9 @@ export class CreateUserModal extends Vue {
 
             const restrictedProps = ['id','roles','permissions'];
 
-            for (let k in this.model) {
+            for (let k in model) {
                 const key = k.toLowerCase();
-                const val = this.model[k];
+                const val = model[k];
                 if (key === 'username')
                     request.userName = val;
                 if (key === 'password')
@@ -277,7 +274,7 @@ export class CreateUserModal extends Vue {
                 request: nameOf(new AdminCreateUser)
             }), request);
 
-            this.$emit('done', this.model);
+            this.$emit('done', model);
         });
     }
 }

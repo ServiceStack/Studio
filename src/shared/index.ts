@@ -1,12 +1,33 @@
 import Vue from 'vue';
 import {
-    JsonServiceClient,
+    getField,
     GetNavItemsResponse,
-    UserAttributes,
     IAuthSession,
-    normalizeKey,
-    toDate, getField, splitOnFirst, padInt, toDateFmt
+    JsonServiceClient,
+    padInt,
+    splitOnFirst,
+    toDate,
+    toDateFmt, trimEnd,
+    UserAttributes
 } from '@servicestack/client';
+import {
+    AppMetadata,
+    AppPrefs,
+    Authenticate,
+    AuthenticateResponse,
+    GetAppMetadata,
+    GetSites,
+    MetadataOperationType,
+    MetadataPropertyType,
+    MetadataType,
+    QueryPrefs,
+    ResponseStatus,
+    SaveSiteAppPrefs,
+    SiteInvoke,
+    SiteProxy,
+    SiteSetting,
+} from './dtos';
+import {desktopInfo, evaluateCode} from '@servicestack/desktop';
 
 declare let global: any; // populated from package.json/jest
 
@@ -17,25 +38,6 @@ export {
     splitOnFirst, toPascalCase,
     queryString,
 } from '@servicestack/client';
-
-import {
-    ResponseStatus,
-    Authenticate,
-    AuthenticateResponse,
-    SiteSetting,
-    AppMetadata,
-    MetadataType,
-    MetadataOperationType,
-    GetSites,
-    GetAppMetadata,
-    AppPrefs,
-    SaveSiteAppPrefs,
-    MetadataPropertyType,
-    SiteInvoke,
-    SiteProxy,
-    QueryPrefs,
-} from './dtos';
-import {desktopInfo, evaluateCode} from '@servicestack/desktop';
 
 export enum Roles {
   Admin = 'Admin',
@@ -88,6 +90,7 @@ interface State {
     getSession(slug:string): IAuthSession;
     hasRole(slug:string,role:string):boolean;
     getType(slug:string,typeRef:IModelRef): MetadataType|null;
+    getTypeProperties(slug:string,typeRef:IModelRef): MetadataPropertyType[];
     hasPlugin(slug:string, plugin:string): boolean;
     isDirty(slug:string): boolean;
     logInvoke(method:string,invoke:SiteInvoke,response:string): string;
@@ -135,6 +138,17 @@ export const store: State = {
         const ret = siteTypes && siteTypes[typeRef.namespace + '.' + typeRef.name] || siteTypes['.' + typeRef.name];
         if (!ret) console.warn('Could not find type', typeRef.namespace, typeRef.name);
         return ret;
+    },
+    getTypeProperties(slug:string,typeRef:IModelRef) {
+        let to:MetadataPropertyType[] = [];
+        let type = this.getType(slug, typeRef);
+        while (type?.properties != null) {
+            for (let i=0; i<type.properties.length; i++) {
+                to.push(type.properties[i]);
+            }
+            type = this.getType(slug, type.inherits);
+        }
+        return to;
     },
     hasPlugin(slug:string, plugin:string) { 
         return store.getSite(slug)?.plugins?.indexOf(plugin) >= 0; 
@@ -258,15 +272,15 @@ export const putSiteProxy = async (proxy:SiteProxy,body:any) => store.logProxy('
 const zero = () => 0, doubleZero = () => 0.0;
 const types:{[id:string]:() => any} = {
     Byte: zero, Int16: zero, Int32: zero, Int64: zero, SByte: zero, UInt16: zero, UInt32: zero, UInt64: zero,
-    Double: doubleZero,
-    Single: doubleZero,
+    Double: doubleZero, Single: doubleZero, Decimal: doubleZero,
     DateTime: () => new Date().toISOString(), DateTimeOffset: () => new Date().toISOString(),
     TimeSpan: () => '00:00:00',
+    Guid: () => '00000000000000000000000000000000',
+    Boolean: () => false,
 };
 
 export const dateFmtHMS = (d: Date = new Date()) =>
     `${d.getFullYear()-2000}${padInt(d.getMonth() + 1)}${padInt(d.getDate())}-${padInt(d.getHours())}${padInt(d.getMinutes())}${padInt(d.getSeconds())}`;
-
 
 export const defaultValue = (prop:MetadataPropertyType) => {
     const f = types[prop.type];
@@ -274,13 +288,28 @@ export const defaultValue = (prop:MetadataPropertyType) => {
 };
 
 export const editValue = (prop:MetadataPropertyType,value:any) => {
-    if (typeof value == 'string') {
-        if (value.startsWith('/Date(')) {
-            return toDate(value).toISOString();
-        }
-    }
+    // log(prop.name, prop.type, prop.isValueType, value);
     return value;
 };
+
+export function sanitizedModel(model:any):{[index:string]:any} {
+  let to:any = {};
+  Object.keys(model).forEach(k => {
+      if (model[k] !== '') {
+          to[k] = model[k];
+      }
+  });
+  return to;
+}
+
+export function toPropsMap(props:MetadataPropertyType[]) {
+    let to:{[index:string]:MetadataPropertyType} = {};
+    for (let i=0; i<props.length; i++) {
+        let prop = props[i];
+        to[prop.name] = prop;
+    }
+    return to;
+}
 
 export const getId = (type:MetadataType, row:any) => {
     const pk = type.properties.find(x => x.isPrimaryKey);
@@ -325,9 +354,9 @@ export function gridProps(grid:string[][],props:MetadataPropertyType[]) {
             to.push(propRow);
     });
     props.filter(p => !added[p.name]).forEach(p => to.push([p]));
-
     return to;
 }
+
 
 export async function siteExec(slug:string, fn:(() => Promise<any>)) {
     try {
@@ -481,7 +510,9 @@ bus.$on('appSession', (siteResult:{ slug:string, result:IAuthSession }) => {
     const newSessions = Object.assign({}, store.appSessions);
     newSessions[siteResult.slug] = siteResult.result;
     bus.$set(store, 'appSessions', newSessions);
-    bus.$emit('signedin');
+    if (siteResult.result) {
+        bus.$emit('signedin');
+    }
 });
 bus.$on('appLoading', (siteResult:{ slug:string, result:boolean }) => {
     const newLoading = Object.assign({}, store.appLoading);

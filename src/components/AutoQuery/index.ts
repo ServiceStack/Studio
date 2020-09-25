@@ -112,7 +112,7 @@ import { desktopSaveDownloadUrl } from "@servicestack/desktop";
                 <div v-if="showSelectColumns">
                     <select-columns :columns="columns" v-model="fields" @done="handleSelectColumns($event)" />
                 </div>
-                <div class="main-query">
+                <div class="main-query" v-if="results.length">
                     <span class="btn svg svg-fields svg-2x" title="View Columns" @click="showSelectColumns=!showSelectColumns"></span>
                     <button class="btn first-link svg-2x" :disabled="skip==0" title="<< first" @click="viewNext(-total)"></button>
                     <button class="btn left-link svg-2x"  :disabled="skip==0" title="< previous" @click="viewNext(-100)"></button>
@@ -296,7 +296,9 @@ export class AutoQuery extends Vue {
     
     get canQuery() { return this.accessibleAutoQueryTables.some(op => this.op == op.request.name); }
     
-    get hasSelectedCondition() { return this.searchField && this.searchType && this.searchText; }
+    get convention() { return this.plugin?.viewerConventions.find(c => c.value === this.searchType); }
+    
+    get hasSelectedCondition() { return this.searchField && this.searchType && (this.searchText || this.convention?.valueType == 'none'); }
 
     async mounted() {
         await loadSite(this.slug);
@@ -323,7 +325,7 @@ export class AutoQuery extends Vue {
             this.responseJson = await getSiteInvoke(request);
             this.response = JSON.parse(this.responseJson);
             this.results = this.response && (this.response.results || this.response.Results);
-            this.total = this.response && this.response.total;
+            this.total = this.response && (this.response.total || this.response.Total);
             bus.$emit('appPrefs', { slug:this.slug, request:this.op, query:this.query });
 
             await this.loadEvents();
@@ -430,10 +432,11 @@ export class AutoQuery extends Vue {
         if (this.take) {
             args.push({ take: `${this.take}` });
         }
-        const convention = this.plugin?.viewerConventions.find(c => c.value === this.searchType);
-        if (convention) {
-            const field = convention.value.replace("%", this.searchField);
-            args.push({ [field]: this.searchText });
+        if (this.convention) {
+            if (this.searchText || this.convention.valueType == "none") {
+                const field = this.convention.value.replace("%", this.searchField);
+                args.push({ [field]: this.searchText });
+            }
         }
 
         return args;

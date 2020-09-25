@@ -6,9 +6,9 @@ import {
     log,
     gridProps,
     getSiteInvoke,
-    putSiteInvoke, 
+    putSiteInvoke,
     deleteSiteInvoke,
-    putSiteProxy,
+    putSiteProxy, sanitizedModel,
 } from '../../shared';
 import {
     AdminUpdateUser,
@@ -25,7 +25,7 @@ import {getField, humanize, nameOf} from "@servicestack/client";
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
-            Edit User {{ getField(row,'id') }}: {{ getField(row,'displayName') }}
+            Edit User {{ getField(row,'id') }}: {{ displayName }}
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('done')">
           <span aria-hidden="true">&times;</span>
@@ -43,9 +43,8 @@ import {getField, humanize, nameOf} from "@servicestack/client";
                         <template v-for="rowProps in gridProps">
                         <div class="row mb-3">
                             <template v-for="f in rowProps">
-                                <div v-if="f.name != 'LockedDate' && !f.isPrimaryKey" class="col">
-                                    <v-input type="text" :id="f.name" v-model="model[f.name]" :responseStatus="responseStatus" 
-                                             :placeholder="humanize(f.name)" :inputClass="['form-control-' + size]" :help="humanize(f.name)" />                
+                                <div class="col">
+                                    <v-input-type :property="f" :model="model" :size="size" :responseStatus="responseStatus" />
                                 </div>
                             </template>
                         </div>
@@ -53,7 +52,7 @@ import {getField, humanize, nameOf} from "@servicestack/client";
                     </div>
                     <div class="form-group text-right pt-3 border-top border-top-primary">
                         <span class="btn btn-link" @click="$emit('done')">close</span>
-                        <button :disabled="!canSubmit" type="submit" class="btn btn-primary">{{labelButton}}</button>
+                        <button :disabled="!canSubmit || loading" type="submit" class="btn btn-primary">{{labelButton}}</button>
                     </div>
                     <div class="confirm-delete" style="margin:-54px 0 0 20px">
                         <input id="chkDelete" type="checkbox" class="form-check-input" @change="confirmDelete=!confirmDelete"/> 
@@ -69,20 +68,20 @@ import {getField, humanize, nameOf} from "@servicestack/client";
                                      @keypress.enter.native.prevent="changePassword()" />                
                         </div>
                         <div class="col col-4 p-0">
-                            <button @click.prevent="changePassword()" class="btn btn-outline-danger">Change</button>                    
+                            <button @click.prevent="changePassword()" class="btn btn-outline-danger" :disabled="loading">Change</button>                    
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <template v-if="model['LockedDate']">
+                        <template v-if="model.LockedDate">
                             <div class="col col-8 pr-0">
-                                <label>Locked on {{ model['LockedDate'] | datefmt }}</label>
+                                <label>Locked on {{ model.LockedDate | datefmt }}</label>
                             </div>
                             <div class="col col-4 p-0">
-                                <button @click.prevent="unlockUser()" class="btn btn-outline-danger">Unlock</button>
+                                <button @click.prevent="unlockUser()" class="btn btn-outline-danger" :disabled="loading">Unlock</button>
                             </div>                            
                         </template>
                         <div v-else class="col">
-                            <button @click.prevent="lockUser()" class="btn btn-outline-danger">Lock User</button>
+                            <button @click.prevent="lockUser()" class="btn btn-outline-danger" :disabled="loading">Lock User</button>
                         </div>                
                     </div>
                     <div class="row mb-3" v-if="roles.length">
@@ -163,7 +162,7 @@ export class EditUserModal extends Vue {
         ['LockedDate'],
     ];
     
-    get gridProps() { return gridProps(this.grid, this.type.properties); }
+    get gridProps() { return gridProps(this.grid, this.type.properties.filter(f => f.name != 'LockedDate' && !f.isPrimaryKey)); }
 
     get app() { return store.getApp(this.slug); }
 
@@ -179,7 +178,19 @@ export class EditUserModal extends Vue {
 
     get missingPermissions() { return this.plugin.allPermissions.filter(x => this.permissions.indexOf(x) == -1); }
     
-    get canSubmit() { return this.model.UserName || this.model.Email; }
+    get canSubmit() { return (this.model.UserName) || this.model.Email || (!this.hasProp('UserName') && !this.hasProp('Email')); }
+    
+    hasProp(name:string) { return this.type.properties.find(x => x.name.toLowerCase() == name.toLowerCase()) != null; }
+    
+    get displayName() {
+        let ret = getField(this.row,'displayName') || getField(this.row,'userName');
+        if (ret)
+            return ret;
+        const first = getField(this.row,'firstName'), last = getField(this.row,'lastName');
+        if (first || last)
+            return (first || '') + ' ' + (last || '')
+        return '';
+    }
     
     get labelButton() { return `Update User` }
     
@@ -194,7 +205,7 @@ export class EditUserModal extends Vue {
         await exec(this, async () => {
             const response = await getSiteInvoke(new SiteInvoke({ slug:this.slug, request:'AdminGetUser', args:['Id',this.id] }));
             const obj = JSON.parse(response);
-            this.row = obj.result;
+            this.row = getField(obj, 'Result');
         });
 
         this.success = success;
@@ -287,7 +298,8 @@ export class EditUserModal extends Vue {
     async submit() {
         if (!this.canSubmit) return;
         await exec(this, async () => {
-            log('EditUserModal.submit()', this);
+            const model = sanitizedModel(this.model);
+            log('EditUserModal.submit()', model);
 
             let request = new AdminUpdateUser({
                 id: this.id,
@@ -296,9 +308,9 @@ export class EditUserModal extends Vue {
             
             const restrictedProps = ['id','roles','permissions'];
 
-            for (let k in this.model) {
+            for (let k in model) {
                 const key = k.toLowerCase();
-                const val = this.model[k];
+                const val = model[k];
                 if (key === 'username')
                     request.userName = val;
                 else if (key === 'email')
@@ -336,7 +348,7 @@ export class EditUserModal extends Vue {
                     request: nameOf(new AdminUpdateUser)
                 }), request);
             
-            this.$emit('done', this.model);
+            this.$emit('done', model);
         });
     }
 }

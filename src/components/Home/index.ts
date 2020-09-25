@@ -44,6 +44,10 @@ import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
                                 {{ x.name }} <small>({{ x.baseUrl }})</small>
                             </td>
                             <td class="actions">
+                                <button v-if="hasPlugin(x,'adminusers')" @click="$router.push(routeAdminUsers(x.slug))" class="btn btn-light">
+                                    <i class="svg-users svg-md mb-1" />
+                                    Users
+                                </button>
                                 <button v-if="hasPlugin(x,'autoquery')" @click="$router.push(routeAutoQuery(x.slug))" class="btn btn-light">
                                     <i class="svg-db svg-md mb-1" />
                                     AutoQuery
@@ -51,10 +55,6 @@ import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
                                 <button v-if="hasPlugin(x,'validation')" @click="$router.push(routeValidation(x.slug))" class="btn btn-light">
                                     <i class="svg-lock svg-md mb-1" />
                                     Validation
-                                </button>
-                                <button v-if="hasPlugin(x,'adminusers')" @click="$router.push(routeAdminUsers(x.slug))" class="btn btn-light">
-                                    <i class="svg-users svg-md mb-1" />
-                                    Users
                                 </button>
                                 <button class="btn btn-social-icon btn-sm mx-1" @click="deleteSite(x)">
                                     <i class="fab fa-delete"></i>

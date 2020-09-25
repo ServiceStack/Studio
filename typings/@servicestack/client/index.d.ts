@@ -307,6 +307,7 @@ export declare class JsonServiceClient {
     cookies: {
         [index: string]: Cookie;
     };
+    parseJson: (res: Response) => Promise<any>;
     static toBase64: (rawString: string) => string;
     constructor(baseUrl?: string);
     setCredentials(userName: string, password: string): void;
@@ -330,6 +331,7 @@ export declare class JsonServiceClient {
     toAbsoluteUrl(relativeOrAbsoluteUrl: string): string;
     deleteCookie(name: string): void;
     private createRequest({method, request, url, args, body});
+    private json(res);
     private createResponse<T>(res, request);
     private handleError(holdRes, res, type?);
     send<T>(method: string, request: any | null, args?: any, url?: string): Promise<T>;
@@ -370,12 +372,16 @@ export declare const padInt: (n: number) => string | number;
 export declare const dateFmt: (d?: Date) => string;
 export declare const dateFmtHM: (d?: Date) => string;
 export declare const timeFmt12: (d?: Date) => string;
+export declare const toLocalISOString: (d?: Date) => string;
 export interface ICreateElementOptions {
     insertAfter?: Element | null;
 }
 export declare function createElement(tagName: string, options?: ICreateElementOptions, attrs?: any): HTMLElement;
 export declare function bootstrap(el?: Element): void;
-export declare function bindHandlers(handlers: any, el?: Document | Element): void;
+export interface IBindHandlersOptions {
+    events: string[];
+}
+export declare function bindHandlers(handlers: any, el?: Document | Element, opt?: IBindHandlersOptions): void;
 export interface IAjaxFormOptions {
     type?: string;
     url?: string;
@@ -472,3 +478,6 @@ export declare class NavOptions {
     constructor(init?: Partial<NavOptions>);
 }
 export declare function classNames(...args: any[]): string;
+export declare function fromXsdDuration(xsd: string): number;
+export declare function toXsdDuration(time: number): string;
+export declare function toTimeSpanFmt(time: number): string;

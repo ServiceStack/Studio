@@ -8,17 +8,18 @@ import {
     defaultValue,
     editValue,
     deleteSiteInvoke,
-    postSiteInvoke, log
+    postSiteInvoke, log, putSiteProxy, postSiteProxy, sanitizedModel
 } from '../../shared';
 import {
+    AdminUpdateUser,
     MetaAuthProvider,
     MetadataOperationType,
     MetadataPropertyType,
     MetadataType,
     SiteAuthenticate,
-    SiteInvoke
+    SiteInvoke, SiteProxy
 } from "../../shared/dtos";
-import {getField, humanize, normalizeKey} from "@servicestack/client";
+import {getField, humanize, nameOf, normalizeKey} from "@servicestack/client";
 
 @Component({ template:
 `<div id="editModal" class="modal-inline" tabindex="-1" role="dialog" @keyup.esc="$emit('done')" title="">
@@ -35,12 +36,11 @@ import {getField, humanize, normalizeKey} from "@servicestack/client";
       <div class="modal-body">
         <form @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
             <div class="form-group">
-                <error-summary :except="type.properties.map(x => x.name)" :responseStatus="responseStatus" />
+                <error-summary :except="allProperties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>        
-            <div v-for="f in type.properties" :key="f.name" class="form-group">
+            <div v-for="f in allProperties" :key="f.name" class="form-group">
                 <span v-if="!updateOp || f.isPrimaryKey" :class="['disabled',size,'ml-2']">{{fieldValue(f)}}</span>
-                <v-input v-else type="text" :id="f.name" v-model="model[f.name]" :responseStatus="responseStatus" 
-                         :inputClass="['form-control-' + size]" :placeholder="humanize(f.name)" :help="humanize(f.name)" />                
+                <v-input-type :property="f" :model="model" :size="size" :responseStatus="responseStatus" />
             </div>
             <div class="form-group text-right">
                 <span class="btn btn-link" @click="$emit('done')">close</span>
@@ -76,7 +76,9 @@ export class EditModal extends Vue {
 
     get enabled() { return this.app && this.app.plugins.autoQuery; }
     
-    get size() { return (this.updateOp || this.deleteOp)?.request.properties.length > 10 ? 'md' : 'lg'; }
+    get allProperties() { return store.getTypeProperties(this.slug, this.type); }
+    
+    get size() { return this.allProperties.length <= 10 ? 'lg' : 'md'; }
     
     get labelButton() { return this.type.name.length <= 13 ? `Update ${this.type.name}` : `Update` }
 
@@ -87,10 +89,10 @@ export class EditModal extends Vue {
     }
 
     async mounted() {
-        log('CreateModal.mounted()');
+        log('EditModal.mounted()', this.type, this.model, this.row, this.updateOp);
 
         this.type.properties.forEach((f,i) => {
-            this.$set(this.model, f.name, editValue(f, getField(this.row,f.name)));
+            this.$set(this.model, f.name, getField(this.row,f.name));
         });
         
         this.$nextTick(() => {
@@ -122,21 +124,15 @@ export class EditModal extends Vue {
     
     async submit() {
         await exec(this, async () => {
-            log('EditModal.submit()', this);
-            
-            var args = [];
-            for (var k in this.model) {
-                args.push(k);
-                args.push(this.model[k]);
-            }
+            const model = sanitizedModel(this.model);
+            log('EditModal.submit()', model);
 
-            await postSiteInvoke(new SiteInvoke({
+            await postSiteProxy(new SiteProxy({
                 slug:this.slug,
                 request:this.updateOp.request.name,
-                args
-            }));
+            }), model);
             
-            this.$emit('done', this.model);
+            this.$emit('done', model);
         });
     }
 }
