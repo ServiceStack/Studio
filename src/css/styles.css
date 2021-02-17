@@ -98,10 +98,10 @@ span.nav-link {
 }
 .site {
 }
-.site .actions {
-    padding-left: 1em;
-}
 
+.modal, .modal-inline {
+    z-index: 1;
+}
 .stacktrace {
     background: #f1f1f1;
     padding: 1em;
@@ -318,7 +318,7 @@ table.results td.editing {
     margin: -10px 0 0 0;
 }
 #output-group {
-    position: absolute;
+    position: fixed;
     right: 0;
     bottom: 0;
     background: #fff;

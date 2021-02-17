@@ -1,5 +1,5 @@
 /* Options:
-Date: 2020-09-18 01:26:52
+Date: 2020-10-26 00:56:24
 Version: 5.9
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5002
@@ -50,6 +50,32 @@ export interface IPut
 
 export interface IDelete
 {
+}
+
+// @DataContract
+export class AuditBase
+{
+    // @DataMember(Order=1)
+    public createdDate: string;
+
+    // @DataMember(Order=2)
+    // @Required()
+    public createdBy: string;
+
+    // @DataMember(Order=3)
+    public modifiedDate: string;
+
+    // @DataMember(Order=4)
+    // @Required()
+    public modifiedBy: string;
+
+    // @DataMember(Order=5)
+    public deletedDate?: string;
+
+    // @DataMember(Order=6)
+    public deletedBy: string;
+
+    public constructor(init?: Partial<AuditBase>) { (Object as any).assign(this, init); }
 }
 
 export class QueryPrefs
@@ -595,6 +621,7 @@ export class ValidationRule extends ValidateRule
     public constructor(init?: Partial<ValidationRule>) { super(init); (Object as any).assign(this, init); }
 }
 
+// @DataContract
 export class AdminUserBase
 {
     // @DataMember(Order=1)
@@ -625,6 +652,15 @@ export class AdminUserBase
     public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<AdminUserBase>) { (Object as any).assign(this, init); }
+}
+
+export class ExportTypes implements IReturn<ExportTypes>
+{
+    public auditBase: AuditBase;
+
+    public constructor(init?: Partial<ExportTypes>) { (Object as any).assign(this, init); }
+    public createResponse() { return new ExportTypes(); }
+    public getTypeName() { return 'ExportTypes'; }
 }
 
 export class GetSitesResponse
@@ -1048,15 +1084,21 @@ export class AdminUpdateUser extends AdminUserBase implements IReturn<AdminUserR
     public id: string;
 
     // @DataMember(Order=11)
-    public addRoles: string[];
+    public lockUser?: boolean;
 
     // @DataMember(Order=12)
-    public removeRoles: string[];
+    public unlockUser?: boolean;
 
     // @DataMember(Order=13)
-    public addPermissions: string[];
+    public addRoles: string[];
 
     // @DataMember(Order=14)
+    public removeRoles: string[];
+
+    // @DataMember(Order=15)
+    public addPermissions: string[];
+
+    // @DataMember(Order=16)
     public removePermissions: string[];
 
     public constructor(init?: Partial<AdminUpdateUser>) { super(init); (Object as any).assign(this, init); }

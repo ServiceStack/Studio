@@ -104,10 +104,12 @@ class InputType extends Vue {
             this.values = this.f.allowableValues;
             return [this.f.name];
         } else if (typeof value == 'string') {
-            if (value.startsWith('/Date(') || this.inputType === 'datetime-local') {
-                return toLocalISOString(toDate(value));
-            } else if (this.realType === 'TimeSpan' && value && value[0] === 'P') {
-                return toTimeSpanFmt(fromXsdDuration(value));
+            if (value !== "") {
+                if (value.startsWith('/Date(') || this.inputType === 'datetime-local') {
+                    return toLocalISOString(toDate(value));
+                } else if (this.realType === 'TimeSpan' && value && value[0] === 'P') {
+                    return toTimeSpanFmt(fromXsdDuration(value));
+                }
             }
         } else if (this.inputType === 'textarea' && typeof value == 'object') {
             return JSON.stringify(value);

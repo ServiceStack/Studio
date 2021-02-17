@@ -103,12 +103,18 @@ main {
 }
 
 footer {
-    grid-column: foot;
+    grid-column: foot;A
     overflow-x: hidden;
     overflow-y: scroll;
 }
 #footer {
     border: 1px solid #eee;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 30%;
+    max-height: 300px;
 }
 .collapse-footer #footer .text-close {
     display: none;

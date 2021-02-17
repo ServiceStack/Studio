@@ -181,7 +181,7 @@ export const store: State = {
 })();
 
 export function isAdminAuth(session:IAuthSession) {
-    return session && session.userName == "authsecret" && session.roles && session.roles.indexOf('Admin') >= 0;
+    return session && session.roles && session.roles.indexOf('Admin') >= 0;
 }
 
 export function log(...o:any[]) {
@@ -232,13 +232,21 @@ export const argsAsKvps = (args:string[]) => {
     return to;
 };
 
+export const KeyCodes = {
+    UnitSeparator: `\x1F`
+};
+
 export const dtoAsArgs = (dto:{[id:string]:any}) => {
     const to:string[] = [];
     for (let k in dto) {
         const val = dto[k];
         if (typeof val == 'function') continue;
         to.push(k);
-        to.push(`${dto[k]}`);
+        if (Array.isArray(val)) {
+            to.push(val.join(KeyCodes.UnitSeparator));
+        } else {
+            to.push(`${val}`);
+        }
     }
     return to;
 };

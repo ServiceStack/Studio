@@ -8,7 +8,7 @@ import {
     defaultValue,
     editValue,
     deleteSiteInvoke,
-    postSiteInvoke, log, putSiteProxy, postSiteProxy, sanitizedModel
+    postSiteInvoke, log, putSiteProxy, postSiteProxy, sanitizedModel, dtoAsArgs
 } from '../../shared';
 import {
     AdminUpdateUser,
@@ -38,13 +38,12 @@ import {getField, humanize, nameOf, normalizeKey} from "@servicestack/client";
             <div class="form-group">
                 <error-summary :except="allProperties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>        
-            <div v-for="f in allProperties" :key="f.name" class="form-group">
-                <span v-if="!updateOp || f.isPrimaryKey" :class="['disabled',size,'ml-2']">{{fieldValue(f)}}</span>
+            <div v-for="f in allProperties.filter(f => !f.isPrimaryKey)" :key="f.name" class="form-group">
                 <v-input-type :property="f" :model="model" :size="size" :responseStatus="responseStatus" />
             </div>
             <div class="form-group text-right">
                 <span class="btn btn-link" @click="$emit('done')">close</span>
-                <button type="submit" class="btn btn-primary">{{labelButton}}</button>
+                <button v-if="allProperties.length > 0" type="submit" class="btn btn-primary">{{labelButton}}</button>
             </div>
             <div v-if="deleteOp" class="confirm-delete" style="margin:-54px 0 0 20px">
                 <input id="chkDelete" type="checkbox" class="form-check-input" @change="confirmDelete=!confirmDelete"/> 
@@ -60,6 +59,7 @@ import {getField, humanize, nameOf, normalizeKey} from "@servicestack/client";
 export class EditModal extends Vue {
     @Prop({ default: null }) slug: string;
     @Prop({ default: null }) updateOp: MetadataOperationType;
+    @Prop({ default: null }) patchOp: MetadataOperationType;
     @Prop({ default: null }) deleteOp: MetadataOperationType;
     @Prop({ default: null }) type: MetadataType;
     @Prop({ default: null }) field: string;
@@ -76,7 +76,7 @@ export class EditModal extends Vue {
 
     get enabled() { return this.app && this.app.plugins.autoQuery; }
     
-    get allProperties() { return store.getTypeProperties(this.slug, this.type); }
+    get allProperties() { return (this.updateOp ?? this.patchOp)?.request.properties ?? []; }
     
     get size() { return this.allProperties.length <= 10 ? 'lg' : 'md'; }
     
@@ -89,7 +89,7 @@ export class EditModal extends Vue {
     }
 
     async mounted() {
-        log('EditModal.mounted()', this.type, this.model, this.row, this.updateOp);
+        log('EditModal.mounted()', this.type, this.model, this.row, this.updateOp, this.patchOp);
 
         this.type.properties.forEach((f,i) => {
             this.$set(this.model, f.name, getField(this.row,f.name));
@@ -123,14 +123,47 @@ export class EditModal extends Vue {
     }
     
     async submit() {
+        if (!this.updateOp && !this.patchOp) return;
         await exec(this, async () => {
             const model = sanitizedModel(this.model);
-            log('EditModal.submit()', model);
+            log(`EditModal.submit(${this.updateOp ? 'Update' : 'Patch'})`, model);
 
-            await postSiteProxy(new SiteProxy({
-                slug:this.slug,
-                request:this.updateOp.request.name,
-            }), model);
+            if (this.updateOp) {
+                await postSiteProxy(new SiteProxy({
+                    slug:this.slug,
+                    request:this.updateOp.request.name,
+                }), model);
+            } else {
+                let dirtyValues:any = {};
+                let resetFields:string[] = [];
+                this.type.properties.forEach((f,i) => {
+                    const origValue = getField(this.row,f.name);
+                    if (f.isPrimaryKey) {
+                        dirtyValues[f.name] = origValue;
+                        return;
+                    }
+                    const newValue = this.model[f.name];
+                    if (origValue !== newValue) {
+                        if (newValue) {
+                            dirtyValues[f.name] = newValue;
+                        } else {
+                            resetFields.push(f.name);
+                        }
+                    }
+                });
+
+                let query = resetFields.length > 0
+                    ? dtoAsArgs({reset: resetFields})
+                    : [];
+                
+                log(`PATCH ${this.patchOp.request.name}: `, dirtyValues, query);
+                
+                await putSiteProxy(new SiteProxy({
+                    slug:this.slug,
+                    request:this.patchOp.request.name,
+                    query
+                }), dirtyValues);
+            }
             
             this.$emit('done', model);
         });

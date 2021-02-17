@@ -67,8 +67,11 @@ import { desktopSaveDownloadUrl } from "@servicestack/desktop";
             <div id="sidebar" class="">
                 <div class="pl-2">
                     <div v-for="op in accessibleAutoQueryTables" :key="typeKey(op.request)" 
-                        :class="['datamodel',{selected:matchesType(op.dataModel,model)}]" :title="op.dataModel?.name">
-                        <router-link :to="{ query: { op:op.request.name } }">{{op.dataModel?.name}}</router-link>
+                        :class="['datamodel',{selected:$route.query.op === op.request.name}]" :title="op.dataModel.name">
+                        <router-link :to="{ query: { op:op.request.name } }">
+                            {{op.dataModel.name}}
+                            <small v-if="hasMultiple(op.dataModel.name)">({{op.request.name}})</small>
+                        </router-link>
                     </div>
                 </div>
             </div>
@@ -288,6 +291,10 @@ export class AutoQuery extends Vue {
 
     get accessibleAutoQueryTables() {
         return this.filterOperations((op, table) => isQuery(op) && canAccess(this.slug,op));
+    }
+
+    hasMultiple(dataModel:string) {
+        return this.accessibleAutoQueryTables.filter(x => x.dataModel?.name === dataModel).length > 1;
     }
 
     get crudOperations() {

@@ -72,8 +72,7 @@ namespace Studio.ServiceInterface
 
     public class StudioServices : Service
     {
-        public static ConcurrentDictionary<string, SiteInfo> Sites =
-            new ConcurrentDictionary<string, SiteInfo>(StringComparer.OrdinalIgnoreCase);
+        public static ConcurrentDictionary<string, SiteInfo> Sites = new(StringComparer.OrdinalIgnoreCase);
         
         public object Any(GetSites request) => new GetSitesResponse {
             Sites = CreateSiteSettings().Sites,
@@ -308,14 +307,14 @@ namespace Studio.ServiceInterface
                 AppMetadata appMetadata;
                 try 
                 { 
-                    appMetadata = GetAppMetadata(useBaseUrl);
+                    appMetadata = useBaseUrl.GetAppMetadata();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     if (useBaseUrl == baseUrl)
                         throw;
 
-                    appMetadata = GetAppMetadata("http://" + useBaseUrl);
+                    appMetadata = ("http://" + useBaseUrl).GetAppMetadata();
                 }
 
                 var slug = useBaseUrl.RightPart("://").SafeVarName().Replace("__","_");
@@ -369,7 +368,7 @@ namespace Studio.ServiceInterface
             site.AccessDate = DateTime.Now;
             if (site.Metadata == null)
             {
-                site.Metadata = GetAppMetadata(site.BaseUrl);
+                site.Metadata = site.BaseUrl.GetAppMetadata();
                 site.Name = site.Metadata.App.ServiceName;
             }
             SaveSettings();
@@ -387,48 +386,6 @@ namespace Studio.ServiceInterface
             var site = AssertSite(request.Slug);
             site.Prefs = request.AppPrefs;
             SaveSettings();
-        }
-
-        private static AppMetadata GetAppMetadata(string baseUrl)
-        {
-            string appResponseJson = null;
-            try
-            {
-                appResponseJson = baseUrl.CombineWith("/metadata/app.json")
-                    .GetJsonFromUrl();
-            
-                if (!appResponseJson.Trim().StartsWith("{"))
-                    throw new Exception("Not a remote ServiceStack Instance");
-            }
-            catch (Exception appEx)
-            {
-                string ssMetadata;
-                try
-                {
-                    ssMetadata = baseUrl.CombineWith("/metadata").GetStringFromUrl();
-                }
-                catch (Exception ssEx)
-                {
-                    throw new Exception("Not a remote ServiceStack Instance", ssEx);
-                }
-
-                if (ssMetadata.IndexOf("https://servicestack.net", StringComparison.Ordinal) == -1)
-                    throw new Exception("Not a remote ServiceStack Instance");
-
-                throw new Exception("ServiceStack Instance v5.8.1 or higher required", appEx);
-            }
-
-            AppMetadata appMetadata;
-            try
-            {
-                appMetadata = appResponseJson.FromJson<AppMetadata>();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Could not read AppMetadata, try upgrading this App or remote ServiceStack Instance", e);
-            }
-
-            return appMetadata;
         }
 
         public void SaveSettings()

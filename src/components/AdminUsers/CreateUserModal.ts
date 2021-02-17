@@ -166,21 +166,17 @@ export class CreateUserModal extends Vue {
 
     async reset(success:string|null=null) {
 
-        await exec(this, async () => {
-            const response = await getSiteInvoke(new SiteInvoke({ slug:this.slug, request:'AdminGetUser', args:['Id',this.id] }));
-            const obj = JSON.parse(response);
-            this.row = obj.result;
-        });
-
+        // await exec(this, async () => {
+        //     const response = await getSiteInvoke(new SiteInvoke({ slug:this.slug, request:'AdminGetUser', args:['Id',this.id] }));
+        //     const obj = JSON.parse(response);
+        //     this.row = obj.result;
+        // });
+        this.row = {};
         this.type.properties.forEach((f,i) => {
             this.$set(this.model, f.name, editValue(f, getField(this.row,f.name)));
         });
-        const roles = getField(this.row, 'Roles') as string[];
-        if (roles)
-            this.roles = [...roles];
-        const permissions = getField(this.row, 'Permissions') as string[];
-        if (permissions)
-            this.permissions = [...permissions];
+        this.roles = [];
+        this.permissions = [];
     }
 
     async mounted() {

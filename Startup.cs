@@ -34,6 +34,16 @@ namespace Studio
         }
     }
 
+    public class ExportTypes : IReturn<ExportTypes>
+    {
+        public AuditBase AuditBase { get; set; }
+    }
+
+    public class ExportTypesService : IService
+    {
+        public object Any(ExportTypes request) => request;
+    }
+
     public class AppHost : AppHostBase
     {
         public AppHost() : base("ServiceStack Studio", typeof(StudioServices).Assembly) {}

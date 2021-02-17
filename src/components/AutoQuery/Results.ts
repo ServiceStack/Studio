@@ -51,8 +51,8 @@ Vue.component('format', FormatString);
             <template v-for="(r,i) in results">
             <tr :key="i" :class="{ selected:selectedRow(i) }">
                 <td v-if="crud.length">
-                    <span v-if="hasCrud(['Update','Delete'])">
-                        <i v-if="hasAccessibleCrud(['Update','Delete'])" class="svg svg-btn svg-update svg-sm" :title="updateLabel" 
+                    <span v-if="hasCrud(['Update','Patch','Delete'])">
+                        <i v-if="hasAccessibleCrud(['Update','Patch','Delete'])" class="svg svg-btn svg-update svg-sm" :title="updateLabel" 
                            @click="editRow(i)" />
                         <i v-else-if="!session && authPlugin" class="svg svg-btn svg-auth auth-warning svg-md" title="Sign In" @click="bus.$emit('signin')" />
                     </span>
@@ -70,7 +70,7 @@ Vue.component('format', FormatString);
                             <create-modal v-if="createOp" :slug="slug" :op="createOp" :type="type" @done="handleDone('Create',$event)" />
                         </span>
                         <div v-else-if="isEditingRow(i) && j == 0">
-                            <edit-modal v-if="updateOp || deleteOp" :slug="slug" :updateOp="updateOp" :deleteOp="deleteOp" :type="type" :row="r" 
+                            <edit-modal v-if="updateOp || patchOp || deleteOp" :slug="slug" :updateOp="updateOp" :patchOp="patchOp" :deleteOp="deleteOp" :type="type" :row="r" 
                                         @done="handleDone('Edit',$event)" />
                         </div>
                         <format :value="getField(r,f)" />
@@ -138,11 +138,12 @@ export class Results extends Vue {
     get plugin() { return store.getApp(this.slug).plugins.autoQuery; }
     get authPlugin() { return store.getApp(this.slug).plugins.auth; }
     get hasFilters() { return Object.keys(this.filters).length > 0; }
+    get typeProperties() { return store.getTypeProperties(this.slug, this.type) }
 
     get enableEvents() { return this.plugin.crudEventsServices && store.hasRole(this.slug, this.plugin?.accessRole); }
 
     get fieldNames() { 
-        let ret = this.type.properties.map(x => x.name);
+        let ret = this.typeProperties.map(x => x.name);
         if (this.fields.length > 0) {
             ret = ret.filter(x => this.fields.indexOf(x) >= 0);
         }
@@ -178,6 +179,7 @@ export class Results extends Vue {
     get createOp() { return this.crud.find(x => canAccess(this.slug, x) && x.request.implements.some(i => i.name == "ICreateDb`1")); }
 
     get updateOp() { return this.crud.find(x => canAccess(this.slug, x) && x.request.implements.some(i => i.name == "IUpdateDb`1")); }
+    get patchOp() { return this.crud.find(x => canAccess(this.slug, x) && x.request.implements.some(i => i.name == "IPatchDb`1")); }
     get deleteOp() { return this.crud.find(x => canAccess(this.slug, x) && x.request.implements.some(i => i.name == "IDeleteDb`1")); }
 
     isPartialField(f:string) { return this.partialFields.indexOf(f) >= 0; }
@@ -375,7 +377,7 @@ export class Results extends Vue {
         const patchOp = this.crud.find(x => x.request.implements.some(i => i.name == "IPatchDb`1") &&
             x.request.properties.some(x => x.name == updateField))!;
         
-        const pk = this.type.properties.find(x => x.isPrimaryKey);
+        const pk = this.typeProperties.find(x => x.isPrimaryKey);
         const pkValue = pk && getField(updateRow, pk.name);
         
         if (!updateField || !patchOp || !pk || !pkValue) {

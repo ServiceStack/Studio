@@ -66,7 +66,7 @@ export class CreateModal extends Vue {
 
     get enabled() { return this.app && this.app.plugins.autoQuery; }
 
-    get allProperties() { return store.getTypeProperties(this.slug, this.type); }
+    get allProperties() { return this.op.request.properties; }
 
     get size() { return this.allProperties.length <= 10 ? 'lg' : 'md'; }
 
