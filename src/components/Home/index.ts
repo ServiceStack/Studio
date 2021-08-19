@@ -3,6 +3,25 @@ import {store, client, bus, exec, log, loadSite} from '../../shared';
 import {adminUsersRoute, autoQueryRoute, validationRoute} from "../../shared/router";
 import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
 
+/* copy-cmd */
+function copyCmd(e:HTMLElement) {
+    console.log(e)
+    let $el = document.createElement("input");
+    let $parent = e.parentElement as HTMLElement;
+    let $lbl = $parent.firstElementChild as HTMLElement;
+    $el.setAttribute("value", $lbl.innerText);
+    document.body.appendChild($el);
+    $el.select();
+    document.execCommand("copy");
+    document.body.removeChild($el);
+    $parent.classList.add('copied');
+}
+
+function versionScore(strVersion:string) {
+    let parts = strVersion.split('.');
+    return (parseInt(parts[0]) * 1000) + (parseInt(parts[1]) * 100) + parseInt(parts[2]);
+}
+
 @Component({
     template: `<div id="content" class="container mt-4">
         <div id="title">
@@ -12,14 +31,14 @@ import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
             </h1>
         </div>
         <div class="row justify-content-between">
-            <div class="col mt-5 ml-4">
+            <div class="col mt-5 ms-4">
                 <p class="lead" style="font-size: 1.5em">
-                    <i class="svg-connect svg-2x mr-1 mb-1" />
+                    <i class="svg-connect svg-2x me-1 mb-1" />
                     Connect to ServiceStack Instance:
                 </p>
                 
                 <form ref="form" @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
-                    <div class="form-group">
+                    <div class="mb-3">
                         <error-summary except="baseUrl" :responseStatus="responseStatus" />
                     </div>
                     <div class="input-group">
@@ -33,17 +52,17 @@ import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
                 </form>                
             </div>
         </div>
-        <div class="row mt-4 ml-3">
+        <div class="row mt-4 ms-3">
             <div class="col col-auto">
                 <table class="site">
                     <tbody>
                         <tr v-for="x in store.sites" :key="x.baseUrl">
                             <td>
-                                <img v-if="x.iconUrl" :src="x.iconUrl" class="sq-lg mr-1 mb-1">
-                                <i v-else class="svg-servicestack svg-lg mr-1 mb-1" />
+                                <img v-if="x.iconUrl" :src="x.iconUrl" class="sq-lg me-1 mb-1">
+                                <i v-else class="svg-servicestack svg-lg me-1 mb-1" />
                                 {{ x.name }} <small>({{ x.baseUrl }})</small>
                             </td>
-                            <td class="pl-4">
+                            <td class="ps-4">
                                 <button v-if="hasPlugin(x,'adminusers')" @click="$router.push(routeAdminUsers(x.slug))" class="btn btn-light">
                                     <i class="svg-users svg-md mb-1" />
                                     Users
@@ -71,6 +90,19 @@ import {ModifyConnection, GetSites, SiteSetting} from "../../shared/dtos";
                 </table>
             </div>
         </div>
+        <div v-if="hasUpdate" class="mt-5">
+            <h4>New {{tool}} version available</h4>
+            <div style="display:flex;">
+                <div class="copy-cmd">
+                    <pre class="sh" style="border-radius:0.375rem;border-color:rgba(243,244,246,1);background-color:rgba(243,244,246,1);display:flex;font-size:1.125rem;line-height: 1.75rem;">        
+                        <label style="flex-grow:1;text-align:left;">dotnet tool update -g {{tool}}</label>
+                        <b style="padding-left:0.75rem;padding-right:0.25rem;white-space:nowrap;color:rgba(156,163,175,1);display:inline-block;font-size: 0.875rem;line-height: 1.25rem;"> copied</b>
+                        <i class="svg-copy" style="cursor:pointer;min-width:1.5rem;height:1.5rem;width:1.5rem;display:inline-block;" title="copy" @click="copyCmd('.copy-cmd i')"></i>
+                    </pre>
+                </div>
+            </div>
+            <p class="text-muted">please upgrade by running in a Terminal or Windows Run dialog (<em>WIN+R</em>) then restarting studio</p>
+        </div>
         <div id="debug-links">
             <button v-if="store.debug" class="btn btn-light btn-sm" @click="$router.push('/desktop')"
                     title="Go to Desktop"><i class="svg-debug svg-lg"/></button>
@@ -85,6 +117,19 @@ export class Home extends Vue {
     responseStatus = null;
 
     get store() { return store;}
+
+    get desktop() { return (window as any).CONFIG.desktop; }
+    get tool() { return this.desktop && this.desktop.tool; }
+    
+    get toolVersion() {
+        return this.desktop && this.desktop.toolVersion
+            ? versionScore(this.desktop.toolVersion)
+            : null;
+    }
+    
+    get hasUpdate() {
+        return this.toolVersion && this.toolVersion < versionScore('5.1.30');
+    }
 
     protected routeAutoQuery(slug: string) {
         return autoQueryRoute(slug);
@@ -146,6 +191,8 @@ export class Home extends Vue {
             this.loading = false;
         }
     }
+    
+    protected copyCmd(sel:string) { return copyCmd(document.querySelector(sel) as HTMLElement); }
 }
 
 export default Home;

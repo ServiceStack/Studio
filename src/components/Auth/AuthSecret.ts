@@ -9,15 +9,15 @@ import {SessionId} from "./SessionId";
 @Component({ template: 
     `<div v-if="enabled">
         <form ref="form" @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
-            <div class="form-group">
+            <div class="mb-3">
                 <error-summary except="token" :responseStatus="responseStatus" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <v-input id="token" type="password" v-model="token" placeholder="AuthSecret" 
                          help="The configured AdminAuthSecret" :responseStatus="responseStatus" />
                 <a href="https://docs.servicestack.net/debugging#authsecret" class="lnk-help help-muted" target="_blank" title="help"></a>                                
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <button type="submit" class="btn btn-lg btn-outline-primary">Login</button>
             </div>
         </form>

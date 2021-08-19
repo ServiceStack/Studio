@@ -2,7 +2,7 @@ import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
 import {Route} from "vue-router";
 
 @Component({ template: 
-`<div v-if="responseStatus" class="noplugin-error alert alert-danger mt-3 mr-3">
+`<div v-if="responseStatus" class="noplugin-error alert alert-danger mt-3 me-3">
     <div>{{responseStatus.errorCode}}: {{responseStatus.message}}</div>
     <div v-if="responseStatus.stackTrace">
         <button v-if="!showStackTrace" class="btn btn-link" style="margin-left: -1em" @click="showStackTrace=true">

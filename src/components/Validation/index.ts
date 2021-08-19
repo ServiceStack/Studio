@@ -36,7 +36,7 @@ Vue.component('edit-validation-rule', EditValidationRule);
                             <span v-else>{{site.name}}</span>
                         </li>
                         <li v-if="operation" class="breadcrumb-item active">{{operation.request.name}}</li>
-                        <li v-if="loading"><i class="svg-loading svg-lg ml-2 mb-1" title="loading..." /></li>
+                        <li v-if="loading"><i class="svg-loading svg-lg ms-2 mb-1" title="loading..." /></li>
                     </ol>
                 </nav>
             </h1>
@@ -58,7 +58,7 @@ Vue.component('edit-validation-rule', EditValidationRule);
                     <v-input v-model="txtFilter" id="txtFilter" placeholder="filter" inputClass="form-control" />
                 </div>
                 <div id="sidebar" class="">
-                    <div class="pl-2">
+                    <div class="ps-2">
                         <div v-for="x in operations" :key="typeKey(x.request)" 
                             :class="['datamodel',{selected:x.request.name==op}]" :title="x.request.name">
                             <router-link :to="{ query: { op:x.request.name } }">{{x.request.name}}</router-link>
@@ -72,7 +72,7 @@ Vue.component('edit-validation-rule', EditValidationRule);
             <div v-if="operation && !loading && session">
                 <div v-if="accessible" class="main-container">
                     <div style="min-height:200px">
-                    <table id="validation-rules" class="ml-2">
+                    <table id="validation-rules" class="ms-2">
                     <thead>
                         <tr>
                             <th>
@@ -87,7 +87,7 @@ Vue.component('edit-validation-rule', EditValidationRule);
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="pr-3">
+                        <td class="pe-3">
                             <div v-for="x in results.filter(x => x.field == null)" :key="x.id" class="rule">
                                 <edit-validation-rule v-if="editTypeRule==x.id" :slug="slug" :type="operation.request" :rule="x" 
                                                       :validators="plugin.typeValidators" @done="handleDone($event)" />

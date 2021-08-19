@@ -21,7 +21,7 @@ import {adminUsersRoute, autoQueryRoute, Routes, validationRoute} from "../../sh
                         class="btn btn-light btn-sm"><i :class="(loading ? 'svg-loading' : 'save-link') + ' svg-lg'" /></button>            
                 <div class="btn-group" role="group">
                     <button @click="showUserPopup=!showUserPopup" id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle">
-                        <img v-if="session.profileUrl" :src="session.profileUrl" class="sq-lg mr-1 mb-1">
+                        <img v-if="session.profileUrl" :src="session.profileUrl" class="sq-lg me-1 mb-1">
                         <i v-else class="svg-auth svg-2x mb-1" />
                         {{session.displayName || session.userName || session.email}}
                     </button>
@@ -38,9 +38,7 @@ import {adminUsersRoute, autoQueryRoute, Routes, validationRoute} from "../../sh
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title">Sign into {{ appInfo.serviceName }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="showAuthDialog=false">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="showAuthDialog=false"></button>
               </div>
               <div class="modal-body">
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">

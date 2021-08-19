@@ -49,7 +49,7 @@ import {nameOf} from "@servicestack/client";
     <v-input statusField="notes" v-model="notes" inputClass="form-control-md mt-1" :responseStatus="responseStatus" 
              placeholder="Notes" help="Attach a note to this rule?" /> 
 
-    <div class="text-right mt-3">
+    <div class="text-end mt-3">
         <span class="btn btn-link" @click="$emit('done',{field:field})">close</span>
         <button type="submit" class="btn btn-primary">&plus;
             <span v-if="rule">Update Rule</span>

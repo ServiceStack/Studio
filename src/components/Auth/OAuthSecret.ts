@@ -6,15 +6,15 @@ import {clipboard, windowSendToForeground} from '@servicestack/desktop';
 @Component({ template: 
     `<div v-if="enabled">
         <form ref="form" @submit.prevent="" :class="{ error:responseStatus, loading }" >
-            <div class="form-group">
+            <div class="mb-3">
                 <error-summary except="token" :responseStatus="responseStatus" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <p class="text-muted">
                     1. Sign In
                 </p>
                 <div class="mb-3">
-                    <button v-for="x in authProviders" class="btn btn-outline-primary btn-sm mr-1" @click="showProvider(x.name)">{{x.name}}</button>
+                    <button v-for="x in authProviders" class="btn btn-outline-primary btn-sm me-1" @click="showProvider(x.name)">{{x.name}}</button>
                 </div>
                 
                 <auth-modal v-if="showOAuthModal" :slug="slug" :provider="oauthModalProvider" @done="modalDone" />
@@ -34,18 +34,18 @@ import {clipboard, windowSendToForeground} from '@servicestack/desktop';
                 </ul>
                 <div class="tab-content">
                     <div :class="['tab-pane', {active:selectedProvider=='session'}]" role="tabpanel">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <v-input id="sessionId" v-model="sessionId" placeholder="Session Id" :responseStatus="responseStatus" />
                         </div>
                     </div>
                     <div v-if="tokenProvider != 'session'" :class="['tab-pane', {active:selectedProvider==tokenProvider}]" role="tabpanel">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <v-input id="token" v-model="token" placeholder="Token" :responseStatus="responseStatus" />
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <button class="btn btn-lg btn-outline-primary" @click="submit" :disabled="loading">Login</button>
-                        <i v-if="loading" class="svg-loading svg-lg ml-2"></i>
+                        <i v-if="loading" class="svg-loading svg-lg ms-2"></i>
                     </div>
                 </div>
                                

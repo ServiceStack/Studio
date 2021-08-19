@@ -7,17 +7,17 @@ import {SessionId} from "./SessionId";
 @Component({ template: 
     `<div v-if="enabled">
         <form ref="form" @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
-            <div class="form-group">
+            <div class="mb-3">
                 <error-summary except="userName,password" :responseStatus="responseStatus" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <v-input id="userName" v-model="userName" placeholder="Username" :responseStatus="responseStatus" 
                         help="Username or Email you signed up with" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <v-input type="password" id="password" v-model="password" placeholder="Password" :responseStatus="responseStatus" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <button type="submit" class="btn btn-lg btn-outline-primary">Login</button>
             </div>
         </form>

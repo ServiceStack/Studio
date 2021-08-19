@@ -14,6 +14,7 @@ body {
 }
 a {
     color: #4183B8;
+    text-decoration: none;
 }
 a:hover {
     text-decoration: none;
@@ -112,7 +113,7 @@ span.nav-link {
 }
 #authModal {
     width: 760px;
-    height: 670px;
+    height: 700px;
     top: 250px;
     left: 50%;
     margin-left: -350px;
@@ -277,9 +278,6 @@ table.results td.editing {
 }
 .disabled.lg {
     font-size: 1.25rem;
-}
-.confirm-delete {
-    position: absolute;
 }
 .confirm-delete .form-check-input {
     margin: 10px 0 0 -10px;
@@ -494,6 +492,51 @@ li.by b i, li.on b i {
 
 #adminusers #txtQuery {
     width: 290px;
+}
+
+/*copy-cmd*/
+em {
+    font-style: normal;
+    line-height: 1.5em;
+    padding: 2px 5px;
+    margin: 0;
+    background-color: rgba(0,0,0,0.04);
+    color: #c7254e;
+    border-radius: 3px;
+}
+pre {
+    display: block;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.428571429;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: #333;
+    background-color: rgb(243, 244, 246);
+    border: 1px solid rgb(209, 213, 219);
+}
+code, pre {
+    font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+}
+pre {
+    white-space: pre-wrap;
+}
+.copy-cmd i.svg-copy {
+    display: inline-block;
+    vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2'%3E%3C/path%3E%3C/svg%3E");
+}
+.copy-cmd pre.sh::before {
+    content: "$ ";
+    color: #999;
+}
+.copy-cmd pre b { visibility: hidden; }
+.copy-cmd pre.copied b { visibility: visible; }
+.copy-cmd pre.copied i.svg-copy { opacity: 50% }
+.copy-cmd pre.sh i:hover {
+    opacity: .5;
+    transition: opacity 0.4s;
 }
 
 .jsonviewer .ib { display: inline-block; }

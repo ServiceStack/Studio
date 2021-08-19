@@ -42,7 +42,7 @@ Vue.component('format', FormatString);
         </tr></thead>
         <tbody>
             <tr v-if="crud.length" class="filters">
-                <td><span><i class="ml-1 svg svg-btn svg-filter svg-md" :title="helpFilters()" /></span></td>
+                <td><span><i class="ms-1 svg svg-btn svg-filter svg-md" :title="helpFilters()" /></span></td>
                 <td v-for="(f,j) in fieldNames">
                     <input type="text" v-model="filters[f]" @keydown.enter.stop="filterSearch()">
                 </td>
@@ -89,8 +89,8 @@ Vue.component('format', FormatString);
     <error-view :responseStatus="responseStatus" />
 </div>
 <div v-else class="results-none">
-    <div class="ml-1 mb-3">
-        <span class="mr-1 d-inline-block">There were no results</span>        
+    <div class="ms-1 mb-3">
+        <span class="me-1 d-inline-block">There were no results</span>        
         <button v-if="hasFilters" class="btn btn-outline-secondary btn-sm" @click="filterSearch(filters={})"
             >&times;
             reset filters

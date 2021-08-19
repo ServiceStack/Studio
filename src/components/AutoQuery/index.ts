@@ -44,7 +44,7 @@ import { desktopSaveDownloadUrl } from "@servicestack/desktop";
                             <span v-else>{{site.name}}</span>
                         </li>
                         <li v-if="model" class="breadcrumb-item active">{{$route.query.op}}</li>
-                        <li v-if="loading"><i class="svg-loading svg-lg ml-2 mb-1" title="loading..." /></li>
+                        <li v-if="loading"><i class="svg-loading svg-lg ms-2 mb-1" title="loading..." /></li>
                     </ol>
                 </nav>
             </h1>
@@ -65,7 +65,7 @@ import { desktopSaveDownloadUrl } from "@servicestack/desktop";
                 <v-input v-model="txtFilter" id="txtFilter" placeholder="filter" inputClass="form-control" />
             </div>
             <div id="sidebar" class="">
-                <div class="pl-2">
+                <div class="ps-2">
                     <div v-for="op in accessibleAutoQueryTables" :key="typeKey(op.request)" 
                         :class="['datamodel',{selected:$route.query.op === op.request.name}]" :title="op.dataModel.name">
                         <router-link :to="{ query: { op:op.request.name } }">
@@ -81,32 +81,26 @@ import { desktopSaveDownloadUrl } from "@servicestack/desktop";
             <div v-if="model && canQuery" class="query-form">
                 <div class="tab-content" id="v-pills-tabContent">
                   <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
-                    <form class="form-inline" @submit.prevent="submit">
-                    <table>
-                    <tr>
-                        <td>
+                    <form class="row g-1" @submit.prevent="submit">
+                        <div class="col-auto">
                             <v-select id="listColumns" :values="modelProps" :value="searchField" :responseStatus="responseStatus"
                                       v-model="searchField" selectClass="custom-select">
                             </v-select>
-                        </td>
-                        <td>
+                        </div>
+                        <div class="col-auto">
                             <v-select id="listFilters" :values="viewerConventions" :value="searchType" :responseStatus="responseStatus"
-                                      v-model="searchType" selectClass="custom-select mx-2">
+                                      v-model="searchType" selectClass="custom-select">
                             </v-select>                                
-                        </td>
-                        <td>
+                        </div>
+                        <div class="col-auto">
                             <v-input v-model="searchText" placeholder="value" class="" inputClass="form-control" />
-                        </td>
-                        <td>
-                            <button type="submit" :disabled="!hasSelectedCondition" class="btn btn-outline-primary ml-1" title="Search">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" :disabled="!hasSelectedCondition" class="btn btn-outline-primary" title="Search">
                                 Search
                             </button>
-                        </td>
-                        <td>
-                            <i v-if="dirty" class="text-close ml-2" style="line-height:.5em" title="reset query" @click="resetQuery()"/>
-                        </td>
-                    </tr>
-                    </table>
+                            <i v-if="dirty" class="text-close ms-2" style="line-height:.5em" title="reset query" @click="resetQuery()"/>
+                        </div>
                     </form>
                   </div>
                 </div>

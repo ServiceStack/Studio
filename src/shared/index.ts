@@ -365,6 +365,11 @@ export function gridProps(grid:string[][],props:MetadataPropertyType[]) {
     return to;
 }
 
+export function initInlineModal(id:string) {
+    let modal = document.querySelector(id) as HTMLDivElement;
+    let parentRect = modal.parentElement!.getBoundingClientRect();
+    modal.style.top = (parentRect.top) + 'px';
+}
 
 export async function siteExec(slug:string, fn:(() => Promise<any>)) {
     try {

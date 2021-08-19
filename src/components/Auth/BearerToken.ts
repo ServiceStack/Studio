@@ -8,14 +8,14 @@ import {SessionId} from "./SessionId";
 @Component({ template: 
     `<div v-if="enabled">
         <form ref="form" @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
-            <div class="form-group">
+            <div class="mb-3">
                 <error-summary except="token" :responseStatus="responseStatus" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <v-input id="token" v-model="token" placeholder="Bearer Token" :responseStatus="responseStatus" 
                          help="Any BearerToken Auth Providers, e.g. JWT or API Key" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <button type="submit" class="btn btn-lg btn-outline-primary">Login</button>
             </div>
         </form>

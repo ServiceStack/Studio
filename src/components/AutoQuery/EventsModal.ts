@@ -1,5 +1,16 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
-import {store, bus, client, exec, splitOnFirst, defaultValue, postSiteInvoke, log, getSiteInvoke} from '../../shared';
+import {
+    store,
+    bus,
+    client,
+    exec,
+    splitOnFirst,
+    defaultValue,
+    postSiteInvoke,
+    log,
+    getSiteInvoke,
+    initInlineModal
+} from '../../shared';
 import {
     CrudEvent,
     MetaAuthProvider,
@@ -18,9 +29,7 @@ import {dateFmt, getField, timeFmt12, toDate} from "@servicestack/client";
         <h5 class="modal-title">
             {{type.name}} Events
         </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('done')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="$emit('done')"></button>
       </div>
       <div class="modal-body">
         <error-summary :responseStatus="responseStatus" />
@@ -80,6 +89,7 @@ export class EventsModal extends Vue {
     async mounted() {
         if (!this.enabled) return;
         log('EventsModal.mounted()', this.slug, this.type.name, this.id);
+        initInlineModal('#eventsModal');
 
         await exec(this, async () => {
             const response = await getSiteInvoke(new SiteInvoke({

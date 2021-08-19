@@ -8,7 +8,7 @@ import {
     getSiteInvoke,
     putSiteInvoke,
     deleteSiteInvoke,
-    putSiteProxy, sanitizedModel,
+    putSiteProxy, sanitizedModel, initInlineModal,
 } from '../../shared';
 import {
     AdminUpdateUser,
@@ -27,19 +27,17 @@ import {getField, humanize, nameOf} from "@servicestack/client";
         <h5 class="modal-title">
             Edit User {{ getField(row,'id') }}: {{ displayName }}
         </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('done')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="$emit('done')"></button>
       </div>
       <div class="modal-body">
         <form @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
-            <div class="form-group">
+            <div class="mb-3">
                 <alert-success :message="success" />                
                 <error-summary :except="type.properties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>
             <div class="row">
                 <div class="col col-7">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <template v-for="rowProps in gridProps">
                         <div class="row mb-3">
                             <template v-for="f in rowProps">
@@ -49,15 +47,6 @@ import {getField, humanize, nameOf} from "@servicestack/client";
                             </template>
                         </div>
                         </template>
-                    </div>
-                    <div class="form-group text-right pt-3 border-top border-top-primary">
-                        <span class="btn btn-link" @click="$emit('done')">close</span>
-                        <button :disabled="!canSubmit || loading" type="submit" class="btn btn-primary">{{labelButton}}</button>
-                    </div>
-                    <div class="confirm-delete" style="margin:-54px 0 0 20px">
-                        <input id="chkDelete" type="checkbox" class="form-check-input" @change="confirmDelete=!confirmDelete"/> 
-                        <label for="chkDelete" class="form-check-label">confirm</label>
-                        <button class="btn btn-danger" @click.prevent="confirmDelete && deleteUser()" :disabled="!confirmDelete">Delete</button>
                     </div>
                 </div>
                 <div class="col col-5">
@@ -73,7 +62,7 @@ import {getField, humanize, nameOf} from "@servicestack/client";
                     </div>
                     <div class="row mb-3">
                         <template v-if="model.LockedDate">
-                            <div class="col col-8 pr-0">
+                            <div class="col col-8 pe-0">
                                 <label>Locked on {{ model.LockedDate | datefmt }}</label>
                             </div>
                             <div class="col col-4 p-0">
@@ -122,7 +111,18 @@ import {getField, humanize, nameOf} from "@servicestack/client";
                             <button :disabled="!newPermission" @click.prevent="addPermission()" class="btn btn-outline-secondary" title="Add Permission">Add</button>                    
                         </div>
                     </div>
-                </div>            
+                </div>
+            </div>
+            <div class="row mt-3 pt-3 border-top border-top-primary">
+                <div class="col-6 confirm-delete ps-4">
+                    <input id="chkDelete" type="checkbox" class="form-check-input" @change="confirmDelete=!confirmDelete"/> 
+                    <label for="chkDelete" class="form-check-label">confirm</label>
+                    <button class="btn btn-danger" @click.prevent="confirmDelete && deleteUser()" :disabled="!confirmDelete">Delete</button>
+                </div>
+                <div class="col text-end">                    
+                    <span class="btn btn-link" @click="$emit('done')">close</span>
+                    <button :disabled="!canSubmit || loading" type="submit" class="btn btn-primary">{{labelButton}}</button>
+                </div>
             </div>
         </form>
       </div>
@@ -223,11 +223,12 @@ export class EditUserModal extends Vue {
 
     async mounted() {
         log('EditUserModal.mounted()');
+        initInlineModal('#editUserModal');
         
         await this.reset();
-        
+
         this.$nextTick(() => {
-           (document.querySelector('#editUserModal input:first-child') as HTMLInputElement)?.select(); 
+           (document.querySelector('#editUserModal input:first-child') as HTMLInputElement)?.select();
         });
     }
 

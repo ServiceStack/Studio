@@ -10,11 +10,9 @@ import {ColumnSchema} from '../../shared';
         <h5 class="modal-title noselect">
             Column Preferences
         </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('done')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="$emit('done')"></button>
       </div>
-      <div class="modal-body ml-2">
+      <div class="modal-body ms-2">
         <div class="form-check">
             <input class="form-check-input" type="radio" name="exampleRadios" id="allColumns" :checked="selectedColumns.length==0" 
                 @click="selectedColumns=[]" @change="onInputValues">
@@ -25,9 +23,11 @@ import {ColumnSchema} from '../../shared';
           <input class="form-check-input" type="checkbox" :id="c.columnName" :value="c.columnName" v-model="selectedColumns" @change="onInputValues">
           <label class="form-check-label noselect" :for="c.columnName">{{c.columnName}}</label>
         </div>
-        <div class="form-group text-right">
-            <span class="btn btn-link" @click="$emit('done')">Close</span>
-            <button class="btn btn-primary" @click="$emit('done')">Done</button>
+        <div class="row mt-3 pt-3 border-top border-top-primary">
+            <div class="col mb-3 text-end">
+                <span class="btn btn-link" @click="$emit('done')">Close</span>
+                <button class="btn btn-primary" @click="$emit('done')">Done</button>
+            </div>
         </div>
       </div>
     </div>

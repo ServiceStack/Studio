@@ -32,7 +32,7 @@ import { getField, humanize } from "@servicestack/client";
                             <img v-if="site.iconUrl" :src="site.iconUrl" class="sq-3x mb-1">
                             <span v-else>{{site.name}}</span>
                         </li>
-                        <li v-if="loading"><i class="svg-loading svg-lg ml-2 mb-1" title="loading..." /></li>
+                        <li v-if="loading"><i class="svg-loading svg-lg ms-2 mb-1" title="loading..." /></li>
                     </ol>
                 </nav>
             </h1>
@@ -50,15 +50,25 @@ import { getField, humanize } from "@servicestack/client";
         <main>
             <div v-if="!loading && session && accessible">
                 <div class="main-container p-2">
-                    <form class="mb-2 form-inline" @submit.prevent="search()">
-                        <i v-if="txtQuery" class="text-close" style="position:absolute;margin:0 0 3px 265px;" title="clear" @click="clearQuery()"></i>
-                        <v-input v-model="txtQuery" id="txtQuery" 
-                                :placeholder="hasFeature('query') ? 'Search Users' : 'Username or Email'" inputClass="form-control" />
-                        <button @click="search()" class="ml-1 btn btn-outline-primary">Go</button>
-                        <span class="main-query ml-2">
-                            <button class="btn left-link svg-2x"  :disabled="skip==0" title="< previous" @click="viewNext(-pageSize)"></button>
-                            <button class="btn right-link svg-2x" :disabled="results.length < take" title="next >" @click="viewNext(pageSize)"></button>
-                        </span>
+                    <form class="mb-2 row g-1" @submit.prevent="search()">
+                        <div class="col-auto">
+                            <i v-if="txtQuery" class="text-close" style="position:absolute;margin:0 0 3px 265px;" title="clear" @click="clearQuery()"></i>
+                            <v-input v-model="txtQuery" id="txtQuery" 
+                                    :placeholder="hasFeature('query') ? 'Search Users' : 'Username or Email'" inputClass="form-control" />
+                        </div>
+                        <div class="col-auto">
+                            <button @click="search()" class="ms-1 btn btn-outline-primary">Go</button>
+                        </div>
+                        <div class="col-auto">
+                            <span class="main-query ms-2">
+                                <button class="btn left-link svg-2x"  :disabled="skip==0" title="< previous" @click="viewNext(-pageSize)"></button>
+                                <button class="btn right-link svg-2x" :disabled="results.length < take" title="next >" @click="viewNext(pageSize)"></button>
+                            </span>
+                            <span v-if="results.length" class="text-muted">
+                               Showing results: {{skip+1}}-{{skip+results.length}}
+                            </span>
+                            <span v-else class="text-muted">No results</span>
+                        </div>
                     </form>
                     <div v-if="results.length">
                         <table class="results">

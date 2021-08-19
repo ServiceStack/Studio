@@ -19,7 +19,7 @@ export const siteError = (slug:string,plugin:string) => {
 @Component({ template: 
     `<div>
         <div v-if="loading" class="noplugin-loading m-3">
-            <i class="svg-loading svg-lg mr-1 mb-1" /> loading...
+            <i class="svg-loading svg-lg me-1 mb-1" /> loading...
         </div>
         <div v-else>
              <div v-if="siteError" class="noplugin-error alert alert-danger m-3">
@@ -33,7 +33,7 @@ export const siteError = (slug:string,plugin:string) => {
              <div v-else class="noplugin-error alert alert-danger m-3">
                 {{errorMessage}}
             </div>
-            <a href="/" class="ml-4">&lt; home</a>
+            <a href="/" class="ms-4">&lt; home</a>
         </div>
     </div>`
 })
@@ -58,7 +58,7 @@ export class NoPlugin extends Vue {
         const loading = store.appLoading[slug];
         if (loading) {
             return (`<div class="noplugin-loading m-3">
-                    <i class="svg-loading svg-lg mr-1 mb-1"></i> loading...
+                    <i class="svg-loading svg-lg me-1 mb-1"></i> loading...
                 </div>`);
         }
         

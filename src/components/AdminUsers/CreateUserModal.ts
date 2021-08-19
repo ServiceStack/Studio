@@ -7,7 +7,7 @@ import {
     gridProps,
     getSiteInvoke,
     putSiteInvoke,
-    postSiteProxy, sanitizedModel,
+    postSiteProxy, sanitizedModel, initInlineModal,
 } from '../../shared';
 import {
     AdminCreateUser,
@@ -26,18 +26,16 @@ import {getField, humanize, nameOf, toDateFmt} from "@servicestack/client";
         <h5 class="modal-title">
             Create New User
         </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('done')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="$emit('done')"></button>
       </div>
       <div class="modal-body">
         <form @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
-            <div class="form-group">
+            <div class="mb-3">
                 <error-summary :except="type.properties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>
             <div class="row">
                 <div class="col col-7">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <template v-for="rowProps in gridProps">
                         <div class="row mb-3">
                             <template v-for="f in rowProps">
@@ -47,10 +45,6 @@ import {getField, humanize, nameOf, toDateFmt} from "@servicestack/client";
                             </template>
                         </div>
                         </template>
-                    </div>
-                    <div class="form-group text-right pt-3 border-top border-top-primary">
-                        <span class="btn btn-link" @click="$emit('done')">close</span>
-                        <button :disabled="!canSubmit" type="submit" class="btn btn-primary">{{labelButton}}</button>
                     </div>
                 </div>
                 <div class="col col-5">
@@ -100,6 +94,12 @@ import {getField, humanize, nameOf, toDateFmt} from "@servicestack/client";
                         </div>
                     </div>
                 </div>            
+            </div>
+            <div class="row pt-3 border-top border-top-primary">
+                <div class="col text-end">
+                    <span class="btn btn-link" @click="$emit('done')">close</span>
+                    <button :disabled="!canSubmit" type="submit" class="btn btn-primary">{{labelButton}}</button>
+                </div>
             </div>
         </form>
       </div>
@@ -181,6 +181,7 @@ export class CreateUserModal extends Vue {
 
     async mounted() {
         log('EditUserModal.mounted()');
+        initInlineModal('#createUserModal');
 
         await this.reset();
 

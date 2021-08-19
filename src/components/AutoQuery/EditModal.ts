@@ -8,7 +8,7 @@ import {
     defaultValue,
     editValue,
     deleteSiteInvoke,
-    postSiteInvoke, log, putSiteProxy, postSiteProxy, sanitizedModel, dtoAsArgs
+    postSiteInvoke, log, putSiteProxy, postSiteProxy, sanitizedModel, dtoAsArgs, initInlineModal
 } from '../../shared';
 import {
     AdminUpdateUser,
@@ -29,19 +29,17 @@ import {getField, humanize, nameOf, normalizeKey} from "@servicestack/client";
         <h5 class="modal-title">
             Edit {{type.name}}
         </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('done')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="$emit('done')"></button>
       </div>
       <div class="modal-body">
         <form @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
-            <div class="form-group">
+            <div class="mb-3">
                 <error-summary :except="allProperties.map(x => x.name)" :responseStatus="responseStatus" />
             </div>        
-            <div v-for="f in allProperties.filter(f => !f.isPrimaryKey)" :key="f.name" class="form-group">
+            <div v-for="f in allProperties.filter(f => !f.isPrimaryKey)" :key="f.name" class="mb-3">
                 <v-input-type :property="f" :model="model" :size="size" :responseStatus="responseStatus" />
             </div>
-            <div class="form-group text-right">
+            <div class="mb-3 text-end">
                 <span class="btn btn-link" @click="$emit('done')">close</span>
                 <button v-if="allProperties.length > 0" type="submit" class="btn btn-primary">{{labelButton}}</button>
             </div>
@@ -90,6 +88,7 @@ export class EditModal extends Vue {
 
     async mounted() {
         log('EditModal.mounted()', this.type, this.model, this.row, this.updateOp, this.patchOp);
+        initInlineModal('#editModal');
 
         this.type.properties.forEach((f,i) => {
             this.$set(this.model, f.name, getField(this.row,f.name));

@@ -11,9 +11,7 @@ import {store, bus, client, exec, splitOnFirst } from '../../shared';
                     Session for <a :href="providerUrl" target="_blank">{{displayUrl}}</a>
                 </h5>
             </div>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('done')">
-              <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="$emit('done')"></button>
           </div>
           <div class="modal-body">
             <iframe id="auth-frame" v-if="url" :src="url" />

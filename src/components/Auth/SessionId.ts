@@ -5,16 +5,16 @@ import {SiteAuthenticate} from "../../shared/dtos";
 @Component({ template: 
     `<div v-if="enabled">
         <form ref="form" @submit.prevent="submit" :class="{ error:responseStatus, loading }" >
-            <div class="form-group">
+            <div class="mb-3">
                 <error-summary except="token" :responseStatus="responseStatus" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <span v-if="!hideViewSession" class="btn btn-sm btn-outline-primary mb-2" @click="showSessionModal=!showSessionModal">session</span>
                 <auth-modal v-if="showSessionModal" :slug="slug" @done="modalDone" />
                 <v-input id="token" v-model="token" placeholder="Session Id" :responseStatus="responseStatus" 
                          help="Copy your Authenticated Session Id" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <button type="submit" class="btn btn-lg btn-outline-primary">Login</button>
             </div>
         </form>

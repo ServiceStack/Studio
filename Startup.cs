@@ -8,6 +8,7 @@ using ServiceStack;
 using ServiceStack.Admin;
 using ServiceStack.Configuration;
 using ServiceStack.Desktop;
+using ServiceStack.NativeTypes.Dart;
 using ServiceStack.Text;
 using ServiceStack.Validation;
 using Studio.ServiceInterface;
@@ -37,6 +38,10 @@ namespace Studio
     public class ExportTypes : IReturn<ExportTypes>
     {
         public AuditBase AuditBase { get; set; }
+        public EmptyResponse EmptyResponse { get; set; }
+        public IdResponse IdResponse { get; set; }
+        public StringResponse StringResponse { get; set; }
+        public StringsResponse StringsResponse { get; set; }
     }
 
     public class ExportTypesService : IService
@@ -67,7 +72,8 @@ namespace Studio
                 RegisterService<AdminUsersService>("/ss_admin/users");
             }
             
-            Plugins.Add(new SessionFeature()); // store client auth in session 
+            Plugins.Add(new SessionFeature()); // store client auth in session
+            // DartGenerator.ArrayTypes;
         }
     }
     
