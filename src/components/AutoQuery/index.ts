@@ -10,11 +10,11 @@ import {
     isQuery,
     isCrud,
     matchesType,
-    toInvokeArgs, 
-    collapsed, 
-    getSiteInvoke, 
-    log, 
-    postSiteInvoke, 
+    toInvokeArgs,
+    collapsed,
+    getSiteInvoke,
+    log,
+    postSiteInvoke,
     dateFmtHMS
 } from '../../shared';
 import {
@@ -24,8 +24,8 @@ import {
     SiteInvoke,
 } from "../../shared/dtos";
 import { Route } from "vue-router";
-import { getField } from "@servicestack/client";
-import { desktopSaveDownloadUrl } from "@servicestack/desktop";
+import {combinePaths, getField} from "@servicestack/client";
+import {desktopSaveDownloadUrl, setClipboard} from "@servicestack/desktop";
 
 @Component({ template:
     `<section v-if="enabled" id="autoquery" :class="['grid-layout',windowStyles]">
@@ -105,7 +105,8 @@ import { desktopSaveDownloadUrl } from "@servicestack/desktop";
                   </div>
                 </div>
             </div>
-            <div v-if="model && response && !responseStatus" class="main-container">
+            <div v-if="model && response" class="main-container">
+                <div v-if="responseStatus"><error-view :responseStatus="responseStatus" class="" /></div>
                 <div v-if="showSelectColumns">
                     <select-columns :columns="columns" v-model="fields" @done="handleSelectColumns($event)" />
                 </div>
@@ -118,12 +119,13 @@ import { desktopSaveDownloadUrl } from "@servicestack/desktop";
                     <span class="px-1 results-label">Showing Results {{skip+1}} - {{min(skip + results.length,total)}} <span v-if="total!=null">of {{total}}</span></span>
                     <button class="btn btn-outline-success btn-sm btn-compact" @click="openCsv()" 
                         :title="store.hasExcel ? 'Open in Excel' : 'Open CSV'"><i class="svg-md svg-excel"></i>{{store.hasExcel ? 'excel' : 'csv' }}</button>
+                    <button class="btn btn-sm btn-compact" @click="copyUrl()" 
+                        title="Copy URL"><i class="svg-md svg-copy"></i> Copy URL</button>
                 </div>
                 <results :slug="slug" :results="results" :defaultFilters="filters" :fields="fields" :orderBy="orderBy" :type="model" 
                          :crud="crudOperations" :eventIds="eventIds" :resetPulse="resetPulse"
                          @orderBy="setOrderBy($event)" @refresh="restore()" @filterSearch="filterSearch($event)" />
             </div>
-            <div v-else-if="responseStatus"><error-view :responseStatus="responseStatus" class="mt-5" /></div>
         </main>
         
         <Footer v-if="app" :slug="slug"/>
@@ -347,6 +349,20 @@ export class AutoQuery extends Vue {
             }
             await fetch(downloadUrl);
         });
+    }
+    
+    async copyUrl() {
+        const args = this.searchArgs();
+        args.push({ jsconfig:'edv' });
+
+        let url = combinePaths(this.site.baseUrl, 'json', 'reply', this.op);
+        args.forEach(o => Object.keys(o).forEach(k => {
+            url += url.indexOf('?') >= 0 ? '&' : '?';
+            url += `${k}=${encodeURIComponent(o[k])}`;
+        }));
+
+        log('copyUrl',url);
+        await setClipboard(url);
     }
     
     async loadEvents() {
