@@ -25,7 +25,7 @@ Vue.component('format', FormatString);
 `<div v-if="results.length">
     <table class="results">
         <thead><tr class="noselect">
-            <th v-if="crud.length">
+            <th>
                 <i v-if="createOp" class="svg svg-btn svg-create svg-md" :title="createLabel" @click="show('Create')"/>
                 <i v-else-if="!session && authPlugin" class="svg svg-btn svg-auth svg-md" title="Sign In to Edit" @click="bus.$emit('signin')" />
             </th>
@@ -41,7 +41,7 @@ Vue.component('format', FormatString);
             </th>
         </tr></thead>
         <tbody>
-            <tr v-if="crud.length" class="filters">
+            <tr class="filters">
                 <td><span><i class="ms-1 svg svg-btn svg-filter svg-md" :title="helpFilters()" /></span></td>
                 <td v-for="(f,j) in fieldNames">
                     <input type="text" v-model="filters[f]" @keydown.enter.stop="filterSearch()">
@@ -50,7 +50,7 @@ Vue.component('format', FormatString);
             </tr>
             <template v-for="(r,i) in results">
             <tr :key="i" :class="{ selected:selectedRow(i) }">
-                <td v-if="crud.length">
+                <td>
                     <span v-if="hasCrud(['Update','Patch','Delete'])">
                         <i v-if="hasAccessibleCrud(['Update','Patch','Delete'])" class="svg svg-btn svg-update svg-sm" :title="updateLabel" 
                            @click="editRow(i)" />
@@ -140,7 +140,7 @@ export class Results extends Vue {
     get hasFilters() { return Object.keys(this.filters).length > 0; }
     get typeProperties() { return store.getTypeProperties(this.slug, this.type) }
 
-    get enableEvents() { return this.plugin.crudEventsServices && store.hasRole(this.slug, this.plugin?.accessRole); }
+    get enableEvents() { return this.crud.length > 0 && this.plugin.crudEventsServices && store.hasRole(this.slug, this.plugin?.accessRole); }
 
     get fieldNames() { 
         let ret = this.typeProperties.map(x => x.name);
@@ -211,14 +211,6 @@ export class Results extends Vue {
 
     getField(o: any, name: string) { return getField(o,name); }
 
-    get canCreate() {
-        return true;
-    }
-
-    get canUpdate() {
-        return false;
-    }
-    
     getId(row:any) { return getId(this.type, row); }
     
     hasEvent(row:any) {
