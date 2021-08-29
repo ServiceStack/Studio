@@ -45,13 +45,14 @@
 
 <i hidden>{{ '/js/hot-fileloader.js' |> ifDebugIncludeScript }}</i>
 <script>
+{{ sessionIfAuthenticated |> to => auth }}
 CONFIG = {
   debug:   {{ debugMode |> json }},
   desktop: {{ desktopInfo |> json }},
   hasExcel:{{ (isWin ? typeofProgId('Excel.Application') != null : false) |> json }},
   connect: {{ connect |> json }},
   nav:     {{ 'GetNavItems'  |> execService |> json }},
-  auth:    {{ 'Authenticate' |> execService({ ifErrorReturn: "null" }) |> json }}
+  auth:    {{ auth ? auth.json() : "null" }}
 } 
 </script>
 

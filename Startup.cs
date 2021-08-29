@@ -6,9 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Funq;
 using ServiceStack;
 using ServiceStack.Admin;
+using ServiceStack.Auth;
 using ServiceStack.Configuration;
 using ServiceStack.Desktop;
 using ServiceStack.NativeTypes.Dart;
+using ServiceStack.Script;
 using ServiceStack.Text;
 using ServiceStack.Validation;
 using Studio.ServiceInterface;
@@ -86,6 +88,7 @@ namespace Studio
 
             appHost.Plugins.Add(new SharpPagesFeature {
                 EnableSpaFallback = true,
+                ScriptMethods = { new AppScripts() }
                 // Args = { ["connect"] = "https://localhost:5001" } //test ?connect={url} import scheme
             });
             
@@ -114,6 +117,18 @@ namespace Studio
             appHost.Plugins.Add(new HotReloadFeature {
                 VirtualFiles = appHost.VirtualFiles, //Monitor all folders for changes including /src & /wwwroot
             });
+        }
+    }
+
+    public class AppScripts : ScriptMethods
+    {
+        /*remove copy from SS v5.12.1+*/
+        public IAuthSession sessionIfAuthenticated(ScriptScopeContext scope)
+        {
+            var session = scope.GetRequest().GetSession();
+            return session.IsAuthenticated
+                ? session
+                : null;
         }
     }
     
