@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using ServiceStack;
 using ServiceStack.Web;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
+
+[assembly: HostingStartup(typeof(Studio.ConfigureAuthRepository))]
 
 namespace Studio
 {
@@ -32,27 +35,18 @@ namespace Studio
             }
         }
     }
-
-    public class ConfigureAuthRepository : IConfigureAppHost, IConfigureServices, IPreInitPlugin
+    
+    public class ConfigureAuthRepository : IHostingStartup
     {
-        public void Configure(IServiceCollection services)
-        {
-            services.AddSingleton<IAuthRepository>(c =>
-                new InMemoryAuthRepository<AppUser, UserAuthDetails>());
-        }
-
-        public void Configure(IAppHost appHost)
-        {
-            var authRepo = appHost.Resolve<IAuthRepository>();
-            authRepo.InitSchema();
-
-            CreateUser(authRepo, "admin@email.com", "Admin User", "p@55wOrd", roles:new[]{ RoleNames.Admin });
-        }
-
-        public void BeforePluginsLoaded(IAppHost appHost)
-        {
-            appHost.AssertPlugin<AuthFeature>().AuthEvents.Add(new AppUserAuthEvents());
-        }
+        public void Configure(IWebHostBuilder builder) => builder
+            .ConfigureServices(services => services.AddSingleton<IAuthRepository>(c =>
+                new InMemoryAuthRepository<AppUser, UserAuthDetails>()))
+            .ConfigureAppHost(appHost => {
+                var authRepo = appHost.Resolve<IAuthRepository>();
+                authRepo.InitSchema();
+                CreateUser(authRepo, "admin@email.com", "Admin User", "p@55wOrd", roles:new[]{ RoleNames.Admin });
+            }, afterConfigure: appHost => 
+                appHost.AssertPlugin<AuthFeature>().AuthEvents.Add(new AppUserAuthEvents()));
 
         // Add initial Users to the configured Auth Repository
         public void CreateUser(IAuthRepository authRepo, string email, string name, string password, string[] roles)

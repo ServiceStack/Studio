@@ -9,5 +9,5 @@ copy scripts\deploy\* dist
 
 dotnet publish -c release
 md dist\plugins 
-copy bin\release\net5.0\publish\Studio.dll dist\plugins\
+copy bin\release\net6.0\publish\Studio.dll dist\plugins\
 POPD
