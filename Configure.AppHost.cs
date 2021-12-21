@@ -4,6 +4,9 @@ using Microsoft.Extensions.Hosting;
 using Funq;
 using ServiceStack;
 using ServiceStack.Admin;
+using ServiceStack.Configuration;
+using ServiceStack.Desktop;
+using ServiceStack.Script;
 using ServiceStack.Text;
 using ServiceStack.Validation;
 using Studio.ServiceInterface;
@@ -36,8 +39,13 @@ public class AppHost : AppHostBase, IHostingStartup
             // Configure ASP.NET Core App
             if (!HasInit)
                 app.UseServiceStack(new AppHost());
+        })
+        .ConfigureAppHost(afterPluginsLoaded: appHost => {
+            appHost.Plugins.Add(new HotReloadFeature {
+                VirtualFiles = appHost.VirtualFiles, //Monitor all folders for changes including /src & /wwwroot
+            });
         });
-
+           
     public AppHost() : base("ServiceStack Studio", typeof(StudioServices).Assembly) {}
 
     public override void Configure(Container container)
@@ -61,6 +69,32 @@ public class AppHost : AppHostBase, IHostingStartup
             
         Plugins.Add(new SessionFeature()); // store client auth in session
         // DartGenerator.ArrayTypes;
+        
+
+        Plugins.Add(new SharpPagesFeature {
+            EnableSpaFallback = true,
+            ScriptMethods = { new AppScripts() }
+            // Args = { ["connect"] = "https://localhost:5001" } //test ?connect={url} import scheme
+        });
+
+        var sites = StudioServices.LoadAppSettings();
+        Plugins.Add(new DesktopFeature {
+            AccessRole = Config.DebugMode
+                ? RoleNames.AllowAnon
+                : RoleNames.Admin,
+            ImportParams = {
+                "debug",
+                "connect",
+            },
+            ProxyConfigs = sites.Keys.Map(baseUrl => new Uri(baseUrl))
+                .Map(uri => new ProxyConfig {
+                    Scheme = uri.Scheme,
+                    TargetScheme = uri.Scheme,
+                    Domain = uri.Host,
+                    AllowCors = true,
+                    IgnoreHeaders = { "X-Frame-Options", "Content-Security-Policy" },
+                })
+        });
     }
 
     public override void OnStartupException(Exception ex)
@@ -68,4 +102,8 @@ public class AppHost : AppHostBase, IHostingStartup
         Console.WriteLine(ex);
         base.OnStartupException(ex);
     }
+}
+
+public class AppScripts : ScriptMethods
+{
 }

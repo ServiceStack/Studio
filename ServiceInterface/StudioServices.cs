@@ -9,6 +9,7 @@ using Studio.ServiceModel;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.DataAnnotations;
+using ServiceStack.IO;
 using ServiceStack.Text;
 using ServiceStack.Web;
 using Studio.ServiceModel.Types;
@@ -435,9 +436,11 @@ namespace Studio.ServiceInterface
             var appSettingsPath = GetAppSettingsPath();
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(appSettingsPath));
+                FileSystemVirtualFiles.AssertDirectory(Path.GetDirectoryName(appSettingsPath));
             }
             catch {}
+            
+            if (HostContext.DebugMode) $"Loading {appSettingsPath}, exists: {File.Exists(appSettingsPath)}".Print();
             if (File.Exists(appSettingsPath))
             {
                 try 
